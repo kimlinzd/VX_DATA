@@ -39,4 +39,11 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    // LiveEventBus : https://github.com/JeremyLiao/LiveEventBus
+    // https://juejin.im/post/6844903647554306056
+    implementation 'com.jeremyliao:live-event-bus-x:1.7.3'
+
+    //常用工具类集合
+    implementation 'com.blankj:utilcodex:1.29.0'
 }

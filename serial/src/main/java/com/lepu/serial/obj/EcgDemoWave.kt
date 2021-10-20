@@ -29,5 +29,5 @@ object EcgDemoWave {
     // aVF = (2*II-I)/2
     public val aVF = Array<Short>(500) { i ->  (II[i] - I[i]/2).toShort()}
     // v1
-    public val ecgV = Array<Short>(500) { i ->  (waveV[i]).toShort()}
+    public val V = Array<Short>(500) { i ->  (waveV[i]-0x8000).toShort()}
 }
