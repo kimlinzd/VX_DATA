@@ -46,4 +46,6 @@ dependencies {
 
     //常用工具类集合
     implementation 'com.blankj:utilcodex:1.29.0'
+    //串口帮助库
+    implementation 'com.licheedev:android-serialport:2.1.3'
 }
