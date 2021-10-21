@@ -44,7 +44,14 @@ public class CRCUitl {
 
     }
 
-
+    public static byte getCRC8(byte[] pData, int Len) {
+        byte index = 0, nCrc = 0, nTemp = 0;
+        for (index = 0; index < Len; index++) {
+            nTemp = pData[index];
+            nCrc = CRCTable[0x00ff & (nCrc ^ nTemp)];
+        }
+        return nCrc;
+    }
     public static void main(String[] args) {
         byte[] bytes = new byte[]{(byte) 0xAA, (byte) 0x55, (byte) 0x19, (byte) 0x23, (byte) 0xF3, (byte) 0x04, (byte) 0x01, (byte) 0x02
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00

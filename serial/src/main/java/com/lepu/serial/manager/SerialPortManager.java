@@ -5,7 +5,8 @@ import android.serialport.SerialPort;
 import android.util.Log;
 
 
-import com.lepu.serial.constant.SerialPortConstants;
+import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.task.ConsumptionTask;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.uitl.CRCUitl;
@@ -13,8 +14,6 @@ import com.lepu.serial.uitl.StringtoHexUitl;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 串口管理 打开串口 读取数据流 写入数据流
@@ -158,7 +157,7 @@ public class SerialPortManager {
                     break;
                 }
                 //判断开头
-                if (data[i] == SerialPortConstants.SYNC_H && data[i + 1] == SerialPortConstants.SYNC_L) {
+                if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
                     completeData = new byte[(0x00ff & data[i + 2])];
                     if (i + completeData.length > data.length) {
                         //把最后的数据 放在下一个任务中
@@ -227,70 +226,74 @@ public class SerialPortManager {
         i++;
 
          switch (classByte) {
-            case SerialPortConstants.CLASS_CMD: {//命令包 0xF0
+            case SerialMsg.TYPE_CMD: {//命令包 0xF0
                 Log.d("分发命令--", "命令包 ");
 
 
             }
             break;
-            case SerialPortConstants.CLASS_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
+            case SerialMsg.TYPE_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
                 Log.d("分发命令--", "命令确认包（若有回复包，就不发确认包）");
-                if (tokenByte == SerialPortConstants.TOKEN_MSG_CMD) {
+
                     switch (typeByte) {
-                        case SerialPortConstants.TYPE_START_DATA_TRANSFER: {
+                        case SerialContent.TYPE_DATA_START: {
                             Log.d("分发命令--", "接受到开始传输命令");
 
                         }
                         break;
-                         case SerialPortConstants.TYPE_STOP_DATA_TRANSFER: {
+                         case SerialContent.TYPE_DATA_STOP: {
                             Log.d("分发命令--", "接受到停止传输命令");
 
                         }
                         break;
                     }
-                }
+
             }
             break;
-            case SerialPortConstants.CLASS_REPLY: {//回复包 0xF2
+            case SerialMsg.TYPE_REPLY: {//回复包 0xF2
                 Log.d("分发命令--", "回复包");
             }
             break;
-            case SerialPortConstants.CLASS_DATA: {//数据包 0xF3
+            case SerialMsg.TYPE_DATA: {//数据包 0xF3
                 Log.d("分发命令--", "数据包");
                 switch (tokenByte) {
-                    case SerialPortConstants.TOKEN_MSG_ECG: {
+                    case SerialContent.TOKEN_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
+                        //包头AA 55 长度27 index 83 class F3 token 01 type 00 status0 04 status1 03
+                        //   07 03 3C 00 00 00 00 00 00 C5 FF 00 00 00 00 D7 FF 00 00 00 00 F0 FF 00 00 00 00 01 00 6E
+
+
                     }
                     break;
-                    case SerialPortConstants.TOKEN_MSG_RESP: {
+                    case SerialContent.TOKEN_RESP: {
                         //上传呼吸RESP
                         Log.d("分发命令--", "呼吸RESP数据包");
                     }
                     break;
-                    case SerialPortConstants.TOKEN_MSG_TEMP: {
+                    case SerialContent.TOKEN_TEMP: {
                         //上传体温数据
                         Log.d("分发命令--", "上传体温数据 数据包");
                     }
                     break;
-                    case SerialPortConstants.TOKEN_MSG_NIBP: {
+                    case SerialContent.TOKEN_NIBP: {
                         //血压NIBP
-                        if (typeByte == SerialPortConstants.TYPE_NIBP) {
+                        if (typeByte == SerialContent.TYPE_DATA_NIBP) {
                             //上传实时袖带压
                             Log.d("分发命令--", "血压NIBP 数据包");
-                        } else if (typeByte == SerialPortConstants.TYPE_NIBP_ORIGINAL) {
+                        } else if (typeByte == SerialContent.TYPE_DATA_NIBP_ORIGINAL) {
                             //上传实时袖带压原始数据
                             Log.d("分发命令--", "血压NIBP 数据包");
                         }
 
                     }
                     break;
-                    case SerialPortConstants.TOKEN_MSG_SPO2: {
+                    case SerialContent.TOKEN_SP02: {
                         //血氧SpO2
-                        if (typeByte == SerialPortConstants.TYPE_SPO2_ORIGINAL) {
+                        if (typeByte == SerialContent.TYPE_DATA_SP02) {
                             //上传波形数据_原始数据
                             Log.d("分发命令--", "上传波形数据_原始数据 数据包");
-                        } else if (typeByte == SerialPortConstants.TYPE_SPO2) {
+                        } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
                             //上传SpO2数据
                             Log.d("分发命令--", "上传SpO2数据 数据包");
                         }
@@ -301,11 +304,11 @@ public class SerialPortManager {
 
             }
             break;
-            case SerialPortConstants.CLASS_STATUS: {//如心跳包，异常状态包等等（主动传输）	双向 0xF4
+            case SerialMsg.TYPE_STATUS: {//如心跳包，异常状态包等等（主动传输）	双向 0xF4
                 Log.d("分发命令--", "如心跳包，异常状态包等等（主动传输）双向");
             }
             break;
-            case SerialPortConstants.CLASS_UPDATA: {//升级包 0xF5
+            case SerialMsg.TYPE_UPDATE: {//升级包 0xF5
                 Log.d("分发命令--", "升级包");
             }
             break;
@@ -317,57 +320,7 @@ public class SerialPortManager {
     }
 
 
-    public static void main(String[] args) {
-        byte[] surplusData = null;//用于记录任务剩余的数据 放入下一个任务继续遍历
-        ConsumptionTask task = new ConsumptionTask();
-     /*   task.data = new byte[]{AA 55 27 6B F3 01 00 04 03 07
-                03 3C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 11 00 9A AA 55 0E 6C F3 02 00 11 00 3C 00 00 00 0C};
-*/
-        //  Log.d("收到数据", byteArrayToHexStr(task.data));
-        List<byte[]> list = new ArrayList<>();
-        byte[] data;
-        if (surplusData != null) {
-            data = new byte[surplusData.length + task.data.length];
-            System.arraycopy(surplusData, 0, data, 0, surplusData.length);
-            System.arraycopy(task.data, 0, data, surplusData.length, task.data.length);
-        } else {
-            data = task.data;
-        }
-        //用于记录一段完整的报文
-        byte[] completeData = null;
-        //遍历数据
-        for (int i = 0; i < data.length; i++) {
-            //第三个是长度
-            if (i + 2 > data.length) {
-                //把最后的数据 放在下一个任务中
-                surplusData = new byte[data.length - i];
-                System.arraycopy(data, i, surplusData, 0, data.length - i);
-                return;
-            }
-            //判断开头
-            if (data[i] == SerialPortConstants.SYNC_H && data[i + 1] == SerialPortConstants.SYNC_L) {
-                completeData = new byte[(0x00ff & data[i + 2])];
-                if (i + completeData.length > data.length) {
-                    //把最后的数据 放在下一个任务中
-                    surplusData = new byte[data.length - i];
-                    System.arraycopy(data, i, surplusData, 0, data.length - i);
-                    return;
-                } else {
-                    System.arraycopy(data, i, completeData, 0, completeData.length);
-                    //校验数据
-                    if (CRCUitl.CRC8(completeData)) {
-                        i = i + completeData.length - 1;
-                        list.add(completeData);
-                    }
-                }
 
-
-            }
-
-        }
-
-
-    }
 
 
 }

@@ -33,4 +33,11 @@ public class ByteUtils {
 
         return n;
     }
+
+    public static void main(String[] args) {
+        System.out.println(bytes2Short((byte) 0xC5, (byte) 0xFF)+"");
+
+    }
+
+
 }
