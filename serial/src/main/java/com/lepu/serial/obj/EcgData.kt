@@ -1,5 +1,10 @@
 package com.lepu.serial.obj
 
+
+/**
+ * Token	Type
+ * 0x01 	0x00
+ */
 class EcgData {
 
     var len: Int // 数据长度
