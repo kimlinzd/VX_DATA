@@ -1,5 +1,8 @@
 package com.lepu.serial.constant;
 
+import com.lepu.serial.obj.SerialCmd;
+import com.lepu.serial.obj.SerialMsg;
+
 public  class SerialPortConstants {
     /**
      * 开始传输数据命令
