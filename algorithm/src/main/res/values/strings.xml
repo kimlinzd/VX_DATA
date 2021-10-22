@@ -1,0 +1,48 @@
+<resources>
+    <string name="multi_color_text_up_down" translatable="false"><![CDATA[
+    <font color="#3a9cff">%1$s</font><br><font color="#FFFFFF">%2$s</font>
+    ]]></string>
+    <string name="lead_12" translatable="false">12导联</string>
+    <string name="lead_18" translatable="false">18导联</string>
+    <string name="lead_12_simulate_lead_18" translatable="false">12导联模拟18导联</string>
+    <string name="version_local_def" translatable="false">院内版本</string>
+    <string name="version_local_en" translatable="false">英文院内版</string>
+    <string name="version_online_final" translatable="false">运营版 默认AI云，不可切换本地</string>
+    <string name="Lead_mode_cabrera" translatable="false">Cabrera</string>
+    <string name="type_other" translatable="false">other</string>
+    <string name="type_no" translatable="false">no</string>
+
+
+    <string name="app_tip_exception_toast_user">很抱歉，程序即将退出</string>
+    <string name="app_pre_page">上一页</string>
+    <string name="app_next_page">下一页</string>
+    <string name="app_tip_low_power">电池电量低</string>
+    <string name="app_tip_low_power_too_low">电量不足，即将关机</string>
+    <string name="app_tip_storage_enough_max_95">存储空间将满，新记录数据将覆盖最早的记录数据，请知悉。</string>
+    <string name="app_tip_storage_enough_max_90">存储空间不足，请及时清理历史数据。</string>
+    <string name="app_tip_dialog">提示：</string>
+    <string name="app_login_input_username">用户名</string>
+    <string name="app_login_input_password">密码</string>
+    <string name="app_login_remember_password">记住密码</string>
+    <string name="app_login_server_setting">服务器设置</string>
+    <string name="app_login_login">登录</string>
+    <string name="app_login_if_login_out">是否退出登录?</string>
+    <string name="app_login_login_out">退出</string>
+    <string name="app_login_login_auth">登录</string>
+    <string name="app_login_login_urgent">紧急使用</string>
+    <string name="app_login_username_empty">用户名不能为空!</string>
+    <string name="app_login_password_empty">密码不能为空!</string>
+    <string name="app_login_logining">登录中…</string>
+    <string name="app_login_login_psd_err">密码错误!</string>
+    <string name="app_scan_camera_open_err">摄像头打开错误!</string>
+    <string name="app_scan_camera_not_found">未发现可用摄像头!</string>
+    <string name="app_pwd">密码</string>
+    <string name="app_pwd_show">显示密码</string>
+    <string name="app_login_fail_network_error">网络不可用，是否现在设置？</string>
+    <string name="app_login_login_success">登录成功</string>
+    <string name="app_login_server">AI云登录</string>
+    <string name="app_login_local">本地登录</string>
+
+    <string name="app_open">打开</string>
+    <string name="app_auto">自动</string>
+</resources>

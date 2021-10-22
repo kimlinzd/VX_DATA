@@ -261,6 +261,8 @@ public class SerialPortManager {
                     case SerialPortConstants.TOKEN_MSG_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
+
+
                     }
                     break;
                     case SerialPortConstants.TOKEN_MSG_RESP: {
