@@ -5,8 +5,17 @@ import android.serialport.SerialPort;
 import android.util.Log;
 
 
+import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.obj.EcgData1;
+import com.lepu.serial.obj.EventMsgConst;
+import com.lepu.serial.obj.NibpData;
+import com.lepu.serial.obj.NibpOriginalData;
+import com.lepu.serial.obj.RespData;
 import com.lepu.serial.obj.SerialMsg;
+import com.lepu.serial.obj.SpO2Data;
+import com.lepu.serial.obj.SpO2OriginalData;
+import com.lepu.serial.obj.TempData;
 import com.lepu.serial.task.ConsumptionTask;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.uitl.CRCUitl;
@@ -25,7 +34,7 @@ public class SerialPortManager {
     InputStream mInputStream;
     OutputStream mOutputStream;
     //处理串口数据队列
-    SerialPortDataTask lineUpTaskHelp;
+    public SerialPortDataTask lineUpTaskHelp;
 
 
     private static SerialPortManager instance = null;
@@ -43,10 +52,10 @@ public class SerialPortManager {
     public void init() {
         AsyncTask.execute(() -> {
             try {
-                Log.d("SerialPortManager","初始化串口");
+                Log.d("SerialPortManager", "初始化串口");
                 //打开串口
                 SerialPort serialPort = SerialPort //
-                        .newBuilder("/dev/ttyS1", 921600) // 串口地址地址，波特率
+                        .newBuilder("/dev/ttyS1", 480600) // 串口地址地址，波特率
                         .parity(0) // 校验位；0:无校验位(NONE，默认)；1:奇校验位(ODD);2:偶校验位(EVEN)
                         .dataBits(8) // 数据位,默认8；可选值为5~8
                         .stopBits(1) // 停止位，默认1；1:1位停止位；2:2位停止位
@@ -190,7 +199,6 @@ public class SerialPortManager {
     };
 
 
-
     /**
      * @param inStream
      * @return 字节数组
@@ -207,25 +215,26 @@ public class SerialPortManager {
         return b;
     }
 
-    int i=0;
+    int i = 0;
 
     /**
      * 分发消息
      *
      * @param msgdata
      */
-    public void distributeMsg(byte[] msgdata) {
+    public  void distributeMsg(byte[] msgdata) {
+        //解析包
+        SerialMsg serialMsg = new SerialMsg(msgdata);
         //报文类型（Class字节）用于区分不同的报文便于处理。其范围为0xF0 ~ 0xFB。
-        byte classByte = msgdata[4];
+        byte classByte = serialMsg.getType();
         //Token：模块类型，用于区分不同的模块，如总模块，心电，血氧等
-        byte tokenByte = msgdata[5];
+        byte tokenByte = serialMsg.getContent().token;
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
-        byte typeByte = msgdata[6];
-
-        Log.d("分发消息--", "i=== "+i);
+        byte typeByte = serialMsg.getContent().type;
         i++;
+        Log.d("命令index--", i+"");
 
-         switch (classByte) {
+        switch (classByte) {
             case SerialMsg.TYPE_CMD: {//命令包 0xF0
                 Log.d("分发命令--", "命令包 ");
 
@@ -235,18 +244,18 @@ public class SerialPortManager {
             case SerialMsg.TYPE_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
                 Log.d("分发命令--", "命令确认包（若有回复包，就不发确认包）");
 
-                    switch (typeByte) {
-                        case SerialContent.TYPE_DATA_START: {
-                            Log.d("分发命令--", "接受到开始传输命令");
+                switch (typeByte) {
+                    case SerialContent.TYPE_DATA_START: {
+                        Log.d("分发命令--", "接受到开始传输命令");
 
-                        }
-                        break;
-                         case SerialContent.TYPE_DATA_STOP: {
-                            Log.d("分发命令--", "接受到停止传输命令");
-
-                        }
-                        break;
                     }
+                    break;
+                    case SerialContent.TYPE_DATA_STOP: {
+                        Log.d("分发命令--", "接受到停止传输命令");
+
+                    }
+                    break;
+                }
 
             }
             break;
@@ -255,25 +264,29 @@ public class SerialPortManager {
             }
             break;
             case SerialMsg.TYPE_DATA: {//数据包 0xF3
-                Log.d("分发命令--", "数据包");
-                switch (tokenByte) {
+                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
-                        //包头AA 55 长度27 index 83 class F3 token 01 type 00 status0 04 status1 03
-                        //   07 03 3C 00 00 00 00 00 00 C5 FF 00 00 00 00 D7 FF 00 00 00 00 F0 FF 00 00 00 00 01 00 6E
-
-
+                        EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
+                        LiveEventBus.get(EventMsgConst.MsgEcgData1)
+                                .post(ecgData1);
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
                         //上传呼吸RESP
                         Log.d("分发命令--", "呼吸RESP数据包");
+                        RespData respData = new RespData(serialMsg.getContent().data);
+                        LiveEventBus.get(EventMsgConst.MsgRespData)
+                                .post(respData);
                     }
                     break;
                     case SerialContent.TOKEN_TEMP: {
                         //上传体温数据
                         Log.d("分发命令--", "上传体温数据 数据包");
+                        TempData tempData = new TempData(serialMsg.getContent().data);
+                        LiveEventBus.get(EventMsgConst.MsgTempData)
+                                .post(tempData);
                     }
                     break;
                     case SerialContent.TOKEN_NIBP: {
@@ -281,9 +294,15 @@ public class SerialPortManager {
                         if (typeByte == SerialContent.TYPE_DATA_NIBP) {
                             //上传实时袖带压
                             Log.d("分发命令--", "血压NIBP 数据包");
+                            NibpData nibpData = new NibpData(serialMsg.getContent().data);
+                            LiveEventBus.get(EventMsgConst.MsgNibpData)
+                                    .post(nibpData);
                         } else if (typeByte == SerialContent.TYPE_DATA_NIBP_ORIGINAL) {
                             //上传实时袖带压原始数据
                             Log.d("分发命令--", "血压NIBP 数据包");
+                            NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
+                            LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
+                                    .post(nibpOriginalData);
                         }
 
                     }
@@ -293,9 +312,16 @@ public class SerialPortManager {
                         if (typeByte == SerialContent.TYPE_DATA_SP02) {
                             //上传波形数据_原始数据
                             Log.d("分发命令--", "上传波形数据_原始数据 数据包");
+                            SpO2OriginalData spO2OriginalData = new SpO2OriginalData(serialMsg.getContent().data);
+                            LiveEventBus.get(EventMsgConst.MsgSpO2OriginalData)
+                                    .post(spO2OriginalData);
                         } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
                             //上传SpO2数据
                             Log.d("分发命令--", "上传SpO2数据 数据包");
+                            SpO2Data spO2Data=new SpO2Data(serialMsg.getContent().data);
+                            LiveEventBus.get(EventMsgConst.MsgSpO2Data)
+                                    .post(spO2Data);
+
                         }
                     }
                     break;
@@ -320,7 +346,20 @@ public class SerialPortManager {
     }
 
 
+    public static void main(String[] args) {
+        byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x6B, (byte) 0xF3, (byte) 0x01, (byte) 0x00,
+                (byte) 0x04, (byte) 0x03, (byte) 0x07, (byte) 0x03, (byte) 0x3C, (byte) 0x00, (byte) 0x00,
 
+                (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
+                (byte) 0x9A};
+
+       // distributeMsg(data);
+
+
+    }
 
 
 }

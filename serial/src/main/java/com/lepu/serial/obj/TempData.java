@@ -20,7 +20,7 @@ public class TempData {
         if (len > 0) {
             tempWave = new short[len];
             for (int i=0; i<len; i++) {
-                tempWave[i] = (short) ByteUtils.bytes2Short(buf[i+2], buf[i+3]);
+                tempWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+2], buf[i*2+3]);
             }
         }
     }

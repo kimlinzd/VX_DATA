@@ -26,7 +26,7 @@ public class RespData {
         if (len > 0) {
             respWave = new short[len];
             for (int i=0; i<len; i++) {
-                respWave[i] = (short) ByteUtils.bytes2Short(buf[i+4], buf[i+5]);
+                respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+4], buf[i*2+5]);
             }
         }
     }
