@@ -268,14 +268,11 @@ public class SerialPortManager {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
-<<<<<<< HEAD
 
 
-=======
                         EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgEcgData1)
                                 .post(ecgData1);
->>>>>>> fe413044f0831549c99e22503bcddfaa7f981ab5
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
