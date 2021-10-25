@@ -45,4 +45,6 @@
 
     <string name="app_open">打开</string>
     <string name="app_auto">自动</string>
+    <string name="app_am">上午</string>
+    <string name="app_pm">下午</string>
 </resources>

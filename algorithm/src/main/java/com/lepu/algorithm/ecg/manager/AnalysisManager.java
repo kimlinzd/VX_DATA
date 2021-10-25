@@ -2,20 +2,48 @@ package com.lepu.algorithm.ecg.manager;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.lepu.algorithm.Carewell.OmniEcg.jni.JniQrsDetect;
+import com.lepu.algorithm.Carewell.OmniEcg.jni.JniResample;
+import com.lepu.algorithm.Carewell.OmniEcg.jni.JniSample;
+import com.lepu.algorithm.Carewell.OmniEcg.jni.JniTraditionalAnalysis;
+import com.lepu.algorithm.ecg.entity.AiResultBean;
+import com.lepu.algorithm.ecg.entity.AiResultMeasuredValueBean;
 import com.lepu.algorithm.ecg.entity.ConfigBean;
+import com.lepu.algorithm.ecg.entity.EcgDataInfoBean;
 import com.lepu.algorithm.ecg.entity.MeasureResultBean;
+import com.lepu.algorithm.ecg.entity.NotifyQrsDetectBean;
+import com.lepu.algorithm.ecg.entity.NotifyResampleBean;
 import com.lepu.algorithm.ecg.entity.PatientInfoBean;
+import com.lepu.algorithm.ecg.entity.RRAnalysisResultBean;
+import com.lepu.algorithm.ecg.entity.dictionary.EcgMacureResultEnum;
+import com.lepu.algorithm.ecg.entity.dictionary.EcgMeasureResultEnum;
 import com.lepu.algorithm.ecg.entity.dictionary.EcgSettingConfigEnum;
 import com.lepu.algorithm.ecg.entity.dictionary.PatientSettingConfigEnum;
+import com.lepu.algorithm.ecg.utils.Const;
+import com.lepu.algorithm.ecg.utils.FormatTransfer;
+import com.lepu.algorithm.ecg.utils.SdLocal;
 import com.lepu.algorithm.ecg.utils.SerializableUtils;
 import com.lepu.algorithm.ecg.utils.WaveEncodeUtil;
+import com.lepu.algorithm.restingecg.gri.GriAnlysManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AnalysisManager {
+import static com.lepu.algorithm.BuildConfig.DEBUG;
 
-    private AnalysisManager(){}
+public class AnalysisManager<macureResultBean> {
+
+    private ConfigBean configBeanTemp;
+
+    public static final int TRADITIONAL_ANALYSIS_RESULT_XML = DEBUG ? 1 : 0;
+
+    private AnalysisManager() {
+    }
 
     /**
      * 分析 后续会有云诊断
@@ -49,7 +77,7 @@ public class AnalysisManager {
      * @return
      */
     public MeasureResultBean traditionalAnalysis(Context context, EcgSettingConfigEnum.LeadWorkModeType leadWorkModeType, EcgSettingConfigEnum.LeadType leadType, PatientInfoBean patientInfoBeanSrc,
-                                                short[][] ecgDataArrayPart, boolean preview, String ecgDataFilePath, boolean testMode) {
+                                                 short[][] ecgDataArrayPart, boolean preview, String ecgDataFilePath, boolean testMode) {
 
         PatientInfoBean patientInfoBean = (PatientInfoBean) SerializableUtils.copy(patientInfoBeanSrc);
 
@@ -68,7 +96,7 @@ public class AnalysisManager {
             patientInfoBean.setBirthdate("1990-09-08");
         }
 
-        ConfigBean configBeanMain = MainEcgManager.getInstance().getConfigBeanTemp();
+        ConfigBean configBeanMain = configBeanTemp;
 
         MeasureResultBean macureResultBean = null;
         if (leadWorkModeType == EcgSettingConfigEnum.LeadWorkModeType.WORK_MODE_RR ||
@@ -93,7 +121,7 @@ public class AnalysisManager {
             for (int i = 0; i < dataLenTemp; i++) {
                 mvDataArrayTemp[i] = ecgDataArraySrcAll[rth1][i] * Const.SHORT_MV_GAIN;
             }
-            KLog.d(String.format("分析数据的长度:%d", ecgDataArraySrcAll[0].length));
+//            KLog.d(String.format("分析数据的长度:%d", ecgDataArraySrcAll[0].length));
 
             //降采样
             float[] mvDataArray = new float[dataLenTemp / 4];//4=1000/250 1000降采样到250
@@ -123,7 +151,7 @@ public class AnalysisManager {
                 }
 
                 if (exception) {
-                    KLog.d("hrv检测 心率检测异常");
+//                    KLog.d("hrv检测 心率检测异常");
                     qrsPosArray = new int[2];
                     notifyQrsDetect.setQrsArrayLength(2);
                 }
@@ -153,7 +181,7 @@ public class AnalysisManager {
                         hr = (int) (60 / (avgValue / Const.SAMPLE_RATE) / 4);
                     }
                 }
-                KLog.d(String.format("hrv 检测，计算心率:%d", hr));
+//                KLog.d(String.format("hrv 检测，计算心率:%d", hr));
 
                 rrAnalysisResultBean = new RRAnalysisResultBean();
                 JniSample.getInstance().getRRAnalysisData(rrAnalysisResultBean, RR_interval, RR_interval.length, Const.SAMPLE_RATE / 4);// / 4
@@ -198,24 +226,24 @@ public class AnalysisManager {
                         sb.append(String.format("%.5f", psdXy[i])).append(",");
                     }
                 }
-                KLog.d(String.format("rr pxy:%s", sb.toString()));
+//                KLog.d(String.format("rr pxy:%s", sb.toString()));
             }
 
-            macureResultBean = new MacureResultBean();
-            macureResultBean.setEcgMacureResultEnum(EcgMacureResultEnum.TYPE_LOCAL_HRV_RESULT);
+            macureResultBean = new MeasureResultBean();
+            macureResultBean.setEcgMacureResultEnum(EcgMeasureResultEnum.TYPE_LOCAL_HRV_RESULT);
             macureResultBean.setRrAnalysisResultBean(rrAnalysisResultBean);
         } else {
             //常规算法分析
             short[][] ecgDataArrayPartAll = WaveEncodeUtil.leadDataSwitch(ecgDataArrayPart, false, leadType, false);
 
-            if (configBeanMain.getSystemSettingBean().isUseGlasgow()) {
+            if (true) { //默认使用glassgow算法
                 if (leadType == EcgSettingConfigEnum.LeadType.LEAD_12) {
                     macureResultBean = GriAnlysManager.getInstance().processEcg(patientInfoBean, ecgDataArrayPartAll, leadType, DetectManager.getInstance().leadStateList, false, preview);
-                    KLog.d(String.format("分析数据的长度:%d", ecgDataArrayPartAll[0].length));
+//                    KLog.d(String.format("分析数据的长度:%d", ecgDataArrayPartAll[0].length));
                 } else {
                     //18导联，glassgo不支持分析。类型 算法 无
-                    macureResultBean = new MacureResultBean();
-                    macureResultBean.setEcgMacureResultEnum(EcgMacureResultEnum.TYPE_NONE);
+                    macureResultBean = new MeasureResultBean();
+                    macureResultBean.setEcgMacureResultEnum(EcgMeasureResultEnum.TYPE_NONE);
                 }
             } else {
                 //去掉最后两个通道数据 起搏通道，导联脱落通道
@@ -224,21 +252,21 @@ public class AnalysisManager {
                     System.arraycopy(ecgDataArrayPart[i], 0, ecgDataArrayOri[i], 0, ecgDataArrayOri[0].length);
                 }
 
-                String resultFilePathTest;
-                if (testMode) {
-                    resultFilePathTest = SdLocal.getTestResultXmlHl7resultPath(context,
-                            String.format("%s_%d", patientInfoBean.getPatientNumber(), System.currentTimeMillis()));
-                } else {
-                    resultFilePathTest = SdLocal.getDataXmlHl7resultPath(context,
-                            String.format("%s_%d", patientInfoBean.getPatientNumber(), System.currentTimeMillis()));
-                }
+                String resultFilePathTest = null;
+//                if (testMode) {
+//                    resultFilePathTest = SdLocal.getTestResultXmlHl7resultPath(context,
+//                            String.format("%s_%d", patientInfoBean.getPatientNumber(), System.currentTimeMillis()));
+//                } else {
+//                    resultFilePathTest = SdLocal.getDataXmlHl7resultPath(context,
+//                            String.format("%s_%d", patientInfoBean.getPatientNumber(), System.currentTimeMillis()));
+//                }
 
                 AiResultBean aiResultBean = new AiResultBean();
                 JniTraditionalAnalysis.getInstance().traditionalAnalysis(WaveEncodeUtil.switchEcgDataArray(ecgDataArrayOri), ecgDataArrayOri[0].length, aiResultBean, patientInfoBean,
-                        Setting.TRADITIONAL_ANALYSIS_RESULT_XML, resultFilePathTest,
+                        TRADITIONAL_ANALYSIS_RESULT_XML, resultFilePathTest,
                         (Integer) leadType.getValue(), Const.ANALYSIS_DIAGNOSIS_MODE);
 
-                KLog.d(String.format("分析数据的长度:%d", ecgDataArrayOri[0].length));
+//                KLog.d(String.format("分析数据的长度:%d", ecgDataArrayOri[0].length));
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("JSON:");
@@ -315,15 +343,253 @@ public class AnalysisManager {
                     aiResultBean.setST80A(ST80A_avg);
                 }
 
-                macureResultBean = new MacureResultBean();
-                macureResultBean.setEcgMacureResultEnum(EcgMacureResultEnum.TYPE_LOCAL_TRADITIONAL_RESULT);
+                macureResultBean = new MeasureResultBean();
+                macureResultBean.setEcgMacureResultEnum(EcgMeasureResultEnum.TYPE_LOCAL_TRADITIONAL_RESULT);
                 macureResultBean.setAiResultBean(aiResultBean);
             }
+
+
         }
         //紧急使用，抹掉诊断结果
-        if (LoginManager.getInstance().isEmergencyUseMode() && macureResultBean != null) {
-            macureResultBean.getAiResultBean().setArrDiagnosis("");
-        }
+//        if (LoginManager.getInstance().isEmergencyUseMode() && macureResultBean != null) {
+//            macureResultBean.getAiResultBean().setArrDiagnosis("");
+//        }
+
         return macureResultBean;
     }
+
+
+    /**
+     * 解析心电数据文件
+     *
+     * @param context
+     * @param filePath
+     * @return
+     */
+    public static EcgDataInfoBean parseEcgDataFile(Context context, String filePath, boolean ifNeedFilter) {
+        return parseEcgDataFile(context, filePath, true, 0, ifNeedFilter);
+    }
+
+    /**
+     * @param context
+     * @param filePath
+     * @param readAllData            是否读所有可用数据
+     * @param lastReadDataSampleSize 读最后的数据的长度，单导联的长度
+     * @return
+     */
+    public static EcgDataInfoBean parseEcgDataFile(Context context, String filePath, boolean readAllData, int lastReadDataSampleSize, boolean ifNeedFilter) {
+        if (TextUtils.isEmpty(filePath)) {
+            return null;
+        }
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+//        KLog.d("parseEcgDataFile");
+
+        //几通道数据
+        short[][] ecgDataArray = null;
+        byte leadTypeEnum = 0;
+        float filterAdsValue = 0;
+        int filterEmgValue = 0;
+        int filterLowpassValue = 0;
+        int filterAcValue = 0;
+        int filterAcOpenStateValue = 0;
+
+        RandomAccessFile raf = null;
+        try {
+            byte[] destReadArray;
+            long seekIndex = 0;
+            int perChannelSampleSize = 0;
+            List<short[][]> ecgDataArrayList = new ArrayList<>();
+            byte[] valueArray = new byte[2];
+            short value;
+            int readTimes = 0;
+            int readSampleSize = 0;
+            byte[] valueArrayTemp;
+            int parseIndex = 0;
+
+            raf = new RandomAccessFile(filePath, "r");
+
+            //读头数据
+            seekIndex = 0;
+            destReadArray = new byte[Const.ECG_DATA_HEADER_LEN];
+            int readCount = raf.read(destReadArray, 0, destReadArray.length);
+            if (readCount > 0) {
+                //解析头数据
+                //leadType
+                parseIndex = Const.ECG_DATA_HEADER_LEN_CUSTOM_MY;
+                leadTypeEnum = destReadArray[parseIndex];
+                parseIndex += 1;
+
+                //ads
+                valueArrayTemp = new byte[4];
+                System.arraycopy(destReadArray, parseIndex, valueArrayTemp, 0, valueArrayTemp.length);
+                filterAdsValue = FormatTransfer.lBytesToFloat(valueArrayTemp);
+                parseIndex += valueArrayTemp.length;
+
+                //emg
+                valueArrayTemp = new byte[4];
+                System.arraycopy(destReadArray, parseIndex, valueArrayTemp, 0, valueArrayTemp.length);
+                filterEmgValue = FormatTransfer.lBytesToInt(valueArrayTemp);
+                parseIndex += valueArrayTemp.length;
+
+                //lowpass
+                valueArrayTemp = new byte[4];
+                System.arraycopy(destReadArray, parseIndex, valueArrayTemp, 0, valueArrayTemp.length);
+                filterLowpassValue = FormatTransfer.lBytesToInt(valueArrayTemp);
+                parseIndex += valueArrayTemp.length;
+
+                //ac
+                valueArrayTemp = new byte[4];
+                System.arraycopy(destReadArray, parseIndex, valueArrayTemp, 0, valueArrayTemp.length);
+                filterAcValue = FormatTransfer.lBytesToInt(valueArrayTemp);
+                parseIndex += valueArrayTemp.length;
+
+                //ac open state
+                valueArrayTemp = new byte[4];
+                System.arraycopy(destReadArray, parseIndex, valueArrayTemp, 0, valueArrayTemp.length);
+                filterAcOpenStateValue = FormatTransfer.lBytesToInt(valueArrayTemp);
+                parseIndex += valueArrayTemp.length;
+
+                // 读取有几通道数据
+                byte leadChannelCount = destReadArray[Const.FILE_POS_LEAD_SIZE];
+                //读取每个通道有多少采样点
+                byte[] perChannelSampleSizeArray = new byte[4];
+                System.arraycopy(destReadArray, Const.FILE_POS_SAMPLE_SIZE, perChannelSampleSizeArray, 0, perChannelSampleSizeArray.length);
+                perChannelSampleSize = FormatTransfer.lBytesToInt(perChannelSampleSizeArray);
+
+                byte[] simpleDataPackageByteArray = new byte[leadChannelCount * 2];
+
+                //每次读1秒心电数据
+                int perReadSecondLen = Const.SAMPLE_RATE * 1;
+                destReadArray = new byte[perReadSecondLen * leadChannelCount * 2];
+                int perReadPoints = 0;
+
+                if (!readAllData) {
+                    //读指定数据长度的数据
+                    int perChannelSeekDataLen = perChannelSampleSize - lastReadDataSampleSize;
+                    int seekEcgDataLen = perChannelSeekDataLen * leadChannelCount * 2;
+
+                    if (seekEcgDataLen > 0) {
+                        raf.seek(seekEcgDataLen);
+                        perChannelSampleSize = lastReadDataSampleSize;
+                    }
+                }
+
+                while (readSampleSize < perChannelSampleSize) {
+                    int perReadCount = (readSampleSize + perReadSecondLen) > perChannelSampleSize ? ((perChannelSampleSize - readSampleSize) * leadChannelCount * 2) : destReadArray.length;
+                    readCount = raf.read(destReadArray, 0, perReadCount);
+                    if (readCount <= 0) {
+                        break;
+                    }
+                    readTimes++;
+                    perReadPoints = (readCount / leadChannelCount / 2);
+                    readSampleSize += perReadPoints;
+
+                    //KLog.d(String.format("读取心电文件:%d次，个数:%d",readTimes,perReadPoints));
+                    //解析心电数据
+                    short[][] ecgDataArrayListItem = new short[leadChannelCount][perReadPoints];
+                    for (int i = 0; i < perReadPoints; i++) {
+                        System.arraycopy(destReadArray, i * simpleDataPackageByteArray.length,
+                                simpleDataPackageByteArray, 0,
+                                simpleDataPackageByteArray.length);
+
+                        for (int j = 0; j < leadChannelCount; j++) {
+                            valueArray[0] = simpleDataPackageByteArray[j * 2];
+                            valueArray[1] = simpleDataPackageByteArray[j * 2 + 1];
+                            value = FormatTransfer.lBytesToShort(valueArray);
+                            ecgDataArrayListItem[j][i] = value;
+                        }
+                    }
+                    ecgDataArrayList.add(ecgDataArrayListItem);
+                }
+                ecgDataArray = new short[leadChannelCount][perChannelSampleSize];
+                for (int k = 0; k < ecgDataArray.length; k++) {
+                    for (int i = 0; i < ecgDataArrayList.size(); i++) {
+                        System.arraycopy(ecgDataArrayList.get(i)[k], 0,
+                                ecgDataArray[k], i * ecgDataArrayList.get(i)[k].length,
+                                ecgDataArrayList.get(i)[k].length);
+                    }
+                }
+            } else {
+//                KLog.d("读取心电文件头，错误");
+            }
+        } catch (Exception e) {
+//            KLog.e(Log.getStackTraceString(e));
+        } finally {
+            if (raf != null) {
+                try {
+                    //raf.seek(0);
+                    raf.close();
+                } catch (IOException e) {
+//                    KLog.e(Log.getStackTraceString(e));
+                }
+            }
+        }
+
+        //取默认值，数据文件，不存储
+        EcgSettingConfigEnum.LeadSpeedType leadSpeedType = EcgSettingConfigEnum.LeadSpeedType.FORMFEED_25;
+        EcgSettingConfigEnum.LeadGainType leadGainType = EcgSettingConfigEnum.LeadGainType.GAIN_10;
+        float[] gainArray = new float[]{1.0F, 1.0F};
+
+        //取数据存储的
+        EcgSettingConfigEnum.LeadType leadType = EcgSettingConfigEnum.LeadType.values()[leadTypeEnum];
+        EcgSettingConfigEnum.LeadFilterType leadFilterTypeAds = EcgSettingConfigEnum.LeadFilterType.getLeadEnumByValue(filterAdsValue);
+        EcgSettingConfigEnum.LeadFilterType leadFilterTypeEmg = EcgSettingConfigEnum.LeadFilterType.getLeadEnumByValue(filterEmgValue);
+        EcgSettingConfigEnum.LeadFilterType leadFilterTypeLowpass = EcgSettingConfigEnum.LeadFilterType.getLeadEnumByValue(filterLowpassValue);
+        EcgSettingConfigEnum.LeadFilterType leadFilterTypeAc = EcgSettingConfigEnum.LeadFilterType.getLeadEnumByValue(filterAcValue);
+        EcgSettingConfigEnum.LeadFilterType leadFilterTypeAcOpenState = EcgSettingConfigEnum.LeadFilterType.getLeadEnumByValue(filterAcOpenStateValue);
+
+        EcgDataInfoBean ecgDataInfoBean = new EcgDataInfoBean();
+        //保存到文件中的数据，是原始数据，需要先滤波
+//        if(ifNeedFilter){
+//            FilterManager.getInstance().resetFilter();
+//            short[][] ecgDataArrayFilter = FilterManager.getInstance().filter(SettingManager.getInstance().getConfigBeanTemp(),ecgDataArray,ecgDataArray.length-2);
+//            ecgDataInfoBean.setEcgDataArray(ecgDataArrayFilter);
+//        }else{
+//            ecgDataInfoBean.setEcgDataArray(ecgDataArray);
+//        }
+
+        ecgDataInfoBean.setEcgDataArray(ecgDataArray);
+        ecgDataInfoBean.setLeadSpeedType(leadSpeedType);
+        ecgDataInfoBean.setLeadGainType(leadGainType);
+
+        ecgDataInfoBean.setGainArray(gainArray);
+
+
+        //float[] auto_gainArray = ecgDataInfoBean.getAuto_gainArray();
+        // ecgDataInfoBean.setAuto_gainArray(auto_gainArray);
+
+        ecgDataInfoBean.setLeadType(leadType);
+        ecgDataInfoBean.setFilterAds(leadFilterTypeAds);
+        ecgDataInfoBean.setFilterEmg(leadFilterTypeEmg);
+        ecgDataInfoBean.setFilterLowpass(leadFilterTypeLowpass);
+        ecgDataInfoBean.setFilterAc(leadFilterTypeAc);
+        ecgDataInfoBean.setFilterAcOpenState(leadFilterTypeAcOpenState);
+
+        if (ecgDataInfoBean.getFilterAds() == null) {
+            ecgDataInfoBean.setFilterAds(EcgSettingConfigEnum.LeadFilterType.FILTER_BASELINE_067);
+        }
+
+        if (ecgDataInfoBean.getFilterEmg() == null) {
+            ecgDataInfoBean.setFilterEmg(EcgSettingConfigEnum.LeadFilterType.FILTER_EMG_CLOSE);
+        }
+
+        if (ecgDataInfoBean.getFilterLowpass() == null) {
+            ecgDataInfoBean.setFilterLowpass(EcgSettingConfigEnum.LeadFilterType.FILTER_LOWPASS_75);
+        }
+
+        if (ecgDataInfoBean.getFilterAc() == null) {
+            ecgDataInfoBean.setFilterAc(EcgSettingConfigEnum.LeadFilterType.FILTER_AC_50_HZ);
+        }
+
+        if (ecgDataInfoBean.getFilterAcOpenState() == null) {
+            ecgDataInfoBean.setFilterAcOpenState(EcgSettingConfigEnum.LeadFilterType.FILTER_AC_OPEN);
+        }
+
+        return ecgDataInfoBean;
+    }
+
 }

@@ -3,6 +3,7 @@ package com.lepu.algorithm.ecg.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.lepu.algorithm.ecg.entity.dictionary.EcgMacureResultEnum;
 import com.lepu.algorithm.ecg.entity.dictionary.EcgMeasureResultEnum;
 
 public class MeasureResultBean implements Parcelable {
@@ -69,4 +70,9 @@ public class MeasureResultBean implements Parcelable {
     public void setAiResultBean(AiResultBean aiResultBean) {
         this.aiResultBean = aiResultBean;
     }
+
+    public void setEcgMacureResultEnum(EcgMeasureResultEnum ecgMacureResultEnum) {
+        this.ecgMacureResultEnum = ecgMacureResultEnum;
+    }
+
 }

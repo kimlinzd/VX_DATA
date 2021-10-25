@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import com.lepu.algorithm.ecg.entity.NotifyEcgDataBean;
 import com.lepu.algorithm.ecg.entity.NotifyFilterBean;
+import com.lepu.algorithm.ecg.entity.RRAnalysisResultBean;
 
 /**
  * Created by wxd
@@ -110,16 +111,16 @@ public class JniSample {
      */
     public native byte[] printData(byte[] ecgDataArray);
 
-//    /**
-//     * 获取rr分析的数据
-//     * @param rrAnalysisResultBean 返回结果对象
-//     * @param RR_interval RR间期  这个数据可以趋势图   R的个数=总心波数
-//     * @param RR_interval RR间期  (r(i+1) - r(i))*samplerate/samplerate
-//     * @param RR_interval_size RR间期长度
-//     * @param sample 采样率
-//     * @return
-//     */
-//    public native int getRRAnalysisData(RRAnalysisResultBean rrAnalysisResultBean, double[] RR_interval, int RR_interval_size, int sample);
+    /**
+     * 获取rr分析的数据
+     * @param rrAnalysisResultBean 返回结果对象
+     * @param RR_interval RR间期  这个数据可以趋势图   R的个数=总心波数
+     * @param RR_interval RR间期  (r(i+1) - r(i))*samplerate/samplerate
+     * @param RR_interval_size RR间期长度
+     * @param sample 采样率
+     * @return
+     */
+    public native int getRRAnalysisData(RRAnalysisResultBean rrAnalysisResultBean, double[] RR_interval, int RR_interval_size, int sample);
 
     /**
      * 获取心率等信息 演示模式

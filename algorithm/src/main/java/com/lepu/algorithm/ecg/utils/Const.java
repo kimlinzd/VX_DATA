@@ -2,6 +2,8 @@ package com.lepu.algorithm.ecg.utils;
 
 import android.view.KeyEvent;
 
+import com.lepu.algorithm.ecg.entity.dictionary.EcgDataAnalysisDiagnosisEnum;
+
 /**
  * Created by wuxd
  * @author wxd
@@ -72,7 +74,7 @@ public class Const {
     public static final int PRINT_BOTTOM_TEXT_OFFSET_210 = 30;
     public static final short ECG_DATA_HEADER_LEN = 1562;
     public static final short ECG_DATA_HEADER_LEN_CUSTOM_MY = 1562-100;
-//    public static final int ANALYSIS_DIAGNOSIS_MODE = EcgDataAnalysisDiagnosisEnum.MODE_5000.getDiagnosisMode();
+    public static final int ANALYSIS_DIAGNOSIS_MODE = EcgDataAnalysisDiagnosisEnum.MODE_5000.getDiagnosisMode();
     public static final int FILE_POS_SAMPLE_SIZE = 21;
     public static final int FILE_POS_LEAD_SIZE = 25;
     public static final int FILE_POS_CRC = 4;
