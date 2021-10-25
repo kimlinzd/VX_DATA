@@ -1,12 +1,14 @@
-package com.lepu.algorithm.ecg.entity.dictionary;
+package com.lepu.algorithm.ecg.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.lepu.algorithm.ecg.entity.dictionary.EcgMeasureResultEnum;
+
 public class MeasureResultBean implements Parcelable {
 
     //算法结果类型
-    private EcgMacureResultEnum ecgMacureResultEnum;
+    private EcgMeasureResultEnum ecgMacureResultEnum;
     //RR分析，HRV分析结果
     private RRAnalysisResultBean rrAnalysisResultBean;
     //本地传统算法分析结果 / AI 本地算法结果
@@ -15,7 +17,7 @@ public class MeasureResultBean implements Parcelable {
     public MeasureResultBean(){}
 
     protected MeasureResultBean(Parcel in) {
-        ecgMacureResultEnum = EcgMacureResultEnum.values()[in.readInt()];
+        ecgMacureResultEnum = ecgMacureResultEnum.values()[in.readInt()];
         rrAnalysisResultBean = in.readParcelable(RRAnalysisResultBean.class.getClassLoader());
         aiResultBean = in.readParcelable(AiResultBean.class.getClassLoader());
     }
@@ -44,11 +46,11 @@ public class MeasureResultBean implements Parcelable {
         dest.writeParcelable(aiResultBean, flags);
     }
 
-    public EcgMacureResultEnum getEcgMeasureResultEnum() {
+    public EcgMeasureResultEnum getEcgMeasureResultEnum() {
         return ecgMacureResultEnum;
     }
 
-    public void setEcgMeasureResultEnum(EcgMacureResultEnum ecgMacureResultEnum) {
+    public void setEcgMeasureResultEnum(EcgMeasureResultEnum ecgMacureResultEnum) {
         this.ecgMacureResultEnum = ecgMacureResultEnum;
     }
 

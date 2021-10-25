@@ -1,4 +1,4 @@
-﻿﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="usercenter_text_patientinfo">患者信息</string>
   <string name="usercenter_text_orderlist">预约列表</string>
