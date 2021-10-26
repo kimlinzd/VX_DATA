@@ -30,9 +30,9 @@ public class GriAnlysManager {
 
     private ConfigBean configBeanTemp;
 
-//    static {
-//        System.loadLibrary("GlasgowEcg");
-//    }
+    static {
+        System.loadLibrary("GlasgowEcg");
+    }
 
     private static GriAnlysManager instance = null;
 
