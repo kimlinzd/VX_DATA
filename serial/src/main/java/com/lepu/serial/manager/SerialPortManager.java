@@ -141,10 +141,13 @@ public class SerialPortManager {
     }
 
     byte[] surplusData;//用于记录任务剩余的数据 放入下一个任务继续遍历
+    long gettasktime=0;
     SerialPortDataTask.OnTaskListener onTaskListener = new SerialPortDataTask.OnTaskListener() {
         @Override
         public void exNextTask(ConsumptionTask task) {
-            Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.data));
+        //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.data));
+            gettasktime=System.currentTimeMillis();
+            Log.d("收到数据时间", System.currentTimeMillis()+"");
             byte[] data;
             //如果有剩余的数据，需要把剩余的剩余的数据重新处理
             if (surplusData != null) {
@@ -194,7 +197,7 @@ public class SerialPortManager {
 
         @Override
         public void noTask() {
-            Log.d("noTask", "任务完成");
+            Log.d("noTask", "任务完成时间"+  (System.currentTimeMillis()-gettasktime));
         }
     };
 
