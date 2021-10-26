@@ -14,7 +14,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.blankj.utilcode.util.LogUtils
 import com.jeremyliao.liveeventbus.LiveEventBus
+import com.lepu.algorithm.ecg.manager.FilterManager
 import com.lepu.serial.obj.EcgData
+import com.lepu.serial.obj.EcgDemoWave
 import com.lepu.serial.obj.EventMsgConst
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
@@ -55,6 +57,9 @@ class MainActivity : AppCompatActivity() {
         initService()
 
         observeLiveDataObserve()
+
+//        var array = EcgDemoWave.Main()
+//        FilterManager.getInstance().filter(null,array,7,null)
     }
 
     /**

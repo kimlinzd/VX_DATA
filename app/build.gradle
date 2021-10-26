@@ -32,9 +32,17 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['jniLibs']
+        }
+    }
 }
 
 dependencies {
+
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation project(path: ':serial')
     implementation project(path: ':algorithm')
