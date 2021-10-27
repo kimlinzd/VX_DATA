@@ -36,7 +36,7 @@ import java.util.List;
 
 import static com.lepu.algorithm.BuildConfig.DEBUG;
 
-public class AnalysisManager<macureResultBean> {
+public class AnalysisManager {
 
     private ConfigBean configBeanTemp;
 
@@ -236,12 +236,12 @@ public class AnalysisManager<macureResultBean> {
             //常规算法分析
             short[][] ecgDataArrayPartAll = WaveEncodeUtil.leadDataSwitch(ecgDataArrayPart, false, leadType, false);
 
-            if (true) { //默认使用glassgow算法
+            if (false) { //是否使用GlassGow算法，默认不使用glassgow算法
                 if (leadType == EcgSettingConfigEnum.LeadType.LEAD_12) {
                     macureResultBean = GriAnlysManager.getInstance().processEcg(patientInfoBean, ecgDataArrayPartAll, leadType, DetectManager.getInstance().leadStateList, false, preview);
 //                    KLog.d(String.format("分析数据的长度:%d", ecgDataArrayPartAll[0].length));
                 } else {
-                    //18导联，glassgo不支持分析。类型 算法 无
+                    //18导联，glassgow不支持分析。类型 算法 无
                     macureResultBean = new MeasureResultBean();
                     macureResultBean.setEcgMacureResultEnum(EcgMeasureResultEnum.TYPE_NONE);
                 }
@@ -252,7 +252,7 @@ public class AnalysisManager<macureResultBean> {
                     System.arraycopy(ecgDataArrayPart[i], 0, ecgDataArrayOri[i], 0, ecgDataArrayOri[0].length);
                 }
 
-                String resultFilePathTest = null;
+                String resultFilePathTest = null;  //应在下面赋值
 //                if (testMode) {
 //                    resultFilePathTest = SdLocal.getTestResultXmlHl7resultPath(context,
 //                            String.format("%s_%d", patientInfoBean.getPatientNumber(), System.currentTimeMillis()));
