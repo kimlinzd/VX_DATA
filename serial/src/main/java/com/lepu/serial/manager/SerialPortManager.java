@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData1;
 import com.lepu.serial.obj.EventMsgConst;
 import com.lepu.serial.obj.NibpData;
@@ -242,6 +243,7 @@ public class SerialPortManager {
                 Log.d("分发命令--", "命令包 ");
 
 
+
             }
             break;
             case SerialMsg.TYPE_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
@@ -264,16 +266,17 @@ public class SerialPortManager {
             break;
             case SerialMsg.TYPE_REPLY: {//回复包 0xF2
                 Log.d("分发命令--", "回复包");
-            }
+                CmdReply cmdReply=new CmdReply(typeByte);
+                LiveEventBus.get(EventMsgConst.CmdReplyData)
+                        .post(cmdReply);
+             }
             break;
             case SerialMsg.TYPE_DATA: {//数据包 0xF3
                  switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
-
-
-                        EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
+                         EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgEcgData1)
                                 .post(ecgData1);
                     }

@@ -43,7 +43,7 @@ public class EcgData1 {
         hr = (buf[4] & 0xff + ((buf[5] & 0xff) << 8));
         flagPR = new int[]{buf[6] >> 4 & 0x1, buf[6] >> 5 & 0x1, buf[6] >> 6 & 0x1, buf[6] >> 7 & 0x1};
         flagPU = new int[]{buf[6] >> 0 & 0x1, buf[6] >> 1 & 0x1, buf[6] >> 2 & 0x1, buf[6] >> 3 & 0x1};
-        ecgWave = new short[len][chn];
+        ecgWave = new short[chn][len];
         //导联数据
         I = new short[len];
         II = new short[len];
@@ -58,32 +58,28 @@ public class EcgData1 {
                 int index1 = j * 2 + i * 2 * chn + 7;
                 int index2 = j * 2 + i * 2 * chn + 8;
                 short ecgWaveData = (short) ByteUtils.bytes2Short(buf[index1], buf[index2]);
-                ecgWave[i][j] = ecgWaveData;
-
-                //导联数据
-                if (j == 0) {
-                    I[i] = ecgWaveData;
-                } else if (j == 1) {
-                    II[i] = ecgWaveData;
-                } else if (j == 2) {
-                    V[i] = ecgWaveData;
-                }
+                ecgWave[j][i] = ecgWaveData;
             }
         }
 
-        for (int i = 0; i < len; i++) {
-            // III = II - I
-            this.III[i] = (short) (II[i] - I[i]);
-            // aVR = -(I+II)/2
-            this.aVR[i] = (short) ((II[i] + I[i]) / -2);
-            // aVL = (2*I-II)/2
-            this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
-            // aVF = (2*II-I)/2
-            this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
-            // v1
-            this.V[i] = (short) (V[i] - 0x8000);
+        //计算出其他通道数据
+        if (chn == 3) {
+            I = ecgWave[0];
+            II = ecgWave[1];
+            V = ecgWave[2];
+             for (int i = 0; i < len; i++) {
+                // III = II - I
+                this.III[i] = (short) (II[i] - I[i]);
+                // aVR = -(I+II)/2
+                this.aVR[i] = (short) ((II[i] + I[i]) / -2);
+                // aVL = (2*I-II)/2
+                this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
+                // aVF = (2*II-I)/2
+                this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
+                // v1
+                this.V[i] = (short) (V[i] - 0x8000);
+            }
         }
-
 
     }
 
@@ -92,10 +88,10 @@ public class EcgData1 {
         byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x6B, (byte) 0xF3, (byte) 0x01, (byte) 0x00
                 , (byte) 0x04, (byte) 0x03, (byte) 0x07, (byte) 0x03, (byte) 0x3C, (byte) 0x00, (byte) 0x00
 
-                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-                , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
+                , (byte) 0x01, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x03, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x05, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+                , (byte) 0x07, (byte) 0x08, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
                 (byte) 0x9A};
 
 

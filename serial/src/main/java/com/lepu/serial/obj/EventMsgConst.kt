@@ -43,5 +43,9 @@ object EventMsgConst {
      *体温数据
      */
     const val MsgTempData = "com.lepu.serial.obj.TempData"
+    /**
+     *命令回复数据
+     */
+    const val  CmdReplyData = "com.lepu.serial.obj.CmdReply"
 
 }
