@@ -59,7 +59,7 @@ public class SerialPortManager {
     public void init() {
         AsyncTask.execute(() -> {
             try {
-                Log.d("SerialPortManager", "初始化串口");
+           //     Log.d("SerialPortManager", "初始化串口");
                 //打开串口
                 SerialPort serialPort = SerialPort //
                         .newBuilder("/dev/ttyS1", 480600) // 串口地址地址，波特率
@@ -168,10 +168,10 @@ public class SerialPortManager {
     OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
         @Override
         public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
-            Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
+        //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
             new Thread(() -> {
                 gettasktime = System.currentTimeMillis();
-                Log.d("收到数据时间", System.currentTimeMillis() + "");
+           //     Log.d("收到数据时间", System.currentTimeMillis() + "");
                 byte[] data;
                 //如果有剩余的数据，需要把剩余的剩余的数据重新处理
                 if (surplusData != null) {
@@ -218,7 +218,7 @@ public class SerialPortManager {
 
         @Override
         public void noTask() {
-            Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
+      //      Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
         }
     };
 
@@ -356,7 +356,7 @@ public class SerialPortManager {
                                     .post(spO2OriginalData);
                         } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
                             //上传SpO2数据
-                            Log.d("分发命令--", "上传SpO2数据 数据包");
+                        //    Log.d("分发命令--", "上传SpO2数据 数据包");
                             SpO2Data spO2Data = new SpO2Data(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgSpO2Data)
                                     .post(spO2Data);

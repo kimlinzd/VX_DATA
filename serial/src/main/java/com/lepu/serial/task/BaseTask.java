@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @param <T> 任务  任务/ 需要排队的任务， 支持扩展
@@ -15,7 +16,7 @@ public class BaseTask<T extends BaseTaskBean> {
     /**
      * 排队容器, 需要排队的任务才会加入此列表
      */
-    private LinkedList<T> lineUpBeans;
+    private ConcurrentLinkedQueue<T> lineUpBeans;
 
     /**
      * 执行下一个任务任务的监听器
@@ -31,7 +32,7 @@ public class BaseTask<T extends BaseTaskBean> {
 
     public BaseTask() {
         // app 只会执行一直
-        lineUpBeans = new LinkedList<>();
+        lineUpBeans = new ConcurrentLinkedQueue<>();
     }
 
 
@@ -43,31 +44,26 @@ public class BaseTask<T extends BaseTaskBean> {
      */
     public void addTask(T task) {
         if (lineUpBeans != null) {
-            Log.e("Post", "任务加入排队中" + task.taskNo);
-            if (!checkTask()) {
-                lineUpBeans.addLast(task);
+      //      Log.e("Post", "任务加入排队中" + task.taskNo);
+   /*         if (!lineUpBeans.isEmpty()) {
+                lineUpBeans.offer(task);
                 if (onTaskListener != null) {
                     onTaskListener.exNextTask(task);
                 }
             } else {
-                lineUpBeans.addLast(task);
+                lineUpBeans.offer(task);
+            }*/
+            if (!lineUpBeans.isEmpty()){
+                onTaskListener.exNextTask(task);
+
             }
+                lineUpBeans.offer(task);
+
 
         }
     }
 
-    /**
-     * 检查列表中是否有任务正在执行。
-     *
-     * @return true 表示有任务正在执行。
-     */
-    public boolean checkTask() {
-        boolean isTask = false;
-        if (lineUpBeans != null) {
-            if (lineUpBeans.size() > 0) isTask = true;
-        }
-        return isTask;
-    }
+
 
 
     /**
@@ -77,28 +73,11 @@ public class BaseTask<T extends BaseTaskBean> {
      */
     public BaseTaskBean getFirst() {
         if (lineUpBeans != null) {
-            return lineUpBeans.getFirst();
+            return lineUpBeans.poll();
         }
         return null;
     }
 
-
-    /**
-     * 执行成功之后，删除排队中的任务。
-     *
-     * @param task
-     */
-    private void deleteTask(T task) {
-          if (lineUpBeans != null) {
-            for (int i = 0; i < lineUpBeans.size(); i++) {
-                BaseTaskBean consumptionTask = lineUpBeans.get(i);
-                if (task.taskNo.equals(consumptionTask.taskNo)) {
-                    lineUpBeans.remove(consumptionTask); // 删除任务
-                    break;
-                }
-            }
-        }
-    }
 
 
     /**
@@ -143,13 +122,15 @@ public class BaseTask<T extends BaseTaskBean> {
      * 外部调用， 当执行完成一个任务调用
      */
     public void exOk(T task) {
-        AsyncTask.execute(()->{});
-        deleteTask(task); // 删除已经执行完成的任务。
-        if (lineUpBeans != null) {
-            if (checkTask()) {
+         if (lineUpBeans != null) {
+            if (!lineUpBeans.isEmpty()) {
                 // 发现还有任务
-                if (onTaskListener != null) {
-                    onTaskListener.exNextTask(lineUpBeans.getFirst());
+                if (onTaskListener != null&&!lineUpBeans.isEmpty()) {
+                    T t=lineUpBeans.poll();
+                    if (t!=null){
+                        onTaskListener.exNextTask(t);
+                    }
+
                 }
             } else {
                 if (onTaskListener != null) {

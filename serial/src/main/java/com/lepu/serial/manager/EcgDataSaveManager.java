@@ -21,6 +21,13 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * a) 病人数最多：100
+ * b) 趋势数据最长：240小时/病人
+ * c) 全息心电波形最长：140小时/病人
+ * d) NIBP 测量结果最多：2000组/病人
+ * e) 报警事件最多：1000条/病人
+ * f) 报告最多：20份/病人
+ *
  * 心电数据数据保存
  */
 public class EcgDataSaveManager {
