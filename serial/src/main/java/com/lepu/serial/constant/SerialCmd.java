@@ -1,10 +1,14 @@
-package com.lepu.serial.obj;
+package com.lepu.serial.constant;
 
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.uitl.CRCUitl;
 
 import java.util.Arrays;
 
+/**
+ * 串口命令合成
+ */
 public class SerialCmd {
 
     static byte index = 0;

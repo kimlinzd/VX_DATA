@@ -15,9 +15,9 @@ import android.view.MenuItem
 import com.blankj.utilcode.util.LogUtils
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.algorithm.ecg.manager.FilterManager
+import com.lepu.serial.constant.EventMsgConst
 import com.lepu.serial.obj.EcgData
 import com.lepu.serial.obj.EcgDemoWave
-import com.lepu.serial.obj.EventMsgConst
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
 

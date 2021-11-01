@@ -9,7 +9,7 @@ import com.blankj.utilcode.util.LogUtils
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.obj.EcgData
 import com.lepu.serial.obj.EcgDemoWave
-import com.lepu.serial.obj.EventMsgConst
+import com.lepu.serial.constant.EventMsgConst
 import java.util.*
 import kotlin.concurrent.schedule
 

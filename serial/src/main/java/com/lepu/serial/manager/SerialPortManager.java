@@ -9,7 +9,7 @@ import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData1;
-import com.lepu.serial.obj.EventMsgConst;
+import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.obj.NibpData;
 import com.lepu.serial.obj.NibpOriginalData;
 import com.lepu.serial.obj.RespData;
@@ -17,28 +17,34 @@ import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.obj.SpO2Data;
 import com.lepu.serial.obj.SpO2OriginalData;
 import com.lepu.serial.obj.TempData;
-import com.lepu.serial.task.ConsumptionTask;
+import com.lepu.serial.task.BaseTaskBean;
+import com.lepu.serial.task.EcgSaveTaskBean;
+import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
+import com.lepu.serial.task.SerialTaskBean;
 import com.lepu.serial.uitl.CRCUitl;
 import com.lepu.serial.uitl.StringtoHexUitl;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 串口管理 打开串口 读取数据流 写入数据流
  */
 public class SerialPortManager {
-
-    private ReadThread mReadThread;
+    //定时获取串口数据任务
+    ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
     SerialPort mSerialPort;
     InputStream mInputStream;
     OutputStream mOutputStream;
     //处理串口数据队列
-    public SerialPortDataTask lineUpTaskHelp;
-
-
+    public SerialPortDataTask mSerialPortDataTask;
+    //单例
     private static SerialPortManager instance = null;
+    //请求命令回调
+    CmdReplyListener mCmdReplyListener;
 
     public static SerialPortManager getInstance() {
         if (instance == null) {
@@ -71,37 +77,59 @@ public class SerialPortManager {
                 e.printStackTrace();
             }
         });
-        lineUpTaskHelp = SerialPortDataTask.getInstance();
-        lineUpTaskHelp.setOnTaskListener(onTaskListener);
+        //设置任务监听
+        mSerialPortDataTask = SerialPortDataTask.getInstance();
+        mSerialPortDataTask.setOnTaskListener(onTaskListener);
+
     }
 
     /**
      * 开始读取串口数据
      */
     public void startGetEcgData() {
-        mReadThread = new ReadThread();
-        mReadThread.start();
+
+        if (mScheduledThreadPoolExecutor == null) {
+            mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+            mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (mInputStream == null) return;
+                        byte[] buffer = readStream(mInputStream);
+                        SerialTaskBean serialTaskBean = new SerialTaskBean();
+                        serialTaskBean.data = buffer;
+                        BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
+                        baseTaskBean.taskBaen = serialTaskBean;
+                        baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
+                        // 添加到排队列表中去
+                        mSerialPortDataTask.addTask(baseTaskBean);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                     }
+
+                }
+            }, 10, 50, TimeUnit.MILLISECONDS);//每30秒保存一次数据
+        }
     }
 
     /**
      * 向串口写入数据
      */
-    public void serialSendData(String sendStr) {
+    public void serialSendData(byte[] sendbyte, CmdReplyListener cmdReplyListener) {
         try {
-
+            mCmdReplyListener = cmdReplyListener;
             OutputStream mOutputStream;
             mOutputStream = mSerialPort.getOutputStream();
-
-            byte[] msg = StringtoHexUitl
-                    .toByteArray(sendStr
-                            .replace(" ", ""));
-            for (int i = 0; i < msg.length; i++) {
-                mOutputStream.write(msg[i]);
+            for (int i = 0; i < sendbyte.length; i++) {
+                mOutputStream.write(sendbyte[i]);
             }
             mOutputStream.flush();
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            if (mCmdReplyListener!=null){
+                mCmdReplyListener.onFail(sendbyte[6]);
+            }
         }
     }
 
@@ -113,92 +141,84 @@ public class SerialPortManager {
             mSerialPort.close();
             mSerialPort = null;
         }
-        if (mReadThread != null) mReadThread.interrupt();
-
-    }
-
-
-    private class ReadThread extends Thread {
-
-        @Override
-        public void run() {
-            super.run();
-            while (!isInterrupted()) {
-                try {
-                    if (mInputStream == null) return;
-                    byte[] buffer = readStream(mInputStream);
-                    ConsumptionTask task = new ConsumptionTask();
-                    task.taskNo = String.valueOf(System.currentTimeMillis()); // 确保唯一性
-                    task.data = buffer;
-                    // 添加到排队列表中去
-                    lineUpTaskHelp.addTask(task);
-                    sleep(50);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return;
+        if (mScheduledThreadPoolExecutor != null) {
+            try {
+                // shutdown只是起到通知的作用
+                // 只调用shutdown方法结束线程池是不够的
+                mScheduledThreadPoolExecutor.shutdown();
+                // (所有的任务都结束的时候，返回TRUE)
+                if (!mScheduledThreadPoolExecutor.awaitTermination(0, TimeUnit.MILLISECONDS)) {
+                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
+                    mScheduledThreadPoolExecutor.shutdownNow();
                 }
+            } catch (InterruptedException e) {
+                // awaitTermination方法被中断的时候也中止线程池中全部的线程的执行。
+                e.printStackTrace();
+            } finally {
+                mScheduledThreadPoolExecutor.shutdownNow();
+                mScheduledThreadPoolExecutor = null;
             }
         }
+
     }
 
+
     byte[] surplusData;//用于记录任务剩余的数据 放入下一个任务继续遍历
-    long gettasktime=0;
-    SerialPortDataTask.OnTaskListener onTaskListener = new SerialPortDataTask.OnTaskListener() {
+    long gettasktime = 0;
+    OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
         @Override
-        public void exNextTask(ConsumptionTask task) {
-        //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.data));
-            gettasktime=System.currentTimeMillis();
-            Log.d("收到数据时间", System.currentTimeMillis()+"");
-            byte[] data;
-            //如果有剩余的数据，需要把剩余的剩余的数据重新处理
-            if (surplusData != null) {
-                data = new byte[surplusData.length + task.data.length];
-                System.arraycopy(surplusData, 0, data, 0, surplusData.length);
-                System.arraycopy(task.data, 0, data, surplusData.length, task.data.length);
-            } else {
-                data = task.data;
-            }
-            //用于记录一段完整的报文
-            byte[] completeData = null;
-            //遍历数据
-            for (int i = 0; i < data.length; i++) {
-                //第三个是长度
-                if (i + 2 >= data.length) {
-                    //把最后的数据 放在下一个任务中
-                    surplusData = new byte[data.length - i];
-                    System.arraycopy(data, i, surplusData, 0, data.length - i);
-                    break;
+        public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
+            Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
+            new Thread(() -> {
+                gettasktime = System.currentTimeMillis();
+                Log.d("收到数据时间", System.currentTimeMillis() + "");
+                byte[] data;
+                //如果有剩余的数据，需要把剩余的剩余的数据重新处理
+                if (surplusData != null) {
+                    data = new byte[surplusData.length + task.taskBaen.data.length];
+                    System.arraycopy(surplusData, 0, data, 0, surplusData.length);
+                    System.arraycopy(task.taskBaen.data, 0, data, surplusData.length, task.taskBaen.data.length);
+                } else {
+                    data = task.taskBaen.data;
                 }
-                //判断开头
-                if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
-                    completeData = new byte[(0x00ff & data[i + 2])];
-                    if (i + completeData.length > data.length) {
+                //用于记录一段完整的报文
+                byte[] completeData = null;
+                //遍历数据
+                for (int i = 0; i < data.length; i++) {
+                    //第三个是长度
+                    if (i + 2 >= data.length) {
                         //把最后的数据 放在下一个任务中
                         surplusData = new byte[data.length - i];
                         System.arraycopy(data, i, surplusData, 0, data.length - i);
                         break;
-                    } else {
-                        System.arraycopy(data, i, completeData, 0, completeData.length);
-                        //校验数据
-                        if (CRCUitl.CRC8(completeData)) {
-                            //越过已处理数据
-                            i = i + completeData.length - 1;
-                            //分发数据
-                            distributeMsg(completeData);
-
+                    }
+                    //判断开头
+                    if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
+                        completeData = new byte[(0x00ff & data[i + 2])];
+                        if (i + completeData.length > data.length) {
+                            //把最后的数据 放在下一个任务中
+                            surplusData = new byte[data.length - i];
+                            System.arraycopy(data, i, surplusData, 0, data.length - i);
+                            break;
+                        } else {
+                            System.arraycopy(data, i, completeData, 0, completeData.length);
+                            //校验数据
+                            if (CRCUitl.CRC8(completeData)) {
+                                //越过已处理数据
+                                i = i + completeData.length - 1;
+                                //分发数据
+                                distributeMsg(completeData);
+                            }
                         }
                     }
                 }
-
-            }
-
-
-            lineUpTaskHelp.exOk(task);
+                mSerialPortDataTask.exOk(task);
+            }).start();
         }
 
         @Override
         public void noTask() {
-            Log.d("noTask", "任务完成时间"+  (System.currentTimeMillis()-gettasktime));
+            Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
         }
     };
 
@@ -226,7 +246,7 @@ public class SerialPortManager {
      *
      * @param msgdata
      */
-    public  void distributeMsg(byte[] msgdata) {
+    public void distributeMsg(byte[] msgdata) {
         //解析包
         SerialMsg serialMsg = new SerialMsg(msgdata);
         //报文类型（Class字节）用于区分不同的报文便于处理。其范围为0xF0 ~ 0xFB。
@@ -236,12 +256,11 @@ public class SerialPortManager {
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
         byte typeByte = serialMsg.getContent().type;
         i++;
-        Log.d("命令index--", i+"");
+        Log.d("命令index--", i + "");
 
         switch (classByte) {
             case SerialMsg.TYPE_CMD: {//命令包 0xF0
                 Log.d("分发命令--", "命令包 ");
-
 
 
             }
@@ -252,12 +271,16 @@ public class SerialPortManager {
                 switch (typeByte) {
                     case SerialContent.TYPE_DATA_START: {
                         Log.d("分发命令--", "接受到开始传输命令");
-
+                        if (mCmdReplyListener != null) {
+                            mCmdReplyListener.onSuccess(typeByte);
+                        }
                     }
                     break;
                     case SerialContent.TYPE_DATA_STOP: {
                         Log.d("分发命令--", "接受到停止传输命令");
-
+                        if (mCmdReplyListener != null) {
+                            mCmdReplyListener.onSuccess(typeByte);
+                        }
                     }
                     break;
                 }
@@ -266,19 +289,27 @@ public class SerialPortManager {
             break;
             case SerialMsg.TYPE_REPLY: {//回复包 0xF2
                 Log.d("分发命令--", "回复包");
-                CmdReply cmdReply=new CmdReply(typeByte);
+                CmdReply cmdReply = new CmdReply(typeByte);
                 LiveEventBus.get(EventMsgConst.CmdReplyData)
                         .post(cmdReply);
-             }
+            }
             break;
             case SerialMsg.TYPE_DATA: {//数据包 0xF3
-                 switch (tokenByte) {
+                switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
                         Log.d("分发命令--", "心电数据数据包");
-                         EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
+                        EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgEcgData1)
                                 .post(ecgData1);
+                        //分发到保存心电图数据
+                        EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
+                        ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
+                        ecgSaveTaskBean.setEcgdata(msgdata);
+                        BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();
+                        baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
+                        baseTaskBean.taskBaen = ecgSaveTaskBean;
+                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
@@ -326,7 +357,7 @@ public class SerialPortManager {
                         } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
                             //上传SpO2数据
                             Log.d("分发命令--", "上传SpO2数据 数据包");
-                            SpO2Data spO2Data=new SpO2Data(serialMsg.getContent().data);
+                            SpO2Data spO2Data = new SpO2Data(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgSpO2Data)
                                     .post(spO2Data);
 
@@ -347,7 +378,7 @@ public class SerialPortManager {
             }
             break;
             default:
-                Log.d("分发命令--", "完成");
+                Log.d("分发命令--", "default");
         }
 
 
@@ -364,8 +395,22 @@ public class SerialPortManager {
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
                 (byte) 0x9A};
 
-       // distributeMsg(data);
+        // distributeMsg(data);
 
+
+    }
+
+
+
+    /**
+     * 请求命令回调
+     */
+    public interface CmdReplyListener {
+        //请求成功
+        void onSuccess(byte cmdType);
+
+        //请求失败
+        void onFail(byte cmdType);
 
     }
 

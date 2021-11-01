@@ -1,4 +1,4 @@
-package com.lepu.serial.obj
+package com.lepu.serial.constant
 
 /**
  * LiveEventBus key
