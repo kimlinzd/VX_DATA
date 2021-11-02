@@ -43,24 +43,13 @@ public class BaseTask<T extends BaseTaskBean> {
      * @param task 一个任务
      */
     public void addTask(T task) {
+
         if (lineUpBeans != null) {
-      //      Log.e("Post", "任务加入排队中" + task.taskNo);
-   /*         if (!lineUpBeans.isEmpty()) {
-                lineUpBeans.offer(task);
-                if (onTaskListener != null) {
-                    onTaskListener.exNextTask(task);
-                }
-            } else {
-                lineUpBeans.offer(task);
-            }*/
-            if (!lineUpBeans.isEmpty()){
+             if (!lineUpBeans.isEmpty()){
                 onTaskListener.exNextTask(task);
-
-            }
+             }
                 lineUpBeans.offer(task);
-
-
-        }
+          }
     }
 
 
@@ -125,7 +114,7 @@ public class BaseTask<T extends BaseTaskBean> {
          if (lineUpBeans != null) {
             if (!lineUpBeans.isEmpty()) {
                 // 发现还有任务
-                if (onTaskListener != null&&!lineUpBeans.isEmpty()) {
+                if (onTaskListener != null) {
                     T t=lineUpBeans.poll();
                     if (t!=null){
                         onTaskListener.exNextTask(t);

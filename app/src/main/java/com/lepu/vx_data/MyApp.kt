@@ -25,8 +25,7 @@ class MyApp: Application() {
 
         Init.init(this)
 
-        SerialPortManager.getInstance().init()
-        EcgDataSaveManager.getInstance().init()
+
     }
 
 

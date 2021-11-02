@@ -10,6 +10,8 @@ import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.obj.EcgData
 import com.lepu.serial.obj.EcgDemoWave
 import com.lepu.serial.constant.EventMsgConst
+import com.lepu.serial.manager.EcgDataSaveManager
+import com.lepu.serial.manager.SerialPortManager
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -18,6 +20,8 @@ class SerialService : Service() {
     override fun onCreate() {
         super.onCreate()
         LogUtils.d("SerialService onCreate")
+        SerialPortManager.getInstance().init()
+        EcgDataSaveManager.getInstance().init()
         runTask()
     }
 

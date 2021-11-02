@@ -59,7 +59,7 @@ public class SerialPortManager {
     public void init() {
         AsyncTask.execute(() -> {
             try {
-           //     Log.d("SerialPortManager", "初始化串口");
+                //     Log.d("SerialPortManager", "初始化串口");
                 //打开串口
                 SerialPort serialPort = SerialPort //
                         .newBuilder("/dev/ttyS1", 480600) // 串口地址地址，波特率
@@ -105,7 +105,7 @@ public class SerialPortManager {
                         mSerialPortDataTask.addTask(baseTaskBean);
                     } catch (Exception e) {
                         e.printStackTrace();
-                     }
+                    }
 
                 }
             }, 10, 50, TimeUnit.MILLISECONDS);//每30秒保存一次数据
@@ -127,7 +127,7 @@ public class SerialPortManager {
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            if (mCmdReplyListener!=null){
+            if (mCmdReplyListener != null) {
                 mCmdReplyListener.onFail(sendbyte[6]);
             }
         }
@@ -168,57 +168,55 @@ public class SerialPortManager {
     OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
         @Override
         public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
-        //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
-            new Thread(() -> {
-                gettasktime = System.currentTimeMillis();
-           //     Log.d("收到数据时间", System.currentTimeMillis() + "");
-                byte[] data;
-                //如果有剩余的数据，需要把剩余的剩余的数据重新处理
-                if (surplusData != null) {
-                    data = new byte[surplusData.length + task.taskBaen.data.length];
-                    System.arraycopy(surplusData, 0, data, 0, surplusData.length);
-                    System.arraycopy(task.taskBaen.data, 0, data, surplusData.length, task.taskBaen.data.length);
-                } else {
-                    data = task.taskBaen.data;
+            //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
+            gettasktime = System.currentTimeMillis();
+            byte[] data;
+            //如果有剩余的数据，需要把剩余的剩余的数据重新处理
+            if (surplusData != null) {
+                data = new byte[surplusData.length + task.taskBaen.data.length];
+                System.arraycopy(surplusData, 0, data, 0, surplusData.length);
+                System.arraycopy(task.taskBaen.data, 0, data, surplusData.length, task.taskBaen.data.length);
+            } else {
+                data = task.taskBaen.data;
+            }
+            //用于记录一段完整的报文
+            byte[] completeData = null;
+            //遍历数据
+            for (int i = 0; i < data.length; i++) {
+                //第三个是长度
+                if (i + 2 >= data.length) {
+                    //把最后的数据 放在下一个任务中
+                    surplusData = new byte[data.length - i];
+                    System.arraycopy(data, i, surplusData, 0, data.length - i);
+                    break;
                 }
-                //用于记录一段完整的报文
-                byte[] completeData = null;
-                //遍历数据
-                for (int i = 0; i < data.length; i++) {
-                    //第三个是长度
-                    if (i + 2 >= data.length) {
+                //判断开头
+                if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
+                    completeData = new byte[(0x00ff & data[i + 2])];
+                    if (i + completeData.length > data.length) {
                         //把最后的数据 放在下一个任务中
                         surplusData = new byte[data.length - i];
                         System.arraycopy(data, i, surplusData, 0, data.length - i);
                         break;
-                    }
-                    //判断开头
-                    if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
-                        completeData = new byte[(0x00ff & data[i + 2])];
-                        if (i + completeData.length > data.length) {
-                            //把最后的数据 放在下一个任务中
-                            surplusData = new byte[data.length - i];
-                            System.arraycopy(data, i, surplusData, 0, data.length - i);
-                            break;
-                        } else {
-                            System.arraycopy(data, i, completeData, 0, completeData.length);
-                            //校验数据
-                            if (CRCUitl.CRC8(completeData)) {
-                                //越过已处理数据
-                                i = i + completeData.length - 1;
-                                //分发数据
-                                distributeMsg(completeData);
-                            }
+                    } else {
+                        System.arraycopy(data, i, completeData, 0, completeData.length);
+                        //校验数据
+                        if (CRCUitl.CRC8(completeData)) {
+                            //越过已处理数据
+                            i = i + completeData.length - 1;
+                            //分发数据
+                            distributeMsg(completeData);
                         }
                     }
                 }
-                mSerialPortDataTask.exOk(task);
-            }).start();
+            }
+            mSerialPortDataTask.exOk(task);
+
         }
 
         @Override
         public void noTask() {
-      //      Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
+            //     Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
         }
     };
 
@@ -256,39 +254,20 @@ public class SerialPortManager {
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
         byte typeByte = serialMsg.getContent().type;
         i++;
-        Log.d("命令index--", i + "");
+        //    Log.d("命令index--", i + "");
 
         switch (classByte) {
             case SerialMsg.TYPE_CMD: {//命令包 0xF0
-                Log.d("分发命令--", "命令包 ");
-
 
             }
             break;
             case SerialMsg.TYPE_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
-                Log.d("分发命令--", "命令确认包（若有回复包，就不发确认包）");
-
-                switch (typeByte) {
-                    case SerialContent.TYPE_DATA_START: {
-                        Log.d("分发命令--", "接受到开始传输命令");
-                        if (mCmdReplyListener != null) {
-                            mCmdReplyListener.onSuccess(typeByte);
-                        }
-                    }
-                    break;
-                    case SerialContent.TYPE_DATA_STOP: {
-                        Log.d("分发命令--", "接受到停止传输命令");
-                        if (mCmdReplyListener != null) {
-                            mCmdReplyListener.onSuccess(typeByte);
-                        }
-                    }
-                    break;
+                if (mCmdReplyListener != null) {
+                    mCmdReplyListener.onSuccess(typeByte);
                 }
-
             }
             break;
             case SerialMsg.TYPE_REPLY: {//回复包 0xF2
-                Log.d("分发命令--", "回复包");
                 CmdReply cmdReply = new CmdReply(typeByte);
                 LiveEventBus.get(EventMsgConst.CmdReplyData)
                         .post(cmdReply);
@@ -298,7 +277,6 @@ public class SerialPortManager {
                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
-                        Log.d("分发命令--", "心电数据数据包");
                         EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgEcgData1)
                                 .post(ecgData1);
@@ -314,7 +292,6 @@ public class SerialPortManager {
                     break;
                     case SerialContent.TOKEN_RESP: {
                         //上传呼吸RESP
-                        Log.d("分发命令--", "呼吸RESP数据包");
                         RespData respData = new RespData(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgRespData)
                                 .post(respData);
@@ -322,7 +299,6 @@ public class SerialPortManager {
                     break;
                     case SerialContent.TOKEN_TEMP: {
                         //上传体温数据
-                        Log.d("分发命令--", "上传体温数据 数据包");
                         TempData tempData = new TempData(serialMsg.getContent().data);
                         LiveEventBus.get(EventMsgConst.MsgTempData)
                                 .post(tempData);
@@ -332,13 +308,11 @@ public class SerialPortManager {
                         //血压NIBP
                         if (typeByte == SerialContent.TYPE_DATA_NIBP) {
                             //上传实时袖带压
-                            Log.d("分发命令--", "血压NIBP 数据包");
                             NibpData nibpData = new NibpData(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgNibpData)
                                     .post(nibpData);
                         } else if (typeByte == SerialContent.TYPE_DATA_NIBP_ORIGINAL) {
                             //上传实时袖带压原始数据
-                            Log.d("分发命令--", "血压NIBP 数据包");
                             NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
                                     .post(nibpOriginalData);
@@ -350,13 +324,11 @@ public class SerialPortManager {
                         //血氧SpO2
                         if (typeByte == SerialContent.TYPE_DATA_SP02) {
                             //上传波形数据_原始数据
-                            Log.d("分发命令--", "上传波形数据_原始数据 数据包");
                             SpO2OriginalData spO2OriginalData = new SpO2OriginalData(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgSpO2OriginalData)
                                     .post(spO2OriginalData);
                         } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
                             //上传SpO2数据
-                        //    Log.d("分发命令--", "上传SpO2数据 数据包");
                             SpO2Data spO2Data = new SpO2Data(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgSpO2Data)
                                     .post(spO2Data);
@@ -370,15 +342,14 @@ public class SerialPortManager {
             }
             break;
             case SerialMsg.TYPE_STATUS: {//如心跳包，异常状态包等等（主动传输）	双向 0xF4
-                Log.d("分发命令--", "如心跳包，异常状态包等等（主动传输）双向");
+
             }
             break;
             case SerialMsg.TYPE_UPDATE: {//升级包 0xF5
-                Log.d("分发命令--", "升级包");
+
             }
             break;
             default:
-                Log.d("分发命令--", "default");
         }
 
 
@@ -399,7 +370,6 @@ public class SerialPortManager {
 
 
     }
-
 
 
     /**

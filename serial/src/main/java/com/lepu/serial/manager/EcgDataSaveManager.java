@@ -69,8 +69,7 @@ public class EcgDataSaveManager {
      * @param data
      */
     public void addCacheEcgDate(byte[] data) {
-        //    concurrentLinkedQueue.offer(data);
-        cacheData = ByteUtils.add(cacheData, data);
+     //    cacheData = ByteUtils.add(cacheData, data);
     }
 
     /**
@@ -106,7 +105,7 @@ public class EcgDataSaveManager {
 
         @Override
         public void noTask() {
-            Log.d("noTask", cacheData.length + "");
+          //  Log.d("noTask", cacheData.length + "");
         }
     };
 
