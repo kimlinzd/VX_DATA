@@ -3,18 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'maven-publish'
 }
- afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.lepu.serialport'
-                artifactId = 'serialport'
-                version = '1.0.0'
-            }
-        }
-    }
-}
+
 
  android {
     compileSdk 30
