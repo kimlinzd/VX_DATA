@@ -17,6 +17,7 @@ import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.algorithm.ecg.manager.FilterManager
 import com.lepu.serial.constant.EventMsgConst
 import com.lepu.serial.obj.EcgData
+import com.lepu.serial.obj.EcgData1
 import com.lepu.serial.obj.EcgDemoWave
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
@@ -70,8 +71,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeLiveDataObserve() {
-        LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
-                val data = it as EcgData
+        LiveEventBus.get(EventMsgConst.MsgEcgData1).observe(this, {
+                val data = it as EcgData1
                 LogUtils.d(data)
             }
         )

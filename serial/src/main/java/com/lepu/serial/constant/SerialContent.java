@@ -36,6 +36,10 @@ public class SerialContent {
     public static final byte TOKEN_SP02 = 0x06;     //血氧SpO2
     public static final byte TYPE_DATA_SP02 = 0x00; //上传波形数据_原始数据 血氧SpO2
     public static final byte TYPE_DATA_SP02_ORIGINAL = 0x00;//上传SpO2数据 血氧SpO2
+    /**
+     * 是否是测试数据
+     */
+    public static boolean IS_TEST_DATA=false;
 
     public SerialContent(byte[] buf) {
         token = buf[0];

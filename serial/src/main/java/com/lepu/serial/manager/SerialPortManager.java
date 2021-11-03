@@ -7,9 +7,11 @@ import android.util.Log;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.constant.SerialDataFlieContent;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData1;
 import com.lepu.serial.constant.EventMsgConst;
+import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.NibpData;
 import com.lepu.serial.obj.NibpOriginalData;
 import com.lepu.serial.obj.RespData;
@@ -45,6 +47,8 @@ public class SerialPortManager {
     private static SerialPortManager instance = null;
     //请求命令回调
     CmdReplyListener mCmdReplyListener;
+    //心电测试数据的游标
+    int testEcgIndex;
 
     public static SerialPortManager getInstance() {
         if (instance == null) {
@@ -70,13 +74,14 @@ public class SerialPortManager {
                 mSerialPort = serialPort;
                 mInputStream = mSerialPort.getInputStream();
                 mOutputStream = mSerialPort.getOutputStream();
-                //开始定时获取心电图数据
-                startGetEcgData();
+
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+        //开始定时获取心电图数据
+        startGetEcgData();
         //设置任务监听
         mSerialPortDataTask = SerialPortDataTask.getInstance();
         mSerialPortDataTask.setOnTaskListener(onTaskListener);
@@ -94,21 +99,49 @@ public class SerialPortManager {
                 @Override
                 public void run() {
                     try {
-                        if (mInputStream == null) return;
-                        byte[] buffer = readStream(mInputStream);
-                        SerialTaskBean serialTaskBean = new SerialTaskBean();
-                        serialTaskBean.data = buffer;
-                        BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-                        baseTaskBean.taskBaen = serialTaskBean;
-                        baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-                        // 添加到排队列表中去
-                        mSerialPortDataTask.addTask(baseTaskBean);
+                        if(SerialContent.IS_TEST_DATA){//测试模式
+                         for (int k=0;k<50;k++){
+                             if ((testEcgIndex+4)==500){
+                                 testEcgIndex=0;
+                             }
+                             //测数据 拼接数据
+                             short[][] ecgTestShort=new short[3][4];
+                             for (int i=0;i<ecgTestShort.length;i++){
+                                 for (int j=0;j<ecgTestShort[0].length;j++){
+                                     if (i==0){
+                                         ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveI()[j+testEcgIndex];
+                                     }else if (i==1){
+                                         ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveII()[j+testEcgIndex];
+                                     }else if (i==2){
+                                         ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveV()[j+testEcgIndex];
+                                     }
+                                 }
+                              }
+                             testEcgIndex=testEcgIndex+4;
+                              EcgData1 ecgData1 = new EcgData1(ecgTestShort);
+                             LiveEventBus.get(EventMsgConst.MsgEcgData1)
+                                     .post(ecgData1);
+                         }
+
+                        }else {//正式数据
+                            if (mInputStream == null) return;
+                            byte[] buffer = readStream(mInputStream);
+                            SerialTaskBean serialTaskBean = new SerialTaskBean();
+                            serialTaskBean.data = buffer;
+                            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
+                            baseTaskBean.taskBaen = serialTaskBean;
+                            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
+                            // 添加到排队列表中去
+                            mSerialPortDataTask.addTask(baseTaskBean);
+                        }
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                 }
-            }, 10, 50, TimeUnit.MILLISECONDS);//每30秒保存一次数据
+            }, 10, 100, TimeUnit.MILLISECONDS);//每30秒保存一次数据
         }
     }
 
@@ -216,7 +249,12 @@ public class SerialPortManager {
 
         @Override
         public void noTask() {
-            //     Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
+            if ((System.currentTimeMillis() - gettasktime)>50){
+                Log.d("noTask", "任务完成时间-----" + (System.currentTimeMillis() - gettasktime));
+            }else {
+                Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
+            }
+
         }
     };
 
@@ -237,7 +275,7 @@ public class SerialPortManager {
         return b;
     }
 
-    int i = 0;
+
 
     /**
      * 分发消息
@@ -253,8 +291,7 @@ public class SerialPortManager {
         byte tokenByte = serialMsg.getContent().token;
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
         byte typeByte = serialMsg.getContent().type;
-        i++;
-        //    Log.d("命令index--", i + "");
+
 
         switch (classByte) {
             case SerialMsg.TYPE_CMD: {//命令包 0xF0
@@ -355,9 +392,13 @@ public class SerialPortManager {
 
     }
 
+    public void setTestMode(boolean testMode){
+        SerialContent.IS_TEST_DATA=testMode;
+    }
+
 
     public static void main(String[] args) {
-        byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x6B, (byte) 0xF3, (byte) 0x01, (byte) 0x00,
+    /*    byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x6B, (byte) 0xF3, (byte) 0x01, (byte) 0x00,
                 (byte) 0x04, (byte) 0x03, (byte) 0x07, (byte) 0x03, (byte) 0x3C, (byte) 0x00, (byte) 0x00,
 
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
@@ -366,9 +407,33 @@ public class SerialPortManager {
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
                 (byte) 0x9A};
 
+        System.out.println("data->"+data.length);*/
         // distributeMsg(data);
+       int testEcgIndex=0;
+        for (int k=0;k<25;k++){
+            if ((testEcgIndex+4)==0){
+                testEcgIndex=0;
+            }
+            //测数据 拼接数据
+            short[][] ecgTestShort=new short[3][4];
+            for (int i=0;i<ecgTestShort.length;i++){
+                for (int j=0;j<ecgTestShort[0].length;j++){
+                    if (i==0){
+                        ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveI()[j+testEcgIndex];
+                    }else if (i==1){
+                        ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveII()[j+testEcgIndex];
+                    }else if (i==2){
+                        ecgTestShort[i][j]=EcgDemoWave.INSTANCE.getWaveV()[j+testEcgIndex];
+                    }
+                }
 
+            }
+            testEcgIndex=testEcgIndex+4;
 
+            EcgData1 ecgData1 = new EcgData1(ecgTestShort);
+            System.out.println(12+"");
+        }
+        System.out.println(12+"");
     }
 
 

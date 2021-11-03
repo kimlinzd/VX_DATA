@@ -22,7 +22,7 @@ class SerialService : Service() {
         LogUtils.d("SerialService onCreate")
         SerialPortManager.getInstance().init()
         EcgDataSaveManager.getInstance().init()
-        runTask()
+     //   runTask()
     }
 
     var index = 0

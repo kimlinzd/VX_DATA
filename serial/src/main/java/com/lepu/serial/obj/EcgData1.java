@@ -64,10 +64,11 @@ public class EcgData1 {
 
         //计算出其他通道数据
         if (chn == 3) {
-            I = ecgWave[0];
-            II = ecgWave[1];
-            V = ecgWave[2];
-             for (int i = 0; i < len; i++) {
+
+            for (int i = 0; i < len; i++) {
+                I[i] = (short) (ecgWave[0][i] - 0x8000);
+                II[i] = (short) (ecgWave[1][i] - 0x8000);
+
                 // III = II - I
                 this.III[i] = (short) (II[i] - I[i]);
                 // aVR = -(I+II)/2
@@ -77,12 +78,193 @@ public class EcgData1 {
                 // aVF = (2*II-I)/2
                 this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
                 // v1
-                this.V[i] = (short) (V[i] - 0x8000);
+                this.V[i] = (short) (ecgWave[2][i] - 0x8000);
             }
         }
 
     }
 
+    /**
+     * 这个构造方法是给测试数据用的
+     * @param ecgdata
+     */
+    public EcgData1(short[][] ecgdata) {
+        rateIndex = 0;
+        lead0Index = 0;
+        leadOff = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
+        dCout = new int[]{0, 0, 0, 0, 0, 0, 1, 1};
+        hr = 60;
+        flagPR = new int[]{0, 0, 0, 0};
+        flagPU = new int[]{0, 0, 0, 0};
+
+        chn = 3;
+        len = 4;
+        this.ecgWave = ecgdata;
+        //导联数据
+        I = new short[4];
+        II = new short[4];
+        III = new short[4];
+        aVR = new short[4];
+        aVL = new short[4];
+        aVF = new short[4];
+        V = new short[4];
+        //计算出其他通道数据
+        if (chn == 3) {
+
+            for (int i = 0; i < len; i++) {
+                I[i] = (short) (ecgWave[0][i] - 0x8000);
+                II[i] = (short) (ecgWave[1][i] - 0x8000);
+
+                // III = II - I
+                this.III[i] = (short) (II[i] - I[i]);
+                // aVR = -(I+II)/2
+                this.aVR[i] = (short) ((II[i] + I[i]) / -2);
+                // aVL = (2*I-II)/2
+                this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
+                // aVF = (2*II-I)/2
+                this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
+                // v1
+                this.V[i] = (short) (ecgWave[2][i] - 0x8000);
+            }
+        }
+
+    }
+
+    public int getLen() {
+        return len;
+    }
+
+    public void setLen(int len) {
+        this.len = len;
+    }
+
+    public int getRateIndex() {
+        return rateIndex;
+    }
+
+    public void setRateIndex(int rateIndex) {
+        this.rateIndex = rateIndex;
+    }
+
+    public int getLead0Index() {
+        return lead0Index;
+    }
+
+    public void setLead0Index(int lead0Index) {
+        this.lead0Index = lead0Index;
+    }
+
+    public int getChn() {
+        return chn;
+    }
+
+    public void setChn(int chn) {
+        this.chn = chn;
+    }
+
+    public int[] getLeadOff() {
+        return leadOff;
+    }
+
+    public void setLeadOff(int[] leadOff) {
+        this.leadOff = leadOff;
+    }
+
+    public int[] getdCout() {
+        return dCout;
+    }
+
+    public void setdCout(int[] dCout) {
+        this.dCout = dCout;
+    }
+
+    public int getHr() {
+        return hr;
+    }
+
+    public void setHr(int hr) {
+        this.hr = hr;
+    }
+
+    public int[] getFlagPR() {
+        return flagPR;
+    }
+
+    public void setFlagPR(int[] flagPR) {
+        this.flagPR = flagPR;
+    }
+
+    public int[] getFlagPU() {
+        return flagPU;
+    }
+
+    public void setFlagPU(int[] flagPU) {
+        this.flagPU = flagPU;
+    }
+
+    public short[][] getEcgWave() {
+        return ecgWave;
+    }
+
+    public void setEcgWave(short[][] ecgWave) {
+        this.ecgWave = ecgWave;
+    }
+
+    public short[] getI() {
+        return I;
+    }
+
+    public void setI(short[] i) {
+        I = i;
+    }
+
+    public short[] getII() {
+        return II;
+    }
+
+    public void setII(short[] II) {
+        this.II = II;
+    }
+
+    public short[] getIII() {
+        return III;
+    }
+
+    public void setIII(short[] III) {
+        this.III = III;
+    }
+
+    public short[] getaVR() {
+        return aVR;
+    }
+
+    public void setaVR(short[] aVR) {
+        this.aVR = aVR;
+    }
+
+    public short[] getaVL() {
+        return aVL;
+    }
+
+    public void setaVL(short[] aVL) {
+        this.aVL = aVL;
+    }
+
+    public short[] getaVF() {
+        return aVF;
+    }
+
+    public void setaVF(short[] aVF) {
+        this.aVF = aVF;
+    }
+
+    public short[] getV() {
+        return V;
+    }
+
+    public void setV(short[] v) {
+        V = v;
+    }
 
     public static void main(String[] args) {
         byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x6B, (byte) 0xF3, (byte) 0x01, (byte) 0x00
