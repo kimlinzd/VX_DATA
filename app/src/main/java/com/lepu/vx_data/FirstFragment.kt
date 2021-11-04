@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.lepu.serial.manager.SerialPortManager
+import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.FragmentFirstBinding
 
 /**
@@ -34,9 +35,27 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonFirst.setOnClickListener {
-            SerialPortManager.getInstance().setTestMode(true)
-           // findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
+
+        binding.buttonSerialStart.setOnClickListener{
+            activity?.let { it1 -> SerialService.startService(it1,"/dev/ttyS1",460800) }
+        }
+
+
+        binding.buttonSerialStop.setOnClickListener{
+            activity?.let { it1 -> SerialService.stopService(it1) };
+         }
+
+        binding.buttonTestTrue.setOnClickListener{
+            SerialPortManager.getInstance().setTestMode(true)
+        }
+
+        binding.buttonTestFalse.setOnClickListener{
+            SerialPortManager.getInstance().setTestMode(false)
+        }
+
+
     }
 
     override fun onDestroyView() {
