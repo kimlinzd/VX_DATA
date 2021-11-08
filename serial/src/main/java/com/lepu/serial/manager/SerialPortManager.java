@@ -53,6 +53,8 @@ public class SerialPortManager {
     //心电测试数据的游标
     int mTestEcgIndex;
 
+    long gettasktime = System.currentTimeMillis();
+
     public static SerialPortManager getInstance() {
         if (instance == null) {
             instance = new SerialPortManager();
@@ -197,12 +199,13 @@ public class SerialPortManager {
 
 
     byte[] surplusData;//用于记录任务剩余的数据 放入下一个任务继续遍历
-    long gettasktime = 0;
+    int taskindex=0;
     OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
         @Override
         public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
+            taskindex++;
             //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
-            gettasktime = System.currentTimeMillis();
+
             byte[] data;
             //如果有剩余的数据，需要把剩余的剩余的数据重新处理
             if (surplusData != null) {
@@ -243,17 +246,20 @@ public class SerialPortManager {
                     }
                 }
             }
+             if ((taskindex%500)==0){
+                 Log.d("500次任务","----");
+             }
             mSerialPortDataTask.exOk(task);
 
         }
 
         @Override
         public void noTask() {
-            if ((System.currentTimeMillis() - gettasktime) > 50) {
+          /*  if ((System.currentTimeMillis() - gettasktime) > 50) {
                 Log.d("noTask", "任务完成时间-----" + (System.currentTimeMillis() - gettasktime));
             } else {
                 Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
-            }
+            }*/
 
         }
     };
@@ -300,13 +306,13 @@ public class SerialPortManager {
                         LiveEventBus.get(EventMsgConst.MsgEcgData1)
                                 .post(ecgData1);
                         //分发到保存心电图数据
-                        EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
+                   /*     EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
                         ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
                         ecgSaveTaskBean.setEcgdata(msgdata);
                         BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();
                         baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
                         baseTaskBean.taskBaen = ecgSaveTaskBean;
-                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);
+                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);*/
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
@@ -387,9 +393,12 @@ public class SerialPortManager {
      * 发送测试数据
      */
     private void sendTestEcgData() {
-        for (int k = 0; k < 50; k++) {
-            if ((mTestEcgIndex + 4) == 500) {
-                mTestEcgIndex = 0;
+        gettasktime=System.currentTimeMillis();
+        for (int k = 0; k < 25; k++) {
+            if (mTestEcgIndex  == 500) {
+                 mTestEcgIndex = 0;
+           //     Log.d("noTask", "每组发送时间" + (System.currentTimeMillis() - gettasktime));
+           //     gettasktime =System.currentTimeMillis();
             }
             //测数据 拼接数据
             byte[] ecgdata = new byte[39];
@@ -399,7 +408,7 @@ public class SerialPortManager {
                 System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveII()[i + mTestEcgIndex]), 0, ecgdata, 14 + 2 + (i * 6), 2);
                 System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveV()[i + mTestEcgIndex]), 0, ecgdata, 14 + 4 + (i * 6), 2);
             }
-            ecgdata[38] = (byte) 0x82;
+            ecgdata[38] = CRCUitl.getCRC8(ecgdata, ecgdata.length - 1);;
             //测试游标
             mTestEcgIndex = mTestEcgIndex + 4;
             SerialTaskBean serialTaskBean = new SerialTaskBean();
@@ -411,6 +420,8 @@ public class SerialPortManager {
             mSerialPortDataTask.addTask(baseTaskBean);
 
         }
+
+       // Log.d("noTask", "单组处理时间发送时间" + (System.currentTimeMillis() - gettasktime)+"---"+mTestEcgIndex+"---");
 
 
     }
@@ -426,7 +437,6 @@ public class SerialPortManager {
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
                 (byte) 0x9A};
          System.out.println("data->"+data.length);*/
-
 
     }
 

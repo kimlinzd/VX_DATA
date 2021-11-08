@@ -76,7 +76,7 @@ public class EcgDataSaveManager {
      */
     public void addCacheEcgDate(byte[] data) {
          cacheData = ByteUtils.add(cacheData, data);
-         Log.d("addCacheEcgDate","addCacheEcgDate");
+      //   Log.d("addCacheEcgDate","addCacheEcgDate");
     }
 
     /**
@@ -91,6 +91,7 @@ public class EcgDataSaveManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Log.d("保存数据","长度--"+cacheData.length);
         cacheData=new byte[0];
 
 
@@ -99,8 +100,7 @@ public class EcgDataSaveManager {
     OnTaskListener<BaseTaskBean<EcgSaveTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<EcgSaveTaskBean>>() {
         @Override
         public void exNextTask(BaseTaskBean<EcgSaveTaskBean> task) {
-            new Thread(() -> {
-                if (task.taskBaen.getEcgSaveTaskBeanType() == EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA) {
+                 if (task.taskBaen.getEcgSaveTaskBeanType() == EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA) {
                     //添加缓存数据
                     addCacheEcgDate(task.taskBaen.getEcgdata());
                 } else if (task.taskBaen.getEcgSaveTaskBeanType() == EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_SAVE_CACHE_DATA) {
@@ -110,9 +110,8 @@ public class EcgDataSaveManager {
                     //读取数据
 
                 }
+                 dataSaveTask.exOk(task);
 
-                dataSaveTask.exOk(task);
-            }).start();
 
         }
 
