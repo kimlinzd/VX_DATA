@@ -67,13 +67,13 @@ class MainActivity : AppCompatActivity() {
      * 在这里初始化服务
      */
     private fun initService() {
-         SerialService.startService(this,"/dev/ttyS1",460800)
+         SerialService.startService(this)
      }
 
     private fun observeLiveDataObserve() {
         LiveEventBus.get(EventMsgConst.MsgEcgData1).observe(this, {
                 val data = it as EcgData1
-                LogUtils.d("接收到心电图信息",data.chn.toString())
+//                LogUtils.d("接收到心电图信息",data.chn.toString())
             }
         )
     }

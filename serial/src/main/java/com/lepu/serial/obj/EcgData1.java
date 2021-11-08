@@ -280,7 +280,7 @@ public class EcgData1 {
         SerialMsg serialMsg = new SerialMsg(data);
         EcgData1 ecgData1 = new EcgData1(serialMsg.content.data);
 
-        System.out.println(serialMsg.index);
+        System.out.println(data.length+"");
 
     }
 }

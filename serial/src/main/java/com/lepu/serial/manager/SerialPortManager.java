@@ -24,7 +24,9 @@ import com.lepu.serial.task.EcgSaveTaskBean;
 import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
+import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
+import com.lepu.serial.uitl.FileUtil;
 import com.lepu.serial.uitl.StringtoHexUitl;
 
 import java.io.IOException;
@@ -49,7 +51,7 @@ public class SerialPortManager {
     //请求命令回调
     CmdReplyListener mCmdReplyListener;
     //心电测试数据的游标
-    int testEcgIndex;
+    int mTestEcgIndex;
 
     public static SerialPortManager getInstance() {
         if (instance == null) {
@@ -103,50 +105,27 @@ public class SerialPortManager {
                 @Override
                 public void run() {
                     try {
-                        if (SerialContent.IS_TEST_DATA) {//测试模式
-                            for (int k = 0; k < 50; k++) {
-                                if ((testEcgIndex + 4) == 500) {
-                                    testEcgIndex = 0;
-                                }
-                                //测数据 拼接数据
-                                short[][] ecgTestShort = new short[3][4];
-                                for (int i = 0; i < ecgTestShort.length; i++) {
-                                    for (int j = 0; j < ecgTestShort[0].length; j++) {
-                                        if (i == 0) {
-                                            ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveI()[j + testEcgIndex];
-                                        } else if (i == 1) {
-                                            ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveII()[j + testEcgIndex];
-                                        } else if (i == 2) {
-                                            ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveV()[j + testEcgIndex];
-                                        }
-                                    }
-                                }
-                                testEcgIndex = testEcgIndex + 4;
-                                EcgData1 ecgData1 = new EcgData1(ecgTestShort);
-                                LiveEventBus.get(EventMsgConst.MsgEcgData1)
-                                        .post(ecgData1);
-                            }
 
+                        if (SerialContent.IS_TEST_DATA) {//测试模式
+                            sendTestEcgData();
                         } else {//正式数据
                             if (mInputStream == null) return;
-                            try {
-                                byte[] buffer = readStream(mInputStream);
-                                SerialTaskBean serialTaskBean = new SerialTaskBean();
-                                serialTaskBean.data = buffer;
-                                BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-                                baseTaskBean.taskBaen = serialTaskBean;
-                                baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-                                // 添加到排队列表中去
-                                mSerialPortDataTask.addTask(baseTaskBean);
-                            } catch (Exception e) {
-                            }
+                            byte[] buffer = FileUtil.readStream(mInputStream);
+                            SerialTaskBean serialTaskBean = new SerialTaskBean();
+                            serialTaskBean.data = buffer;
+                            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
+                            baseTaskBean.taskBaen = serialTaskBean;
+                            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
+                            // 添加到排队列表中去
+                            mSerialPortDataTask.addTask(baseTaskBean);
+
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                 }
-            }, 10, 100, TimeUnit.MILLISECONDS);//每30秒保存一次数据
+            }, 10, 100, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
         }
     }
 
@@ -179,18 +158,18 @@ public class SerialPortManager {
             mSerialPort.close();
             mSerialPort = null;
         }
-        if (mInputStream!=null){
+        if (mInputStream != null) {
             try {
                 mInputStream.close();
-                mInputStream=null;
+                mInputStream = null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if (mOutputStream!=null){
+        if (mOutputStream != null) {
             try {
                 mOutputStream.close();
-                mOutputStream=null;
+                mOutputStream = null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -254,8 +233,8 @@ public class SerialPortManager {
                         break;
                     } else {
                         System.arraycopy(data, i, completeData, 0, completeData.length);
-                        //校验数据
-                        if (CRCUitl.CRC8(completeData)) {
+                        //校验数据  测试模式就不用数据校验了
+                        if (CRCUitl.CRC8(completeData) || SerialContent.IS_TEST_DATA) {
                             //越过已处理数据
                             i = i + completeData.length - 1;
                             //分发数据
@@ -278,23 +257,6 @@ public class SerialPortManager {
 
         }
     };
-
-
-    /**
-     * @param inStream
-     * @return 字节数组
-     * @throws Exception
-     * @功能 读取流
-     */
-    public static byte[] readStream(InputStream inStream) throws Exception {
-        int count = 0;
-        while (count == 0&&!SerialContent.IS_TEST_DATA) {
-            count = inStream.available();
-        }
-        byte[] b = new byte[count];
-        inStream.read(b);
-        return b;
-    }
 
 
     /**
@@ -412,8 +374,45 @@ public class SerialPortManager {
 
     }
 
+    /**
+     * 设置测试模式
+     *
+     * @param testMode
+     */
     public void setTestMode(boolean testMode) {
         SerialContent.IS_TEST_DATA = testMode;
+    }
+
+    /**
+     * 发送测试数据
+     */
+    private void sendTestEcgData() {
+        for (int k = 0; k < 50; k++) {
+            if ((mTestEcgIndex + 4) == 500) {
+                mTestEcgIndex = 0;
+            }
+            //测数据 拼接数据
+            byte[] ecgdata = new byte[39];
+            System.arraycopy(SerialContent.TEST_ECG_DATA_HEAD, 0, ecgdata, 0, 14);
+            for (int i = 0; i < 4; i++) {
+                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveI()[i + mTestEcgIndex]), 0, ecgdata, 14 + (i * 6), 2);
+                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveII()[i + mTestEcgIndex]), 0, ecgdata, 14 + 2 + (i * 6), 2);
+                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveV()[i + mTestEcgIndex]), 0, ecgdata, 14 + 4 + (i * 6), 2);
+            }
+            ecgdata[38] = (byte) 0x82;
+            //测试游标
+            mTestEcgIndex = mTestEcgIndex + 4;
+            SerialTaskBean serialTaskBean = new SerialTaskBean();
+            serialTaskBean.data = ecgdata;
+            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
+            baseTaskBean.taskBaen = serialTaskBean;
+            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
+            // 添加到排队列表中去
+            mSerialPortDataTask.addTask(baseTaskBean);
+
+        }
+
+
     }
 
 
@@ -426,34 +425,9 @@ public class SerialPortManager {
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
                 , (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x11, (byte) 0x00,
                 (byte) 0x9A};
+         System.out.println("data->"+data.length);*/
 
-        System.out.println("data->"+data.length);*/
-        // distributeMsg(data);
-        int testEcgIndex = 0;
-        for (int k = 0; k < 25; k++) {
-            if ((testEcgIndex + 4) == 0) {
-                testEcgIndex = 0;
-            }
-            //测数据 拼接数据
-            short[][] ecgTestShort = new short[3][4];
-            for (int i = 0; i < ecgTestShort.length; i++) {
-                for (int j = 0; j < ecgTestShort[0].length; j++) {
-                    if (i == 0) {
-                        ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveI()[j + testEcgIndex];
-                    } else if (i == 1) {
-                        ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveII()[j + testEcgIndex];
-                    } else if (i == 2) {
-                        ecgTestShort[i][j] = EcgDemoWave.INSTANCE.getWaveV()[j + testEcgIndex];
-                    }
-                }
 
-            }
-            testEcgIndex = testEcgIndex + 4;
-
-            EcgData1 ecgData1 = new EcgData1(ecgTestShort);
-            System.out.println(12 + "");
-        }
-        System.out.println(12 + "");
     }
 
 

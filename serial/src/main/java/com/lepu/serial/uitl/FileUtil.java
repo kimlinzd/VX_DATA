@@ -5,6 +5,8 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 import com.lepu.serial.R;
+import com.lepu.serial.constant.SerialContent;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -146,6 +148,23 @@ public class FileUtil {
             }
         }
         return files;
+    }
+
+    /**
+     * 串口读取专用
+     * @param inStream
+     * @return 字节数组
+     * @throws Exception
+     * @功能 读取流
+     */
+    public static byte[] readStream(InputStream inStream) throws Exception {
+        int count = 0;
+        while (count == 0 && !SerialContent.IS_TEST_DATA) {
+            count = inStream.available();
+        }
+        byte[] b = new byte[count];
+        inStream.read(b);
+        return b;
     }
 
     /**

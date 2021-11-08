@@ -1,5 +1,6 @@
 package com.lepu.serial.manager;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -12,7 +13,9 @@ import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
+import com.lepu.serial.uitl.FileUtil;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -39,6 +42,8 @@ public class EcgDataSaveManager {
     DataSaveTask dataSaveTask;
     //缓存的数据
     byte[] cacheData = new byte[0];
+    //
+    Context mContext;
 
 
     public static EcgDataSaveManager getInstance() {
@@ -48,7 +53,7 @@ public class EcgDataSaveManager {
         return instance;
     }
 
-    public void init() {
+    public void init(Context context) {
 
         if (mEcgDataSaveTimer == null) {
             mEcgDataSaveTimer = new ScheduledThreadPoolExecutor(1);
@@ -59,6 +64,7 @@ public class EcgDataSaveManager {
                  }
             }, 30000, 30000, TimeUnit.MILLISECONDS);//每30秒保存一次数据
         }
+        this.mContext=context;
         dataSaveTask = DataSaveTask.getInstance();
         dataSaveTask.setOnTaskListener(onTaskListener);
     }
@@ -69,7 +75,8 @@ public class EcgDataSaveManager {
      * @param data
      */
     public void addCacheEcgDate(byte[] data) {
-     //    cacheData = ByteUtils.add(cacheData, data);
+         cacheData = ByteUtils.add(cacheData, data);
+         Log.d("addCacheEcgDate","addCacheEcgDate");
     }
 
     /**
@@ -79,6 +86,13 @@ public class EcgDataSaveManager {
         if (cacheData == null) {
             return;
         }
+        try {
+            FileUtil.writeBytesToFile(mContext,cacheData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        cacheData=new byte[0];
+
 
     }
 
@@ -93,6 +107,7 @@ public class EcgDataSaveManager {
                     //储存缓存数据
                     saveCacheEcgData();
                 } else if (task.taskBaen.getEcgSaveTaskBeanType() == EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_READ_FILE_DATA) {
+                    //读取数据
 
                 }
 

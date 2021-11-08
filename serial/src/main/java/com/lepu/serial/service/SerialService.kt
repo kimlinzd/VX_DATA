@@ -17,8 +17,7 @@ import java.util.*
 import kotlin.concurrent.schedule
 
 class SerialService : Service() {
-    var mDevicePath: String = "";
-    var mBaudrate: Int = 0;
+
     override fun onCreate() {
         super.onCreate()
         LogUtils.d("SerialService onCreate")
@@ -26,14 +25,7 @@ class SerialService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        mDevicePath= intent?.getStringExtra(DEVICE_PATH).toString()
-        mBaudrate= intent?.getIntExtra(BAUD_RATE,460800)!!
-
-        SerialPortManager.getInstance().init(mDevicePath,mBaudrate)
-        EcgDataSaveManager.getInstance().init()
-
-        return super.onStartCommand(intent, flags, startId)
+          return super.onStartCommand(intent, flags, startId)
     }
 
     var index = 0
@@ -84,20 +76,16 @@ class SerialService : Service() {
         private const val BAUD_RATE = "baudrate"
 
         @JvmStatic
-        fun startService(context: Context, devicePath: String, baudrate: Int) {
+        fun startService(context: Context) {
             Intent(context, SerialService::class.java).also { intent ->
-                intent.putExtra(SerialService.DEVICE_PATH, devicePath);
-                intent.putExtra(SerialService.BAUD_RATE, baudrate);
-                context.startService(intent)
+                 context.startService(intent)
             }
         }
 
         @JvmStatic
         fun stopService(context: Context) {
             val intent = Intent(context, SerialService::class.java)
-            SerialPortManager.getInstance().closeSerialPort();
-            EcgDataSaveManager.getInstance().stopTask()
-            context.stopService(intent)
+             context.stopService(intent)
         }
 
 

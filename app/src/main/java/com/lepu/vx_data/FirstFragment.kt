@@ -39,12 +39,12 @@ class FirstFragment : Fragment() {
         }
 
         binding.buttonSerialStart.setOnClickListener{
-            activity?.let { it1 -> SerialService.startService(it1,"/dev/ttyS1",460800) }
+
         }
 
 
         binding.buttonSerialStop.setOnClickListener{
-            activity?.let { it1 -> SerialService.stopService(it1) };
+
          }
 
         binding.buttonTestTrue.setOnClickListener{
