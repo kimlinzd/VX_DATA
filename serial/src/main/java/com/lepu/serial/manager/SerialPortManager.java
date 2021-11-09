@@ -117,7 +117,7 @@ public class SerialPortManager {
                     try {
 
                         if (SerialContent.IS_TEST_DATA) {//测试模式
-                            sendTestEcgDataFile();
+                     //       sendTestEcgDataFile();
                         } else {//正式数据
                             if (mInputStream == null) return;
                             byte[] buffer = FileUtil.readStream(mInputStream);
@@ -454,15 +454,15 @@ public class SerialPortManager {
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (1950 > (ecgTestData.length - fileindex)) {
+            if (487 > (ecgTestData.length - fileindex)) {
                 ecgdataLength = ecgTestData.length - fileindex;
             } else {
-                ecgdataLength = 1950;
+                ecgdataLength = 487;
             }
             byte[] ecgdata = new byte[ecgdataLength];
              System.arraycopy(ecgTestData, fileindex, ecgdata, 0, ecgdataLength);
-            fileindex = fileindex + 1950;
-            if (ecgdata.length<1950){
+            fileindex = fileindex + 487;
+            if (ecgdata.length<487){
                 fileindex=0;
             }
             SerialTaskBean serialTaskBean = new SerialTaskBean();
