@@ -33,7 +33,17 @@ public class ByteUtils {
 
         return n;
     }
+    public static short[] shortadd(short[] ori, short[] add) {
+        if (ori == null) {
+            return add;
+        }
 
+        short[] n = new short[ori.length + add.length];
+        System.arraycopy(ori, 0, n, 0, ori.length);
+        System.arraycopy(add, 0, n, ori.length, add.length);
+
+        return n;
+    }
 
     public static byte[] short2byte(short s) {
         byte[] b = new byte[2];

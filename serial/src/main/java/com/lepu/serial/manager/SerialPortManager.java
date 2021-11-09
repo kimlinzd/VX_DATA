@@ -394,12 +394,17 @@ public class SerialPortManager {
      */
     private void sendTestEcgData() {
         gettasktime=System.currentTimeMillis();
-        for (int k = 0; k < 25; k++) {
+        //500个数据 4个发送 分11次发完
+        int sendCount=12;
+        if (mTestEcgIndex==480){
+            sendCount=5;
+        }else {
+            sendCount=12;
+        }
+        for (int k = 0; k < sendCount; k++) {
             if (mTestEcgIndex  == 500) {
                  mTestEcgIndex = 0;
-           //     Log.d("noTask", "每组发送时间" + (System.currentTimeMillis() - gettasktime));
-           //     gettasktime =System.currentTimeMillis();
-            }
+             }
             //测数据 拼接数据
             byte[] ecgdata = new byte[39];
             System.arraycopy(SerialContent.TEST_ECG_DATA_HEAD, 0, ecgdata, 0, 14);
