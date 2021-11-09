@@ -7,11 +7,14 @@ import android.util.Log;
 import com.lepu.serial.R;
 import com.lepu.serial.constant.SerialContent;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -166,6 +169,24 @@ public class FileUtil {
         inStream.read(b);
         return b;
     }
+
+    public static byte[] getFromAssets(Context context) {
+        byte[] result = new byte[0];
+        try {
+            InputStream in = context.getResources().getAssets().open("ecg_test_data.DAT");
+            // 获取文件的字节数
+            int lenght = in.available();
+            // 创建byte数组
+            byte[] buffer = new byte[lenght];
+            // 将文件中的数据读到byte数组中
+            in.read(buffer);
+            result= buffer;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
     /**
      * 创建文件夹
