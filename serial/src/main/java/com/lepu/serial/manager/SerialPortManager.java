@@ -8,9 +8,8 @@ import android.util.Log;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.SerialContent;
-import com.lepu.serial.constant.SerialDataFlieContent;
 import com.lepu.serial.obj.CmdReply;
-import com.lepu.serial.obj.EcgData1;
+import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.NibpData;
@@ -21,20 +20,15 @@ import com.lepu.serial.obj.SpO2Data;
 import com.lepu.serial.obj.SpO2OriginalData;
 import com.lepu.serial.obj.TempData;
 import com.lepu.serial.task.BaseTaskBean;
-import com.lepu.serial.task.EcgSaveTaskBean;
 import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
 import com.lepu.serial.uitl.FileUtil;
-import com.lepu.serial.uitl.StringtoHexUitl;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -117,7 +111,10 @@ public class SerialPortManager {
                     try {
 
                         if (SerialContent.IS_TEST_DATA) {//测试模式
-                     //       sendTestEcgDataFile();
+                            //测试数据
+                        //    sendTestEcgData();
+                            //昨天采集的数据
+                            sendTestEcgDataFile();
                         } else {//正式数据
                             if (mInputStream == null) return;
                             byte[] buffer = FileUtil.readStream(mInputStream);
@@ -211,7 +208,7 @@ public class SerialPortManager {
     OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
         @Override
         public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
-            taskindex++;
+
             //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
 
             byte[] data;
@@ -220,6 +217,7 @@ public class SerialPortManager {
                 data = new byte[surplusData.length + task.taskBaen.data.length];
                 System.arraycopy(surplusData, 0, data, 0, surplusData.length);
                 System.arraycopy(task.taskBaen.data, 0, data, surplusData.length, task.taskBaen.data.length);
+                surplusData=null;
             } else {
                 data = task.taskBaen.data;
             }
@@ -243,20 +241,23 @@ public class SerialPortManager {
                         System.arraycopy(data, i, surplusData, 0, data.length - i);
                         break;
                     } else {
+                        taskindex++;
                         System.arraycopy(data, i, completeData, 0, completeData.length);
-                        //校验数据  测试模式就不用数据校验了
-                        if (CRCUitl.CRC8(completeData) || SerialContent.IS_TEST_DATA) {
+                        //校验数据
+                        if (CRCUitl.CRC8(completeData)  ) {
                             //越过已处理数据
                             i = i + completeData.length - 1;
                             //分发数据
                             distributeMsg(completeData);
+                        }else {
+                            Log.d("taskindex", taskindex+"");
                         }
                     }
                 }
             }
-            if ((taskindex % 500) == 0) {
-                Log.d("500次任务", "----");
-            }
+
+
+
             mSerialPortDataTask.exOk(task);
 
         }
@@ -310,9 +311,9 @@ public class SerialPortManager {
                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
-                        EcgData1 ecgData1 = new EcgData1(serialMsg.getContent().data);
-                        LiveEventBus.get(EventMsgConst.MsgEcgData1)
-                                .post(ecgData1);
+                        EcgData ecgData = new EcgData(serialMsg.getContent().data);
+                        LiveEventBus.get(EventMsgConst.MsgEcgData)
+                                .post(ecgData);
                         //分发到保存心电图数据
                    /*     EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
                         ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
@@ -435,7 +436,7 @@ public class SerialPortManager {
 
         }
 
-        // Log.d("noTask", "单组处理时间发送时间" + (System.currentTimeMillis() - gettasktime)+"---"+mTestEcgIndex+"---");
+         Log.d("noTask", "单组处理时间发送时间" + (System.currentTimeMillis() - gettasktime)+"---"+mTestEcgIndex+"---");
 
 
     }
@@ -454,15 +455,15 @@ public class SerialPortManager {
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (487 > (ecgTestData.length - fileindex)) {
+            if (500 > (ecgTestData.length - fileindex)) {
                 ecgdataLength = ecgTestData.length - fileindex;
             } else {
-                ecgdataLength = 487;
+                ecgdataLength = 500;
             }
             byte[] ecgdata = new byte[ecgdataLength];
              System.arraycopy(ecgTestData, fileindex, ecgdata, 0, ecgdataLength);
-            fileindex = fileindex + 487;
-            if (ecgdata.length<487){
+            fileindex = fileindex + 500;
+            if (ecgdata.length<500){
                 fileindex=0;
             }
             SerialTaskBean serialTaskBean = new SerialTaskBean();

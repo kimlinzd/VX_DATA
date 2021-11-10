@@ -45,10 +45,12 @@ public class BaseTask<T extends BaseTaskBean> {
     public void addTask(T task) {
 
         if (lineUpBeans != null) {
-             if (!lineUpBeans.isEmpty()){
+             if (lineUpBeans.isEmpty()){
                 onTaskListener.exNextTask(task);
+             }else {
+                 lineUpBeans.offer(task);
              }
-                lineUpBeans.offer(task);
+
           }
     }
 

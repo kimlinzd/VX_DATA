@@ -2,12 +2,14 @@ package com.lepu.serial.obj;
 
 import com.lepu.serial.uitl.ByteUtils;
 
-import java.util.Arrays;
-
 /**
+ *
  * 心电数据
+ * Token	Type
+ * 0x01 	0x00
+ *
  */
-public class EcgData1 {
+public class EcgData {
 
     int len;//采样点数
     int rateIndex;//采样率 0x00代表500HZ 01代表1000HZ
@@ -33,7 +35,7 @@ public class EcgData1 {
     private short[] V;
 
 
-    public EcgData1(byte[] buf) {
+    public EcgData(byte[] buf) {
         len = buf[0] & 0x0f;
         rateIndex = buf[1] >> 6;
         lead0Index = buf[1] >> 4 & 3;
@@ -86,9 +88,10 @@ public class EcgData1 {
 
     /**
      * 这个构造方法是给测试数据用的
+     *
      * @param ecgdata
      */
-    public EcgData1(short[][] ecgdata) {
+    public EcgData(short[][] ecgdata) {
         rateIndex = 0;
         lead0Index = 0;
         leadOff = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
@@ -278,9 +281,9 @@ public class EcgData1 {
 
 
         SerialMsg serialMsg = new SerialMsg(data);
-        EcgData1 ecgData1 = new EcgData1(serialMsg.content.data);
+        EcgData ecgData = new EcgData(serialMsg.content.data);
 
-        System.out.println(data.length+"");
+        System.out.println(data.length + "");
 
     }
 }

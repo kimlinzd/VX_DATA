@@ -1,9 +1,7 @@
 package com.lepu.vx_data
 
-import android.content.ComponentName
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -12,13 +10,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
-import com.blankj.utilcode.util.LogUtils
 import com.jeremyliao.liveeventbus.LiveEventBus
-import com.lepu.algorithm.ecg.manager.FilterManager
 import com.lepu.serial.constant.EventMsgConst
 import com.lepu.serial.obj.EcgData
-import com.lepu.serial.obj.EcgData1
-import com.lepu.serial.obj.EcgDemoWave
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
 
@@ -71,9 +65,9 @@ class MainActivity : AppCompatActivity() {
      }
 
     private fun observeLiveDataObserve() {
-        LiveEventBus.get(EventMsgConst.MsgEcgData1).observe(this, {
-                val data = it as EcgData1
-//                LogUtils.d("接收到心电图信息",data.chn.toString())
+        LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
+                val data = it as EcgData
+             Log.e("接收到心电图信息",data.toString())
             }
         )
     }

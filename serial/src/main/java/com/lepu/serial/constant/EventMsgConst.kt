@@ -13,12 +13,12 @@ object EventMsgConst {
     /**
      * 采集导联数据
      */
-    const val MsgEcgData = "com.lepu.serial.obj.EcgData"
+  //  const val MsgEcgData = "com.lepu.serial.obj.EcgData"
 
     /**
      *心电数据
      */
-    const val MsgEcgData1 = "com.lepu.serial.obj.EcgData1"
+    const val MsgEcgData = "com.lepu.serial.obj.EcgData"
     /**
      *血压NIBP 上传试试袖带压
      */

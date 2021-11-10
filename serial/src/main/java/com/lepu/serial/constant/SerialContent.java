@@ -1,6 +1,6 @@
 package com.lepu.serial.constant;
 
-import com.lepu.serial.obj.EcgData1;
+import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.uitl.ByteUtils;
@@ -139,7 +139,7 @@ public class SerialContent {
 
         //解析包
         SerialMsg serialMsg = new SerialMsg(ecgdata);
-        EcgData1 ecgData1=new EcgData1(serialMsg.getContent().data);
+        EcgData ecgData =new EcgData(serialMsg.getContent().data);
 
 
         //测数据 拼接数据
@@ -157,7 +157,7 @@ public class SerialContent {
         }
 
 
-        EcgData1 ecgData2=new EcgData1(ecgTestShort);
+        EcgData ecgData2=new EcgData(ecgTestShort);
 
         System.out.println();
     }

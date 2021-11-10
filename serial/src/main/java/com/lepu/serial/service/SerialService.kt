@@ -5,14 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import androidx.core.os.bundleOf
 import com.blankj.utilcode.util.LogUtils
 import com.jeremyliao.liveeventbus.LiveEventBus
-import com.lepu.serial.obj.EcgData
+import com.lepu.serial.obj.EcgDataDeprecated
 import com.lepu.serial.obj.EcgDemoWave
 import com.lepu.serial.constant.EventMsgConst
-import com.lepu.serial.manager.EcgDataSaveManager
-import com.lepu.serial.manager.SerialPortManager
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -36,7 +33,7 @@ class SerialService : Service() {
             /**
              * 获取demo数据，100ms发送一次
              */
-            val ecg = EcgData(
+            val ecg = EcgDataDeprecated(
                 50,
                 EcgDemoWave.I.copyOfRange(index, index + 50).toShortArray(),
                 EcgDemoWave.II.copyOfRange(index, index + 50).toShortArray(),
