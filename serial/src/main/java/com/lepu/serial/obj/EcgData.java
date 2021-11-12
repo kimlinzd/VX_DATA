@@ -68,8 +68,8 @@ public class EcgData {
         if (chn == 3) {
 
             for (int i = 0; i < len; i++) {
-                I[i] = (short) (ecgWave[0][i] - 0x8000);
-                II[i] = (short) (ecgWave[1][i] - 0x8000);
+                I[i] = (short) (ecgWave[0][i]  );
+                II[i] = (short) (ecgWave[1][i]  );
 
                 // III = II - I
                 this.III[i] = (short) (II[i] - I[i]);
@@ -80,7 +80,7 @@ public class EcgData {
                 // aVF = (2*II-I)/2
                 this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
                 // v1
-                this.V[i] = (short) (ecgWave[2][i] - 0x8000);
+                this.V[i] = (short) (ecgWave[2][i]  );
             }
         }
 

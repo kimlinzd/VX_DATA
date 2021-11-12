@@ -5,16 +5,14 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 import com.lepu.serial.R;
+import com.lepu.serial.constant.SaveDataFlieContent;
 import com.lepu.serial.constant.SerialContent;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +20,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-import static com.lepu.serial.constant.SerialDataFlieContent.ECG_PATH;
+import static com.lepu.serial.constant.SaveDataFlieContent.ECG_PATH;
 
 public class FileUtil {
     //文件后缀
@@ -31,11 +29,8 @@ public class FileUtil {
 
     public static int index = 0;
 
-    public static void writeBytesToFile(Context context, byte[] bytes) throws IOException {
-        File file = new File(getCrashFilePath(context) + ECG_PATH);
-        if (!file.exists()) {
-            file.mkdir();
-        }
+    public static void writeBytesToFile(Context context, File file,byte[] bytes) throws IOException {
+
         String now = String.valueOf(System.currentTimeMillis());
         OutputStream out = new FileOutputStream(file.getAbsolutePath() + "/" + now);
         index++;
@@ -56,11 +51,11 @@ public class FileUtil {
      * @param context
      * @return
      */
-    private static String getCrashFilePath(Context context) {
+    public static String getCrashFilePath(Context context) {
         String path = null;
         try {
             path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/"
-                    + context.getResources().getString(R.string.app_name) + "/Crash/";
+                    + context.getResources().getString(R.string.app_name) + "/Cache/";
             File file = new File(path);
             if (!file.exists()) {
                 file.mkdirs();
@@ -72,7 +67,33 @@ public class FileUtil {
         return path;
     }
 
-    public static void queryStorage() {
+
+
+    /**
+     * 获取心电图储存文件夹
+     *
+     * @param context
+     * @return
+     */
+    public static File getEcgFilePath(Context context) {
+        File ecgFile = null;
+        try {
+           ecgFile=new File(getCrashFilePath(context)+"/"+ ECG_PATH+"/"+ SaveDataFlieContent.PATITENT_ID);
+
+            if (!ecgFile.exists()) {
+                ecgFile.mkdirs();
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ecgFile;
+    }
+
+
+    public static double   queryStorage() {
         StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getPath());
         //存储块总数量
         long blockCount = statFs.getBlockCountLong();
@@ -87,21 +108,23 @@ public class FileUtil {
         long totalSize = statFs.getTotalBytes();
         long availableSize = statFs.getAvailableBytes();
 
-        Log.d("statfs", "total = " + getUnit(totalSize));
+      /*  Log.d("statfs", "total = " + getUnit(totalSize));
         Log.d("statfs", "availableSize = " + getUnit(availableSize));
         //这里可以看出 available 是小于 free ,free 包括保留块。
         Log.d("statfs", "total = " + getUnit(blockSize * blockCount));
         Log.d("statfs", "available = " + getUnit(blockSize * availableCount));
-        Log.d("statfs", "free = " + getUnit(blockSize * freeBlocks));
+        Log.d("statfs", "free = " + getUnit(blockSize * freeBlocks));*/
+
+        return getUnit(blockSize * availableCount);
     }
 
-    public static String getUnit(float size) {
+    public static double getUnit(float size) {
         int index = 0;
-        while (size > 1024 && index < 4) {
+        while (index < 4) {
             size = size / 1024;
             index++;
         }
-        return String.format(Locale.getDefault(), " %.2f %s", size, units[index]);
+        return   size ;
     }
 
     /**

@@ -20,6 +20,7 @@ import com.lepu.serial.obj.SpO2Data;
 import com.lepu.serial.obj.SpO2OriginalData;
 import com.lepu.serial.obj.TempData;
 import com.lepu.serial.task.BaseTaskBean;
+import com.lepu.serial.task.EcgSaveTaskBean;
 import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
@@ -315,7 +316,7 @@ public class SerialPortManager {
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
                         //分发到保存心电图数据
-                   /*     EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
+                     /*   EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
                         ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
                         ecgSaveTaskBean.setEcgdata(msgdata);
                         BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();

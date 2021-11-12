@@ -6,8 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.lepu.serial.manager.EcgDataSaveManager
 import com.lepu.serial.manager.SerialPortManager
 import com.lepu.serial.service.SerialService
+import com.lepu.serial.uitl.FileUtil
 import com.lepu.vx_data.databinding.FragmentFirstBinding
 
 /**
@@ -39,7 +41,7 @@ class FirstFragment : Fragment() {
         }
 
         binding.buttonSerialStart.setOnClickListener{
-
+            EcgDataSaveManager.getInstance().setPatitentId("45654315")
         }
 
 
