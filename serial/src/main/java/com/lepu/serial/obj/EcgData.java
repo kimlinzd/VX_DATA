@@ -10,7 +10,7 @@ import com.lepu.serial.uitl.ByteUtils;
  *
  */
 public class EcgData {
-
+    byte[] originalData;//原始数据
     int len;//采样点数
     int rateIndex;//采样率 0x00代表500HZ 01代表1000HZ
     int lead0Index;//首导联指引 用于通道数为1时区分当前导联：I导联=0 II导联=1 III导联=2
@@ -36,6 +36,7 @@ public class EcgData {
 
 
     public EcgData(byte[] buf) {
+        originalData=buf;
         len = buf[0] & 0x0f;
         rateIndex = buf[1] >> 6;
         lead0Index = buf[1] >> 4 & 3;
@@ -131,6 +132,14 @@ public class EcgData {
             }
         }
 
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     public int getLen() {
