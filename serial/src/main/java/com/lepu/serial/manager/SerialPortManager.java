@@ -20,13 +20,11 @@ import com.lepu.serial.obj.SpO2Data;
 import com.lepu.serial.obj.SpO2OriginalData;
 import com.lepu.serial.obj.TempData;
 import com.lepu.serial.task.BaseTaskBean;
-import com.lepu.serial.task.EcgSaveTaskBean;
 import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
-import com.lepu.serial.uitl.FileUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -118,7 +116,7 @@ public class SerialPortManager {
                             sendTestEcgDataFile();
                         } else {//正式数据
                             if (mInputStream == null) return;
-                            byte[] buffer = FileUtil.readStream(mInputStream);
+                            byte[] buffer = ByteUtils.readStream(mInputStream);
                             SerialTaskBean serialTaskBean = new SerialTaskBean();
                             serialTaskBean.data = buffer;
                             BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
@@ -316,13 +314,13 @@ public class SerialPortManager {
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
                         //分发到保存心电图数据
-                        EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
+                    /*    EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
                         ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
                         ecgSaveTaskBean.setEcgdata(msgdata);
                         BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();
                         baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
                         baseTaskBean.taskBaen = ecgSaveTaskBean;
-                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);
+                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);*/
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
@@ -452,7 +450,7 @@ public class SerialPortManager {
 
         try {
             if (ecgTestData.length == 0) {
-                ecgTestData = FileUtil.getFromAssets(mContext);
+                ecgTestData = ByteUtils.getFromAssets(mContext);
             }
             //要发送的数据
             int ecgdataLength = 0;

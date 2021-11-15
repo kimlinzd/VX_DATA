@@ -1,5 +1,11 @@
 package com.lepu.serial.uitl;
 
+import android.content.Context;
+
+import com.lepu.serial.constant.SerialContent;
+
+import java.io.InputStream;
+
 public class ByteUtils {
 
     public static int byte2UInt(byte b) {
@@ -43,6 +49,46 @@ public class ByteUtils {
         System.arraycopy(add, 0, n, ori.length, add.length);
 
         return n;
+    }
+
+    /**
+     * 串口读取专用
+     *
+     * @param inStream
+     * @return 字节数组
+     * @throws Exception
+     * @功能 读取流
+     */
+    public static byte[] readStream(InputStream inStream) throws Exception {
+        int count = 0;
+        while (count == 0 && !SerialContent.IS_TEST_DATA) {
+            count = inStream.available();
+        }
+        byte[] b = new byte[count];
+        inStream.read(b);
+        return b;
+    }
+
+    /**
+     * 获取测试数据
+     * @param context
+     * @return
+     */
+    public static byte[] getFromAssets(Context context) {
+        byte[] result = new byte[0];
+        try {
+            InputStream in = context.getResources().getAssets().open("ecg_test_data.DAT");
+            // 获取文件的字节数
+            int lenght = in.available();
+            // 创建byte数组
+            byte[] buffer = new byte[lenght];
+            // 将文件中的数据读到byte数组中
+            in.read(buffer);
+            result = buffer;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static byte[] short2byte(short s) {
