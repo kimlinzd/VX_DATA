@@ -3,7 +3,9 @@ package com.lepu.serial.uitl;
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
+import android.text.TextUtils;
 import android.util.Log;
+
 import com.lepu.serial.R;
 import com.lepu.serial.constant.SaveDataFlieContent;
 import com.lepu.serial.constant.SerialContent;
@@ -29,10 +31,9 @@ public class FileUtil {
 
     public static int index = 0;
 
-    public static void writeBytesToFile(Context context, File file,byte[] bytes) throws IOException {
-
-        String now = String.valueOf(System.currentTimeMillis());
-        OutputStream out = new FileOutputStream(file.getAbsolutePath() + "/" + now);
+    public static void writeBytesToNewFile( File file, byte[] bytes,Long time) throws IOException {
+        String fileName=String.valueOf(time-30000)+"-"+time;
+        OutputStream out = new FileOutputStream(file.getAbsolutePath() + "/" + fileName);
         index++;
         InputStream is = new ByteArrayInputStream(bytes);
         byte[] buff = new byte[1024];
@@ -42,6 +43,24 @@ public class FileUtil {
         }
         is.close();
         out.close();
+    }
+
+    public static void writeBytesToOldFile( File file, byte[] bytes,Long time) throws IOException {
+
+        OutputStream out = new FileOutputStream(file.getAbsolutePath(),true);
+        index++;
+        InputStream is = new ByteArrayInputStream(bytes);
+        byte[] buff = new byte[1024];
+        int len = 0;
+        while ((len = is.read(buff)) != -1) {
+            out.write(buff, 0, len);
+        }
+        is.close();
+        out.close();
+        String newName=file.getAbsolutePath().split("-")[0]+"-"+String.valueOf(time);
+        //改名
+        file.renameTo(new File(newName));
+
     }
 
 
@@ -68,23 +87,23 @@ public class FileUtil {
     }
 
 
-
     /**
      * 获取心电图储存文件夹
-     *
      * @param context
+     * @param patitentId 这个值为空的话就拿整个心电图的 如果是不为空 就拿患者ID的
      * @return
      */
-    public static File getEcgFilePath(Context context) {
+    public static File getEcgFilePath(Context context, String patitentId) {
         File ecgFile = null;
         try {
-           ecgFile=new File(getCrashFilePath(context)+"/"+ ECG_PATH+"/"+ SaveDataFlieContent.PATITENT_ID);
-
+            if (TextUtils.isEmpty(patitentId)) {
+                ecgFile = new File(getCrashFilePath(context) + "/" + ECG_PATH);
+            } else {
+                ecgFile = new File(getCrashFilePath(context) + "/" + ECG_PATH + "/" + patitentId);
+            }
             if (!ecgFile.exists()) {
                 ecgFile.mkdirs();
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -93,7 +112,7 @@ public class FileUtil {
     }
 
 
-    public static double   queryStorage() {
+    public static double queryStorage() {
         StatFs statFs = new StatFs(Environment.getExternalStorageDirectory().getPath());
         //存储块总数量
         long blockCount = statFs.getBlockCountLong();
@@ -124,7 +143,7 @@ public class FileUtil {
             size = size / 1024;
             index++;
         }
-        return   size ;
+        return size;
     }
 
     /**
@@ -178,6 +197,7 @@ public class FileUtil {
 
     /**
      * 串口读取专用
+     *
      * @param inStream
      * @return 字节数组
      * @throws Exception
@@ -203,7 +223,7 @@ public class FileUtil {
             byte[] buffer = new byte[lenght];
             // 将文件中的数据读到byte数组中
             in.read(buffer);
-            result= buffer;
+            result = buffer;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -213,12 +233,13 @@ public class FileUtil {
 
     /**
      * 创建文件夹
+     *
      * @param pach
      */
-   public static void createFile(String pach){
-       File file=new File(pach);
-       if (!file.exists()){
-           file.mkdir();
-       }
-   }
+    public static void createFile(String pach) {
+        File file = new File(pach);
+        if (!file.exists()) {
+            file.mkdir();
+        }
+    }
 }

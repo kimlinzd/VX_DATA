@@ -316,13 +316,13 @@ public class SerialPortManager {
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
                         //分发到保存心电图数据
-                     /*   EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
+                        EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
                         ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
                         ecgSaveTaskBean.setEcgdata(msgdata);
                         BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();
                         baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
                         baseTaskBean.taskBaen = ecgSaveTaskBean;
-                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);*/
+                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);
                     }
                     break;
                     case SerialContent.TOKEN_RESP: {

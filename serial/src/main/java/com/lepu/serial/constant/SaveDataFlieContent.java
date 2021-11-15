@@ -14,4 +14,13 @@ public class SaveDataFlieContent {
      * 储存的患者唯一ID 唯一标识
      */
     public static String PATITENT_ID = "";
+    /**
+     * ECG数据最多储存多少个小时
+     */
+    public static final int ECG_DATA_SAVE_MAX_TIME=140;
+    /**
+     * ECG数据单个文件最多储存多少个小时
+     */
+    public static final int ECG_DATA_SINGLE_FILE_SAVE_MAX_TIME=4;
+
 }
