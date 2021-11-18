@@ -139,7 +139,7 @@ public class SerialContent {
 
         //解析包
         SerialMsg serialMsg = new SerialMsg(ecgdata);
-        EcgData ecgData =new EcgData(serialMsg.getContent().data);
+    //    EcgData ecgData =new EcgData(serialMsg.getContent().data);
 
 
         //测数据 拼接数据

@@ -35,8 +35,8 @@ public class EcgData {
     private short[] V;
 
 
-    public EcgData(byte[] buf) {
-        originalData=buf;
+    public EcgData(byte[] buf,byte[] originalData) {
+        this.originalData=originalData;
         len = buf[0] & 0x0f;
         rateIndex = buf[1] >> 6;
         lead0Index = buf[1] >> 4 & 3;
@@ -290,7 +290,7 @@ public class EcgData {
 
 
         SerialMsg serialMsg = new SerialMsg(data);
-        EcgData ecgData = new EcgData(serialMsg.content.data);
+   //     EcgData ecgData = new EcgData(serialMsg.content.data);
 
         System.out.println(data.length + "");
 

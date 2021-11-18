@@ -310,7 +310,7 @@ public class SerialPortManager {
                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
-                        EcgData ecgData = new EcgData(serialMsg.getContent().data);
+                        EcgData ecgData = new EcgData(serialMsg.getContent().data,msgdata);
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
                         //分发到保存心电图数据
