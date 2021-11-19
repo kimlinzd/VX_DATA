@@ -294,16 +294,12 @@ public class SerialPortManager {
 
             }
             break;
-            case SerialMsg.TYPE_ACK: {//命令确认包（若有回复包，就不发确认包）0xF1
+            case SerialMsg.TYPE_ACK: //命令确认包（若有回复包，就不发确认包）0xF1
+            case SerialMsg.TYPE_REPLY: {//命令确认包 回复包 0xF2
                 if (mCmdReplyListener != null) {
-                    mCmdReplyListener.onSuccess(typeByte);
+                    mCmdReplyListener.onSuccess(typeByte,serialMsg.getContent().data);
                 }
-            }
-            break;
-            case SerialMsg.TYPE_REPLY: {//回复包 0xF2
-                CmdReply cmdReply = new CmdReply(typeByte);
-                LiveEventBus.get(EventMsgConst.CmdReplyData)
-                        .post(cmdReply);
+
             }
             break;
             case SerialMsg.TYPE_DATA: {//数据包 0xF3
@@ -313,15 +309,7 @@ public class SerialPortManager {
                         EcgData ecgData = new EcgData(serialMsg.getContent().data,msgdata);
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
-                        //分发到保存心电图数据
-                    /*    EcgSaveTaskBean ecgSaveTaskBean = new EcgSaveTaskBean();
-                        ecgSaveTaskBean.setEcgSaveTaskBeanType(EcgSaveTaskBean.EcgSaveTaskBeanType.ECG_SAVE_TASK_BEAN_TYPE_ADD_CACHE_DATA);
-                        ecgSaveTaskBean.setEcgdata(msgdata);
-                        BaseTaskBean<EcgSaveTaskBean> baseTaskBean = new BaseTaskBean<>();
-                        baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-                        baseTaskBean.taskBaen = ecgSaveTaskBean;
-                        EcgDataSaveManager.getInstance().dataSaveTask.addTask(baseTaskBean);*/
-                    }
+                     }
                     break;
                     case SerialContent.TOKEN_RESP: {
                         //上传呼吸RESP
@@ -339,7 +327,7 @@ public class SerialPortManager {
                     break;
                     case SerialContent.TOKEN_NIBP: {
                         //血压NIBP
-                        if (typeByte == SerialContent.TYPE_DATA_NIBP) {
+                     /*   if (typeByte == SerialContent.TYPE_DATA_NIBP) {
                             //上传实时袖带压
                             NibpData nibpData = new NibpData(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgNibpData)
@@ -349,7 +337,7 @@ public class SerialPortManager {
                             NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
                             LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
                                     .post(nibpOriginalData);
-                        }
+                        }*/
 
                     }
                     break;
@@ -499,7 +487,7 @@ public class SerialPortManager {
      */
     public interface CmdReplyListener {
         //请求成功
-        void onSuccess(byte cmdType);
+        void onSuccess(byte cmdType,byte[]  connect);
 
         //请求失败
         void onFail(byte cmdType);

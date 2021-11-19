@@ -13,13 +13,20 @@ public class SerialMsg {
     SerialContent content;
     byte crc;
 
-
+    /**
+     * 1.命令包必有回复（确认包或回复包），
+     * 2.数据包主动上传的
+     * 3.转传包指转协议后传输,应用于独立集成的子模块,只是利用多参数板中转的,如血压模块
+     */
     public static final byte TYPE_CMD = (byte) 0xF0;  //命令包	Master → Slave
     public static final byte TYPE_ACK = (byte) 0xf1;  //命令确认包（若有回复包，就不发确认包）	Master ← Slave
     public static final byte TYPE_REPLY = (byte) 0xf2;  //回复包	Master ← Slave
     public static final byte TYPE_DATA = (byte) 0xf3;  //数据包	Master ← Slave
     public static final byte TYPE_STATUS = (byte) 0xf4;  //如心跳包，异常状态包等等（主动传输）	双向
     public static final byte TYPE_UPDATE = (byte) 0xf5;    //升级包	Master → Slave
+    public static final byte TYPE_PASS0 = (byte) 0xF6;   //上行转传包	Master ← Slave
+    public static final byte TYPE_PASS1 = (byte) 0xF7;   // 下行转传包	Master → Slave
+
 
     /**
      * 解析数据包 例如0xAA  0x55  0x08  0x00  0xF0  0x00  0x05  0xBA

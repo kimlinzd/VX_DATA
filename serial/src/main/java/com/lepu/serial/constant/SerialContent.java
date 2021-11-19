@@ -1,11 +1,11 @@
 package com.lepu.serial.constant;
 
+import androidx.annotation.Nullable;
+
 import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.uitl.ByteUtils;
-
-import androidx.annotation.Nullable;
 
 public class SerialContent {
     public byte token;
@@ -19,28 +19,69 @@ public class SerialContent {
      * SYNC_L		：同步包头低八位，固定为 0x55
      */
     public static final byte SYNC_L = (byte) 0x55;
-
-    public static final byte TOKEN_COMMON = 0x00;
+    /********************************参数板整体******************************************/
+    public static final byte TOKEN_PARAM = 0x00;
     public static final byte TYPE_RESET = 0x00; //复位参数板
     public static final byte TYPE_INFO = 0x01; //查询参数板信息
-    public static final byte TYPE_PARAM = 0x02; //查询总参数板参数
+    public static final byte TYPE_PARAM = 0x02; //设置总参数
     public static final byte TYPE_PATIENT = 0x03; //设置病人类型
     public static final byte TYPE_DATA_START = 0x04; //启动数据传输
     public static final byte TYPE_DATA_STOP = 0x05; //停止数据传输
-    public static final byte TYPE_MAIN_INFO = 0x06; //总参数板信息（主动上报）
-    public static final byte TOKEN_ECG = 0x01;// 上传心电数据
-    public static final byte TYPE_DATA_ECG = 0x00;
-    public static final byte TOKEN_RESP = 0x02;    //上传呼吸RESP
-    public static final byte TYPE_DATA_RESP = 0x00;
-    public static final byte TOKEN_TEMP = 0x03;    //上传体温数据
-    public static final byte TYPE_DATA_TEMP = 0x00;
-    public static final byte TOKEN_NIBP = 0x04;    //血压NIBP
-    public static final byte TYPE_DATA_NIBP = 0x00; //上传实时袖带压 血压NIBP
-    public static final byte TYPE_DATA_NIBP_ORIGINAL = 0x01;//上传实时原始数据 血压NIBP
 
+    /********************************心电ECG******************************************/
+    public static final byte TOKEN_ECG = 0x01;
+    public static final byte TYPE_ECG_DATA = 0x00;// 上传心电数据
+    public static final byte TYPE_LEAD_MODE = 0x01;// 设置导联模式
+    public static final byte TYPE_CALIBRATION_SIGNAL = 0x02;// 设置定标信号
+
+    /********************************呼吸RESP******************************************/
+    public static final byte TOKEN_RESP = 0x02;
+    public static final byte TYPE_RESP_DATA = 0x00; //上传呼吸RESP
+    public static final byte TYPE_RESP_LEAD = 0x01; //设置呼吸导联
+    public static final byte TYPE_SUFFOCATION_ALARM_TIME = 0x02; //设置窒息报警时间
+
+    /********************************体温TEMP******************************************/
+    public static final byte TOKEN_TEMP = 0x03;
+    public static final byte TYPE_TEMP_DATA = 0x00;//上传体温数据
+
+    /********************************血压NIBP******************************************/
+    public static final byte TOKEN_NIBP = 0x04;
+    public static final byte TYPE_NIBP_REPLY_PACKET = 0x01; //应答包
+    public static final byte TOKEN_NIBP_DATA_5HZ = 0x02;//实时袖带压数据（5Hz）
+    public static final byte TOKEN_NIBP_DATA_200HZ = 0x03;//实时原始数据（200Hz）
+    public static final byte TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS  = 0x04;//血压参数和模块状态
+    public static final byte TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE  = 0x05;//血压模块工作状态
+    public static final byte TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO  = 0x06;//血压模块信息
+    public static final byte TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT  = 0x01;//开始手动血压测量
+    public static final byte TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT  = 0x02;//开始连续测量
+    public static final byte TOKEN_NIBP_CANCEL_MEASUREMENT  = 0x03;//取消测量
+    public static final byte TOKEN_NIBP_SET_PATIENT_TYPE  = 0x04;// 设置病人类型
+    public static final byte TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE  = 0x05;// 设置初始充气压
+    public static final byte TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE  = 0x06;// 设置波形传输模式
+    public static final byte TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS  = 0x07;// 读取血压参数
+    public static final byte TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE  = 0x08;// 读取血压模块工作状态
+    public static final byte TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO  = 0x09;// 读取血压模块信息
+    public static final byte TOKEN_NIBP_CONTROL_PUMP  = 0x0A;//控制泵
+    public static final byte TOKEN_NIBP_CONTROL_QUICK_VALVE  = 0x0B;//控制快阀
+    public static final byte TOKEN_NIBP_CONTROL_SLOW_VALVE  = 0x0C;//控制慢阀
+    public static final byte TOKEN_NIBP_SLEEP_MODE  = 0x0D;//睡眠模式
+    public static final byte TOKEN_NIBP_RESET_MODULE  = 0x0E;//复位模块
+    public static final byte TOKEN_NIBP_AUXILIARY_VENIPUNCTURE  = 0x0F;//辅助静脉穿刺
+    public static final byte TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1  = 0x10;//压力校验模式1（内部充气源）
+    public static final byte TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2  = 0x11;//压力校验模式2（外部充气源）
+    public static final byte TOKEN_NIBP_LEAK_DETECTION  = 0x12;//漏气检测
+    public static final byte TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR  = (byte) 0xF0;//校准压力传感器
+
+    /********************************血氧SpO2******************************************/
     public static final byte TOKEN_SP02 = 0x06;     //血氧SpO2
     public static final byte TYPE_DATA_SP02 = 0x00; //上传波形数据_原始数据 血氧SpO2
     public static final byte TYPE_DATA_SP02_ORIGINAL = 0x00;//上传SpO2数据 血氧SpO2
+
+
+   /* public static final byte TYPE_DATA_NIBP = 0x00; //上传实时袖带压 血压NIBP
+    public static final byte TYPE_DATA_NIBP_ORIGINAL = 0x01;//上传实时原始数据 血压NIBP*/
+
+
     /**
      * 是否是测试数据
      */
