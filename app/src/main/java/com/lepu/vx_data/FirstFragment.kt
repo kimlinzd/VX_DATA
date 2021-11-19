@@ -1,11 +1,13 @@
 package com.lepu.vx_data
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import com.lepu.serial.constant.SerialCmd
 import com.lepu.serial.manager.SerialPortManager
 import com.lepu.vx_data.databinding.FragmentFirstBinding
 
@@ -38,12 +40,29 @@ class FirstFragment : Fragment() {
         }
 
         binding.buttonSerialStart.setOnClickListener{
-            //EcgDataSaveManager.getInstance().setPatitentId("45654315")
+
+       //     SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStart(),null)
+
+            object : Thread() {
+                override fun run() {
+                    super.run()
+                    while (true) {
+                        Log.e("发送启动命令","--")
+                        SerialPortManager.getInstance()
+                            .serialSendData(SerialCmd.cmdDataStart(), null)
+                        try {
+                            sleep(1000)
+                        } catch (e: InterruptedException) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }.start()
         }
 
 
         binding.buttonSerialStop.setOnClickListener{
-
+            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStop(),null)
          }
 
         binding.buttonTestTrue.setOnClickListener{

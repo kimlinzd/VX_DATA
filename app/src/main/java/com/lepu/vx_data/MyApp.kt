@@ -25,7 +25,7 @@ class MyApp: Application() {
         Init.init(this)
 
         SerialPortManager.getInstance().init(this,"/dev/ttyS1",460800)
-        SerialPortManager.getInstance().setTestMode(true)
+      //  SerialPortManager.getInstance().setTestMode(true)
       //  EcgDataSaveManager.getInstance().init(this)
 
     }

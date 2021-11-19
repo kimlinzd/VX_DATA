@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     private fun observeLiveDataObserve() {
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
                 val data = it as EcgData
-     //        Log.e("接收到心电图信息",data.toString())
+             Log.e("接收到心电图信息",data.toString())
             }
         )
     }
