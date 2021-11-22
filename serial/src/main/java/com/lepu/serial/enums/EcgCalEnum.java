@@ -4,7 +4,7 @@ package com.lepu.serial.enums;
  * CAL输出
  * 0x00 ：关闭CAL输出       0x01 ：打开CAL输出
  */
-public enum Ecg1mVEnum {
+public enum EcgCalEnum {
     /**
      * 关闭CAL输出
      */
@@ -17,7 +17,7 @@ public enum Ecg1mVEnum {
 
     private final byte value;
 
-    Ecg1mVEnum(byte value) {
+    EcgCalEnum(byte value) {
         this.value = value;
     }
 

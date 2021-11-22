@@ -2,13 +2,14 @@ package com.lepu.vx_data
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.lepu.serial.constant.SerialCmd
+import com.lepu.serial.enums.EcgCalEnum
+import com.lepu.serial.enums.PatientTypeEnum
 import com.lepu.serial.manager.SerialPortManager
 import com.lepu.vx_data.databinding.FragmentFirstBinding
 
@@ -61,38 +62,84 @@ class FirstFragment : Fragment() {
          }
 
         binding.buttonGetParam.setOnClickListener{
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdInfo(),object :SerialPortManager.CmdReplyListener{
-                override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
-                    val str = connect!!.toString(Charsets.UTF_8)
-                    Log.e("cmdDataStop",str);
-                }
+            SerialPortManager.getInstance()
+                .serialSendData(SerialCmd.cmdReset(), object : SerialPortManager.CmdReplyListener {
+                    override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
+                        val str = connect!!.toString(Charsets.UTF_8)
+                        Log.e("cmdDataStop", str);
+                    }
 
-                override fun onFail(cmdType: Byte) {
+                    override fun onFail(cmdType: Byte) {
 
-                }
+                    }
 
-            })
+                })
         }
         binding.buttonReset.setOnClickListener{
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdInfo(),object :SerialPortManager.CmdReplyListener{
-                override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
-                 //   val str = connect!!.toString(Charsets.UTF_8)
-                    Log.e("cmdInfo","cmdInfo");
-                }
+            SerialPortManager.getInstance()
+                .serialSendData(SerialCmd.cmdReset(), object : SerialPortManager.CmdReplyListener {
+                    override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
+                        //   val str = connect!!.toString(Charsets.UTF_8)
+                        Log.e("cmdInfo", "cmdInfo");
+                    }
 
-                override fun onFail(cmdType: Byte) {
+                    override fun onFail(cmdType: Byte) {
 
-                }
+                    }
 
-            })
+                })
         }
 
+        binding.buttonSetPatientType.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(SerialCmd.cmdSetPatientType(PatientTypeEnum.ALDULT),
+                    object : SerialPortManager.CmdReplyListener {
+                        override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
+                            Log.e("cmdSetPatientType", "cmdSetPatientType");
+                        }
 
-        binding.buttonTestTrue.setOnClickListener{
+                        override fun onFail(cmdType: Byte) {
+
+                        }
+                    })
+
+        }
+
+        binding.buttonSetCal.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(SerialCmd.cmdSetCal(EcgCalEnum.CALCLOSE),
+                    object : SerialPortManager.CmdReplyListener {
+                        override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
+                            Log.e("cmdSetCal", "cmdSetCal");
+                        }
+
+                        override fun onFail(cmdType: Byte) {
+
+                        }
+                    })
+
+        }
+
+        binding.buttonSetApneaTime.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(SerialCmd.cmdSetApneaDelay(5),
+                    object : SerialPortManager.CmdReplyListener {
+                        override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
+                            Log.e("cmdSetCal", "cmdSetCal");
+                        }
+
+                        override fun onFail(cmdType: Byte) {
+
+                        }
+                    })
+
+        }
+
+        binding.buttonTestTrue.setOnClickListener {
             SerialPortManager.getInstance().setTestMode(true)
         }
 
-        binding.buttonTestFalse.setOnClickListener{
+        binding.buttonTestFalse.setOnClickListener {
             SerialPortManager.getInstance().setTestMode(false)
         }
 

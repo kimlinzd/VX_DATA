@@ -22,8 +22,8 @@ public class SerialContent {
     /********************************参数板整体******************************************/
     public static final byte TOKEN_PARAM = 0x00;
     public static final byte TYPE_RESET = 0x00; //复位参数板
-    public static final byte TYPE_INFO = 0x01; //查询参数板信息
-    public static final byte TYPE_PARAM = 0x02; //设置总参数
+    public static final byte TYPE_VERSION_INFO = 0x01; //查询参数板信息
+    public static final byte TYPE_SET_PARAM = 0x02; //设置总参数
     public static final byte TYPE_PATIENT = 0x03; //设置病人类型
     public static final byte TYPE_DATA_START = 0x04; //启动数据传输
     public static final byte TYPE_DATA_STOP = 0x05; //停止数据传输

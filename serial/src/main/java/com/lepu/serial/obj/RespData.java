@@ -18,7 +18,7 @@ public class RespData {
      * 顺序为 B3 B2 B1 B0 Apnea3 Apnea2 Apnea1 Apnea0
      */
     int[] flag;
-    int apenaDelay;//窒息报警时间，单位：秒
+    int apneaDelay;//窒息报警时间，单位：秒
     int rr; // 呼吸率
     short[] respWave;//呼吸数据
 
@@ -27,7 +27,7 @@ public class RespData {
         leadIndex = buf[0] >> 4 & 3;
         num = buf[0] & 0x0f;
         flag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1, buf[1] >> 3 & 0x1, buf[1] >> 2 & 0x1, buf[1] >> 1 & 0x1, buf[1] >> 0 & 0x1};
-        apenaDelay = buf[2] & 0xff;
+        apneaDelay = buf[2] & 0xff;
         rr = (buf[3] & 0xff + ((buf[4] & 0xff) << 8));
         if (num > 0) {
             respWave = new short[num];

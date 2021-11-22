@@ -66,6 +66,36 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_first" />
+
+    <Button
+        android:id="@+id/button_set_patient_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置病人类型"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_first" />
+
+    <Button
+        android:id="@+id/button_set_cal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置定标符号"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_first" />
+
+    <Button
+        android:id="@+id/button_set_apnea_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="设置窒息报警时间"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_first" />
     <Button
         android:id="@+id/button_test_true"
         android:layout_width="wrap_content"
