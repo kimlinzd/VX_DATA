@@ -8,32 +8,56 @@ public enum PatientTypeEnum {
     /**
      * 成人
      */
-    ALDULT((byte) 0x00),
+    ADULT(0),
     /**
      * 儿童
      */
-    CHILD((byte) 0x01),
+    CHILD(1),
     /**
      * 新生儿
      */
-    NEWBORN((byte) 0x02),
+    NEWBORN(2),
     /**
      * 大动物
      */
-    BIGANIMAL((byte) 0x03),
+    BIG_ANIMAL(3),
     /**
      * 小动物
      */
-    SMALLANIMAL((byte) 0x04);
+    SMALL_ANIMAL(4),
+    /**
+     * 未知
+     */
+    UN_KNOW(110);
 
-    private final byte value;
+    private final int value;
 
-    PatientTypeEnum(byte value) {
+    PatientTypeEnum(int value) {
         this.value = value;
     }
 
-    public byte getValue() {
+    public int getValue() {
         return value;
+
+    }
+
+
+    public static PatientTypeEnum getPatientTypeEnum(int value) {
+        switch (value) {
+            case 0:
+                return ADULT;
+            case 1:
+                return CHILD;
+            case 2:
+                return NEWBORN;
+            case 3:
+                return BIG_ANIMAL;
+            case 4:
+                return SMALL_ANIMAL;
+            default:
+                return UN_KNOW;
+
+        }
 
     }
 }

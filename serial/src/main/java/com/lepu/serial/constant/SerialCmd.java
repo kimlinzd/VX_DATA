@@ -62,7 +62,7 @@ public class SerialCmd {
             , @NotNull EcgChn0IndexEnum ecgChn0IndexEnum, @NotNull EcgCalEnum ecgCalEnum, @NotNull RespLeadIndexEnum respLeadIndexEnum
             , int apneaDelay) {
         byte[] data = new byte[6];
-        data[0] = patientTypeEnum.getValue();
+        data[0] = (byte)patientTypeEnum.getValue();
         data[1] = ecgLeadModeEnum.getValue();
         data[2] = ecgChn0IndexEnum.getValue();
         data[3] = ecgCalEnum.getValue();
@@ -83,7 +83,7 @@ public class SerialCmd {
      */
     public static byte[] cmdSetPatientType(@NotNull PatientTypeEnum patientTypeEnum) {
         byte[] data = new byte[1];
-        data[0] = patientTypeEnum.getValue();
+        data[0] = (byte)patientTypeEnum.getValue();
         SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_PATIENT, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
@@ -197,6 +197,8 @@ public class SerialCmd {
     /*************************************************** 体温TEMP业务 end*************************************************************/
 
     /*************************************************** 血压NIBP业务 start*************************************************************/
+
+
 
     /*************************************************** 血压NIBP业务 end*************************************************************/
 

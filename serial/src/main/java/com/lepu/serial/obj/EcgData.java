@@ -12,8 +12,8 @@ import com.lepu.serial.uitl.ByteUtils;
 public class EcgData {
     byte[] originalData;//原始数据
     int len;//采样点数
-    int rateIndex;//采样率 0x00代表500HZ 01代表1000HZ
-    int lead0Index;//首导联指引 用于通道数为1时区分当前导联：I导联=0 II导联=1 III导联=2
+    int set_1mv;//cal  0x00 ：关闭CAL输出       0x01 ：打开CAL输出
+    int chn0Index;//当前通道数为1时有效,当前导联名称： I导联=0,II导联=1,III导联=2
     int chn;//当前导联通道数，3导联：chn=1,5导联：chn=3
     int[] leadOff;//导联脱落 1为脱落 0为不脱落 当全部为1时，说明说有导联都脱落，包括R在内。RA或RL脱落会导致所有导联都脱落。顺序为V6 V5 V4 V3 V2 V1 F L
     int[] dCout;//1为过高 0为正常 顺序为V6 V5 V4 V3 V2 V1 F L
@@ -38,8 +38,8 @@ public class EcgData {
     public EcgData(byte[] buf,byte[] originalData) {
         this.originalData=originalData;
         len = buf[0] & 0x0f;
-        rateIndex = buf[1] >> 6;
-        lead0Index = buf[1] >> 4 & 3;
+        set_1mv = buf[1] >> 6;
+        chn0Index = buf[1] >> 4 & 3;
         chn = buf[1] & 0x0f;
         leadOff = new int[]{buf[2] >> 7 & 0x1, buf[2] >> 6 & 0x1, buf[2] >> 5 & 0x1, buf[2] >> 4 & 0x1, buf[2] >> 3 & 0x1, buf[2] >> 2 & 0x1, buf[2] >> 1 & 0x1, buf[2] >> 0 & 0x1};
         dCout = new int[]{buf[3] >> 7 & 0x1, buf[3] >> 6 & 0x1, buf[3] >> 5 & 0x1, buf[3] >> 4 & 0x1, buf[3] >> 3 & 0x1, buf[3] >> 2 & 0x1, buf[3] >> 1 & 0x1, buf[3] >> 0 & 0x1};
@@ -93,8 +93,8 @@ public class EcgData {
      * @param ecgdata
      */
     public EcgData(short[][] ecgdata) {
-        rateIndex = 0;
-        lead0Index = 0;
+        set_1mv = 0;
+        chn0Index = 0;
         leadOff = new int[]{0, 0, 0, 0, 0, 0, 0, 0};
         dCout = new int[]{0, 0, 0, 0, 0, 0, 1, 1};
         hr = 60;
@@ -150,20 +150,20 @@ public class EcgData {
         this.len = len;
     }
 
-    public int getRateIndex() {
-        return rateIndex;
+    public int getSet_1mv() {
+        return set_1mv;
     }
 
-    public void setRateIndex(int rateIndex) {
-        this.rateIndex = rateIndex;
+    public void setSet_1mv(int set_1mv) {
+        this.set_1mv = set_1mv;
     }
 
-    public int getLead0Index() {
-        return lead0Index;
+    public int getChn0Index() {
+        return chn0Index;
     }
 
-    public void setLead0Index(int lead0Index) {
-        this.lead0Index = lead0Index;
+    public void setChn0Index(int chn0Index) {
+        this.chn0Index = chn0Index;
     }
 
     public int getChn() {

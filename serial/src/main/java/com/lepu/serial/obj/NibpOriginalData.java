@@ -1,35 +1,116 @@
 package com.lepu.serial.obj;
 
-import com.lepu.serial.uitl.ByteUtils;
-
 /**
- * 血压NIBP 上传实时原始数据
+ * 血压NIBP  实时原始数据（200Hz）
  */
 public class NibpOriginalData {
-    int len;//当前采样数
     /**
-     * 血压数据 Short Data[Num][4]小端
-     * Data[][0]为 CUFF:袖带压数据，单位:mmHg
-     * Data[][1]为 AD:袖带压AD值数据
-     * Data[][2]为 P1:脉搏波1数据
-     * Data[][3]为 DP2:脉搏波2数据
+     *袖带压数据，单位：mmHg
      */
-    short[][] nibpOriginalWave;
+    byte CUFF_H;
+    /**
+     *袖带压数据，单位：mmHg
+     */
+    byte CUFF_L;
+    /**
+     *袖带压AD值数据
+     */
+    byte AD_H;
+    /**
+     *袖带压AD值数据
+     */
+    byte AD_L;
+    /**
+     *脉搏波1数据
+     */
+    byte P1_H;
+    /**
+     *脉搏波1数据
+     */
+    byte P1_L;
+    /**
+     *脉搏波2数据
+     */
+    byte P2_H;
+    /**
+     *脉搏波2数据
+     */
+    byte P2_L;
+
 
     public NibpOriginalData(byte[] buf) {
-        len = buf[0] & 0x0f;
-        nibpOriginalWave=new short[len][4];
-        if (len > 0) {
-            for (int i = 0; i < len; i++) {
-                for (int j = 0; j < 4; j++) {
-                    int index1 = j * 2 + i * 2 * 4 + 1;
-                    int index2 = j * 2 + i * 2 * 4 + 2;
-                    nibpOriginalWave[i][j] = (short) ByteUtils.bytes2Short(buf[index1], buf[index2]);
-                }
-            }
+        CUFF_H=buf[0];
+        CUFF_L=buf[1];
+        AD_H=buf[2];
+        AD_L=buf[3];
+        P1_H=buf[4];
+        P1_L=buf[5];
+        P2_H=buf[6];
+        P2_L=buf[7];
 
+    }
 
-        }
+    public byte getCUFF_H() {
+        return CUFF_H;
+    }
 
+    public void setCUFF_H(byte CUFF_H) {
+        this.CUFF_H = CUFF_H;
+    }
+
+    public byte getCUFF_L() {
+        return CUFF_L;
+    }
+
+    public void setCUFF_L(byte CUFF_L) {
+        this.CUFF_L = CUFF_L;
+    }
+
+    public byte getAD_H() {
+        return AD_H;
+    }
+
+    public void setAD_H(byte AD_H) {
+        this.AD_H = AD_H;
+    }
+
+    public byte getAD_L() {
+        return AD_L;
+    }
+
+    public void setAD_L(byte AD_L) {
+        this.AD_L = AD_L;
+    }
+
+    public byte getP1_H() {
+        return P1_H;
+    }
+
+    public void setP1_H(byte p1_H) {
+        P1_H = p1_H;
+    }
+
+    public byte getP1_L() {
+        return P1_L;
+    }
+
+    public void setP1_L(byte p1_L) {
+        P1_L = p1_L;
+    }
+
+    public byte getP2_H() {
+        return P2_H;
+    }
+
+    public void setP2_H(byte p2_H) {
+        P2_H = p2_H;
+    }
+
+    public byte getP2_L() {
+        return P2_L;
+    }
+
+    public void setP2_L(byte p2_L) {
+        P2_L = p2_L;
     }
 }

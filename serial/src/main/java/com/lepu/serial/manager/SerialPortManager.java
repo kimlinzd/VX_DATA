@@ -5,15 +5,17 @@ import android.os.AsyncTask;
 import android.serialport.SerialPort;
 import android.util.Log;
 
-
 import com.jeremyliao.liveeventbus.LiveEventBus;
-import com.lepu.serial.constant.SerialContent;
-import com.lepu.serial.obj.CmdReply;
-import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.constant.EventMsgConst;
+import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.obj.CmdNibpReply;
+import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.NibpData;
+import com.lepu.serial.obj.NibpModuleInfo;
 import com.lepu.serial.obj.NibpOriginalData;
+import com.lepu.serial.obj.NibpPramAndStatus;
+import com.lepu.serial.obj.NibpWorkingStatus;
 import com.lepu.serial.obj.RespData;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.obj.SpO2Data;
@@ -325,22 +327,7 @@ public class SerialPortManager {
                                 .post(tempData);
                     }
                     break;
-                    case SerialContent.TOKEN_NIBP: {
-                        //血压NIBP
-                     /*   if (typeByte == SerialContent.TYPE_DATA_NIBP) {
-                            //上传实时袖带压
-                            NibpData nibpData = new NibpData(serialMsg.getContent().data);
-                            LiveEventBus.get(EventMsgConst.MsgNibpData)
-                                    .post(nibpData);
-                        } else if (typeByte == SerialContent.TYPE_DATA_NIBP_ORIGINAL) {
-                            //上传实时袖带压原始数据
-                            NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
-                            LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
-                                    .post(nibpOriginalData);
-                        }*/
 
-                    }
-                    break;
                     case SerialContent.TOKEN_SP02: {
                         //血氧SpO2
                         if (typeByte == SerialContent.TYPE_DATA_SP02) {
@@ -370,6 +357,60 @@ public class SerialPortManager {
 
             }
             break;
+
+            case SerialMsg.TYPE_PASS0: {//上行转传包	Master ← Slave
+                switch (tokenByte) {
+                    case SerialContent.TOKEN_NIBP: { //血压NIBP
+                        switch (typeByte) {
+                            case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
+                                CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
+
+                            }
+                            break;
+                            case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
+                                NibpData nibpData = new NibpData(serialMsg.getContent().data);
+
+                            }
+                            break;
+                            case SerialContent.TOKEN_NIBP_DATA_200HZ: {//实时原始数据（200Hz）
+                                NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
+
+                            }
+                            break;
+                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: {//血压参数和模块状态
+                                NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(serialMsg.getContent().data);
+                             }
+                            break;
+                            case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: {//血压模块工作状态
+                                NibpWorkingStatus nibpPramAndStatus = new NibpWorkingStatus(serialMsg.getContent().data);
+                            }
+                            break;
+                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: {//血压模块信息
+                                NibpModuleInfo nibpModuleInfo = new NibpModuleInfo(serialMsg.getContent().data);
+                            }
+                            break;
+
+
+
+                            default:
+
+                        }
+
+                    }
+                    break;
+
+                    default:
+                }
+
+            }
+            break;
+
+            case SerialMsg.TYPE_PASS1: {//下行转传包	Master → Slave
+
+            }
+            break;
+
+
             default:
         }
 
@@ -478,6 +519,10 @@ public class SerialPortManager {
                 , (byte) 0xEA, (byte) 0xFF, (byte) 0xCC, (byte) 0xFF, (byte) 0xC9, (byte) 0xFF, (byte) 0xED, (byte) 0xFF, (byte) 0xCA, (byte) 0xFF, (byte) 0xCA, (byte) 0xFF, (byte) 0xEF
                 , (byte) 0xFF, (byte) 0x33};
 
+
+        byte[] data1 = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09};
+
+        System.out.println(data1);
 
     }
 

@@ -80,7 +80,7 @@ public class StringtoHexUitl {
                 (byte) 0x01, (byte) 0x00, (byte) 0x6E
         };
 
-
+byte b= 0x0f;
 System.out.println(byteToBit((byte) 0x03));
 
     }

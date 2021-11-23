@@ -92,7 +92,7 @@ class FirstFragment : Fragment() {
 
         binding.buttonSetPatientType.setOnClickListener {
             SerialPortManager.getInstance()
-                .serialSendData(SerialCmd.cmdSetPatientType(PatientTypeEnum.ALDULT),
+                .serialSendData(SerialCmd.cmdSetPatientType(PatientTypeEnum.ADULT),
                     object : SerialPortManager.CmdReplyListener {
                         override fun onSuccess(cmdType: Byte, connect: ByteArray?) {
                             Log.e("cmdSetPatientType", "cmdSetPatientType");
