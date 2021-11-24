@@ -9,8 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.lepu.serial.constant.SerialCmd
 import com.lepu.serial.enums.*
+import com.lepu.serial.listener.CmdNibpReplyListener
+import com.lepu.serial.listener.CmdReplyListener
 import com.lepu.serial.manager.SerialPortManager
-import com.lepu.serial.manager.SerialPortManager.CmdReplyListener
 import com.lepu.serial.obj.CmdReply
 import com.lepu.vx_data.databinding.FragmentFirstBinding
 
@@ -125,11 +126,19 @@ class FirstFragment : Fragment() {
                         EcgCalEnum.CALOPEN,
                         RespLeadIndexEnum.LA,
                         10
-                    ), cmdReplyListener)
+                    ), cmdReplyListener
+                )
 
         }
 
+        // 开始手动血压测量
+        binding.buttonStartBp.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdStartManualBp(), cmdNibpReplyListener
+                )
 
+        }
     }
 
     var cmdReplyListener: CmdReplyListener = object : CmdReplyListener {
@@ -176,17 +185,93 @@ class FirstFragment : Fragment() {
                         Log.e("CmdReplyListener", "CMD_PATIENT  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_START  ->
                         Log.e("CmdReplyListener", "CMD_TYPE_DATA_START  onFail")
-                    CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP  ->
+                    CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP ->
                         Log.e("CmdReplyListener", "CMD_TYPE_DATA_STOP  onFail")
-                    CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE  ->
+                    CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE ->
                         Log.e("CmdReplyListener", "CMD_TYPE_ECG_LEAD_MODE  onFail")
-                    CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL  ->
+                    CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL ->
                         Log.e("CmdReplyListener", "CMD_TYPE_CALIBRATION_SIGNAL  onFail")
-                    CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD  ->
+                    CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD ->
                         Log.e("CmdReplyListener", "CMD_TYPE_RESP_LEAD  onFail")
-                    CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME  ->
+                    CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME ->
                         Log.e("CmdReplyListener", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onFail")
 
+                }
+            }
+        }
+
+        override fun onTimeOut(cmdReply: CmdReply?) {
+            if (cmdReply != null) {
+                when (cmdReply.cmdReplyType) {
+                    CmdReply.CmdReplyType.CMD_TYPE_RESET ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_RESET onTimeOut")
+                    CmdReply.CmdReplyType.CMD_VERSION_INFO ->
+                        Log.e("CmdReplyListener", "CMD_VERSION_INFO onTimeOut")
+                    CmdReply.CmdReplyType.CMD_SET_PARAM ->
+                        Log.e("CmdReplyListener", "CMD_SET_PARAM  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_PATIENT ->
+                        Log.e("CmdReplyListener", "CMD_PATIENT  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_DATA_START ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_START  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_STOP  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_ECG_LEAD_MODE  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_CALIBRATION_SIGNAL  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_RESP_LEAD  onTimeOut")
+                    CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME ->
+                        Log.e("CmdReplyListener", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onTimeOut")
+
+                }
+            }
+
+        }
+    }
+
+    var cmdNibpReplyListener: CmdNibpReplyListener = object : CmdNibpReplyListener {
+        override fun obtain_O(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_K(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_B(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_A(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_N(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_S(cmdReply: CmdReply?) {
+
+        }
+
+        override fun obtain_R(cmdReply: CmdReply?) {
+
+        }
+
+        override fun onFail(cmdReply: CmdReply?) {
+
+
+        }
+
+        override fun onTimeOut(cmdReply: CmdReply?) {
+            if (cmdReply != null) {
+                when (cmdReply.cmdReplyType) {
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT ->
+                        Log.e(
+                            "cmdNibpReplyListener",
+                            "CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT  onTimeOut"
+                        )
                 }
             }
         }

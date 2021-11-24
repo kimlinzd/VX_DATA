@@ -14,6 +14,6 @@ public class BaseTaskBean<T> {
      */
     public String planNo;
 
-    public T taskBaen;
+    public T taskBean;
 
 }

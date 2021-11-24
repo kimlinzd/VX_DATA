@@ -98,6 +98,20 @@ public class CmdReply {
                 }
                 break;
 
+            case SerialContent.TOKEN_NIBP:
+                switch (type) {
+                    case SerialContent.TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT;
+                        break;
+                    case SerialContent.TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT:
+                        this.cmdReplyType = CmdReplyType. CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT;
+                        break;
+
+                    default:
+
+                }
+                break;
+
             default:
 
         }
@@ -153,6 +167,16 @@ public class CmdReply {
          *设置窒息报警时间
          */
         CMD_TYPE_SUFFOCATION_ALARM_TIME,
+
+        /**
+         *开始手动血压测量
+         */
+        CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT,
+        /**
+         *开始连续测量
+         */
+        CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT,
+
 
     }
 }

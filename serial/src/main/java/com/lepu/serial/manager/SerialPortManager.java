@@ -6,8 +6,11 @@ import android.serialport.SerialPort;
 import android.util.Log;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
+import com.lepu.serial.constant.ConfigConst;
 import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.listener.CmdNibpReplyListener;
+import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
@@ -23,6 +26,7 @@ import com.lepu.serial.obj.SpO2Data;
 import com.lepu.serial.obj.SpO2OriginalData;
 import com.lepu.serial.obj.TempData;
 import com.lepu.serial.task.BaseTaskBean;
+import com.lepu.serial.task.CmdReplyTimeOutTask;
 import com.lepu.serial.task.OnTaskListener;
 import com.lepu.serial.task.SerialPortDataTask;
 import com.lepu.serial.task.SerialTaskBean;
@@ -32,6 +36,8 @@ import com.lepu.serial.uitl.CRCUitl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +56,10 @@ public class SerialPortManager {
     private static SerialPortManager instance = null;
     //请求命令回调
     CmdReplyListener mCmdReplyListener;
+    List<CmdReplyTimeOutTask> mCmdReplyTimeOutTaskList=new ArrayList<>();
+    //血压请求命令回调
+    CmdNibpReplyListener mCmdNibpReplyListener;
+
     //心电测试数据的游标
     int mTestEcgIndex;
     //
@@ -123,7 +133,7 @@ public class SerialPortManager {
                             SerialTaskBean serialTaskBean = new SerialTaskBean();
                             serialTaskBean.data = buffer;
                             BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-                            baseTaskBean.taskBaen = serialTaskBean;
+                            baseTaskBean.taskBean = serialTaskBean;
                             baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
                             // 添加到排队列表中去
                             mSerialPortDataTask.addTask(baseTaskBean);
@@ -144,15 +154,11 @@ public class SerialPortManager {
     public void serialSendData(byte[] bytes, CmdReplyListener cmdReplyListener) {
         try {
             mCmdReplyListener = cmdReplyListener;
-            OutputStream mOutputStream;
-            mOutputStream = mSerialPort.getOutputStream();
-            for (int i = 0; i < bytes.length; i++) {
-                mOutputStream.write(bytes[i]);
-            }
-            mOutputStream.flush();
-            if (mCmdReplyListener != null) {
-                mCmdReplyListener.onFail(new CmdReply(bytes[5],bytes[6]));
-            }
+            writeBytes (bytes);
+            CmdReplyTimeOutTask cmdReplyTimeOutTask=
+                    new CmdReplyTimeOutTask(cmdReplyListener,new CmdReply(bytes[5],bytes[6]), ConfigConst.CMD_TIMEOUT);
+            mCmdReplyTimeOutTaskList.add(cmdReplyTimeOutTask);
+            cmdReplyTimeOutTask.start();
         } catch (Exception ex) {
             ex.printStackTrace();
             if (mCmdReplyListener != null) {
@@ -160,6 +166,35 @@ public class SerialPortManager {
             }
         }
     }
+
+    /**
+     * 向串口写入数据
+     */
+    public void serialSendData(byte[] bytes, CmdNibpReplyListener cmdNibpReplyListener) {
+        try {
+            mCmdNibpReplyListener = cmdNibpReplyListener;
+            writeBytes (bytes);
+            CmdReplyTimeOutTask cmdReplyTimeOutTask=
+                    new CmdReplyTimeOutTask(cmdNibpReplyListener,new CmdReply(bytes[5],bytes[6]), ConfigConst.CMD_NIBP_TIMEOUT);
+            mCmdReplyTimeOutTaskList.add(cmdReplyTimeOutTask);
+            cmdReplyTimeOutTask.start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            if (mCmdNibpReplyListener != null) {
+                mCmdNibpReplyListener.onFail(new CmdReply(bytes[5],bytes[6]));
+            }
+        }
+    }
+
+    private void writeBytes (byte[] bytes) throws IOException {
+        OutputStream mOutputStream;
+        mOutputStream = mSerialPort.getOutputStream();
+        for (int i = 0; i < bytes.length; i++) {
+            mOutputStream.write(bytes[i]);
+        }
+        mOutputStream.flush();
+    }
+
 
     /**
      * 关闭串口 结束读取任务
@@ -218,12 +253,12 @@ public class SerialPortManager {
             byte[] data;
             //如果有剩余的数据，需要把剩余的剩余的数据重新处理
             if (surplusData != null) {
-                data = new byte[surplusData.length + task.taskBaen.data.length];
+                data = new byte[surplusData.length + task.taskBean.data.length];
                 System.arraycopy(surplusData, 0, data, 0, surplusData.length);
-                System.arraycopy(task.taskBaen.data, 0, data, surplusData.length, task.taskBaen.data.length);
+                System.arraycopy(task.taskBean.data, 0, data, surplusData.length, task.taskBean.data.length);
                 surplusData=null;
             } else {
-                data = task.taskBaen.data;
+                data = task.taskBean.data;
             }
             //用于记录一段完整的报文
             byte[] completeData = null;
@@ -301,6 +336,13 @@ public class SerialPortManager {
             break;
             case SerialMsg.TYPE_ACK: //命令确认包（若有回复包，就不发确认包）0xF1
             case SerialMsg.TYPE_REPLY: {//命令确认包 回复包 0xF2
+                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
+                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                            ==new CmdReply(serialMsg ).getCmdReplyType()){
+                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                    }
+                }
+
                 if (mCmdReplyListener != null) {
                     mCmdReplyListener.onSuccess(new CmdReply(serialMsg ));
                 }
@@ -460,7 +502,7 @@ public class SerialPortManager {
             SerialTaskBean serialTaskBean = new SerialTaskBean();
             serialTaskBean.data = ecgdata;
             BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-            baseTaskBean.taskBaen = serialTaskBean;
+            baseTaskBean.taskBean = serialTaskBean;
             baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
             // 添加到排队列表中去
             mSerialPortDataTask.addTask(baseTaskBean);
@@ -500,7 +542,7 @@ public class SerialPortManager {
             SerialTaskBean serialTaskBean = new SerialTaskBean();
             serialTaskBean.data = ecgdata;
             BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-            baseTaskBean.taskBaen = serialTaskBean;
+            baseTaskBean.taskBean = serialTaskBean;
             baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
             // 添加到排队列表中去
             mSerialPortDataTask.addTask(baseTaskBean);
@@ -529,18 +571,6 @@ public class SerialPortManager {
 
     }
 
-
-    /**
-     * 请求命令回调
-     */
-    public interface CmdReplyListener {
-        //请求成功
-        void onSuccess(CmdReply cmdReply);
-
-        //请求失败
-        void onFail(CmdReply cmdReply);
-
-    }
 
 
 }
