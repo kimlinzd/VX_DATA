@@ -1,7 +1,7 @@
 package com.lepu.serial.enums;
 
 /**
- * 导联模式
+ * 导联模式 A
  * 0x00 ：5线模式，0x01 ：3线模式
  */
 public enum EcgLeadModeEnum {

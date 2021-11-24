@@ -31,7 +31,7 @@ public class SerialContent {
     /********************************心电ECG******************************************/
     public static final byte TOKEN_ECG = 0x01;
     public static final byte TYPE_ECG_DATA = 0x00;// 上传心电数据
-    public static final byte TYPE_LEAD_MODE = 0x01;// 设置导联模式
+    public static final byte TYPE_ECG_LEAD_MODE = 0x01;// 设置导联模式
     public static final byte TYPE_CALIBRATION_SIGNAL = 0x02;// 设置定标信号
 
     /********************************呼吸RESP******************************************/

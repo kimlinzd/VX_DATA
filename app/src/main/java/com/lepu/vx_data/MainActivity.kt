@@ -2,17 +2,18 @@ package com.lepu.vx_data
 
 import android.os.Bundle
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
+import com.google.android.material.snackbar.Snackbar
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.constant.EventMsgConst
 import com.lepu.serial.obj.EcgData
+import com.lepu.serial.obj.RespData
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
 
@@ -65,10 +66,17 @@ class MainActivity : AppCompatActivity() {
      }
 
     private fun observeLiveDataObserve() {
+        //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
-                val data = it as EcgData
-             Log.e("接收到心电图信息",data.toString())
-            }
+            val data = it as EcgData
+            //   Log.e("接收到心电图信息", data.toString())
+        }
+        )
+        //接收到呼吸数据信息
+        LiveEventBus.get(EventMsgConst.MsgRespData).observe(this, {
+            val data = it as RespData
+            Log.e("接收到呼吸数据信息", "窒息时间" + data.apneaDelay)
+        }
         )
     }
 

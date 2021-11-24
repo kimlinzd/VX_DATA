@@ -129,7 +129,7 @@ public class SerialCmd {
         byte[] data = new byte[2];
         data[0] = ecgLeadModeEnum.getValue();
         data[1] = ecgChn0IndexEnum.getValue();
-        SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_LEAD_MODE, data);
+        SerialContent content = new SerialContent(SerialContent.TOKEN_ECG, SerialContent.TYPE_ECG_LEAD_MODE, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -145,7 +145,7 @@ public class SerialCmd {
     public static byte[] cmdSetCal(@NotNull EcgCalEnum ecgCalEnum) {
         byte[] data = new byte[1];
         data[0] = ecgCalEnum.getValue();
-        SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_CALIBRATION_SIGNAL, data);
+        SerialContent content = new SerialContent(SerialContent.TOKEN_ECG, SerialContent.TYPE_CALIBRATION_SIGNAL, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -167,7 +167,7 @@ public class SerialCmd {
     public static byte[] cmdSetRespLead(@NotNull RespLeadIndexEnum respLeadIndexEnum) {
         byte[] data = new byte[1];
         data[0] = respLeadIndexEnum.getValue();
-        SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_RESP_LEAD, data);
+        SerialContent content = new SerialContent(SerialContent.TOKEN_RESP, SerialContent.TYPE_RESP_LEAD, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -182,7 +182,7 @@ public class SerialCmd {
     public static byte[] cmdSetApneaDelay(int apneaDelay) {
         byte[] data = new byte[1];
         data[0] = (byte) apneaDelay;
-        SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_SUFFOCATION_ALARM_TIME, data);
+        SerialContent content = new SerialContent(SerialContent.TOKEN_RESP, SerialContent.TYPE_SUFFOCATION_ALARM_TIME, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -193,11 +193,22 @@ public class SerialCmd {
 
 
     /*************************************************** 体温TEMP业务 start*************************************************************/
-
+    //体温业务暂时没有
     /*************************************************** 体温TEMP业务 end*************************************************************/
 
     /*************************************************** 血压NIBP业务 start*************************************************************/
+    // * 注意：血压模块属于独立的子模块，多参数板只负责转传（转协议后透传）
+    // * 原协议为《第二代无创血压模块通讯协议V1.0.0.0_20211109》
 
+    /**
+     * 0x01 开始手动血压测量
+     */
+    public static byte[] cmdStartManualBp() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
 
 
     /*************************************************** 血压NIBP业务 end*************************************************************/

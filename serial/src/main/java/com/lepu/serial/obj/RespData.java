@@ -22,6 +22,9 @@ public class RespData {
     int rr; // 呼吸率
     short[] respWave;//呼吸数据
 
+    public RespData() {
+    }
+
     public RespData(byte[] buf) {
         dataFormat = buf[0] >> 6;
         leadIndex = buf[0] >> 4 & 3;
@@ -49,8 +52,59 @@ public class RespData {
         }*/
     }
 
-    public static void main(String[] args) {
-
+    public int getDataFormat() {
+        return dataFormat;
     }
 
+    public void setDataFormat(int dataFormat) {
+        this.dataFormat = dataFormat;
+    }
+
+    public int getLeadIndex() {
+        return leadIndex;
+    }
+
+    public void setLeadIndex(int leadIndex) {
+        this.leadIndex = leadIndex;
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+
+    public int[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int[] flag) {
+        this.flag = flag;
+    }
+
+    public int getApneaDelay() {
+        return apneaDelay;
+    }
+
+    public void setApneaDelay(int apneaDelay) {
+        this.apneaDelay = apneaDelay;
+    }
+
+    public int getRr() {
+        return rr;
+    }
+
+    public void setRr(int rr) {
+        this.rr = rr;
+    }
+
+    public short[] getRespWave() {
+        return respWave;
+    }
+
+    public void setRespWave(short[] respWave) {
+        this.respWave = respWave;
+    }
 }

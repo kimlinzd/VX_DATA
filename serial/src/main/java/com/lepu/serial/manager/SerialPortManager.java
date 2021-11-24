@@ -9,6 +9,7 @@ import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.obj.CmdNibpReply;
+import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
 import com.lepu.serial.obj.NibpData;
@@ -69,15 +70,15 @@ public class SerialPortManager {
      * 串口初始化
      *
      * @param devicePath 串口名 /dev/ttyS1
-     * @param baudrate   波特率 480600
+     * @param baudRate   波特率 480600
      */
-    public void init(Context context, String devicePath, int baudrate) {
+    public void init(Context context, String devicePath, int baudRate) {
         AsyncTask.execute(() -> {
             try {
                 //     Log.d("SerialPortManager", "初始化串口");
                 //打开串口
                 SerialPort serialPort = SerialPort //
-                        .newBuilder(devicePath, baudrate) // 串口地址地址，波特率
+                        .newBuilder(devicePath, baudRate) // 串口地址地址，波特率
                         .parity(0) // 校验位；0:无校验位(NONE，默认)；1:奇校验位(ODD);2:偶校验位(EVEN)
                         .dataBits(8) // 数据位,默认8；可选值为5~8
                         .stopBits(1) // 停止位，默认1；1:1位停止位；2:2位停止位
@@ -140,20 +141,22 @@ public class SerialPortManager {
     /**
      * 向串口写入数据
      */
-    public void serialSendData(byte[] sendbyte, CmdReplyListener cmdReplyListener) {
+    public void serialSendData(byte[] bytes, CmdReplyListener cmdReplyListener) {
         try {
             mCmdReplyListener = cmdReplyListener;
             OutputStream mOutputStream;
             mOutputStream = mSerialPort.getOutputStream();
-            for (int i = 0; i < sendbyte.length; i++) {
-                mOutputStream.write(sendbyte[i]);
+            for (int i = 0; i < bytes.length; i++) {
+                mOutputStream.write(bytes[i]);
             }
             mOutputStream.flush();
-
+            if (mCmdReplyListener != null) {
+                mCmdReplyListener.onFail(new CmdReply(bytes[5],bytes[6]));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             if (mCmdReplyListener != null) {
-                mCmdReplyListener.onFail(sendbyte[6]);
+                mCmdReplyListener.onFail(new CmdReply(bytes[5],bytes[6]));
             }
         }
     }
@@ -299,7 +302,7 @@ public class SerialPortManager {
             case SerialMsg.TYPE_ACK: //命令确认包（若有回复包，就不发确认包）0xF1
             case SerialMsg.TYPE_REPLY: {//命令确认包 回复包 0xF2
                 if (mCmdReplyListener != null) {
-                    mCmdReplyListener.onSuccess(typeByte,serialMsg.getContent().data);
+                    mCmdReplyListener.onSuccess(new CmdReply(serialMsg ));
                 }
 
             }
@@ -532,10 +535,10 @@ public class SerialPortManager {
      */
     public interface CmdReplyListener {
         //请求成功
-        void onSuccess(byte cmdType,byte[]  connect);
+        void onSuccess(CmdReply cmdReply);
 
         //请求失败
-        void onFail(byte cmdType);
+        void onFail(CmdReply cmdReply);
 
     }
 
