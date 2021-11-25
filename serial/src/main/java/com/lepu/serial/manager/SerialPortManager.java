@@ -11,6 +11,7 @@ import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
+import com.lepu.serial.listener.SerialConnentListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
@@ -82,7 +83,7 @@ public class SerialPortManager {
      * @param devicePath 串口名 /dev/ttyS1
      * @param baudRate   波特率 480600
      */
-    public void init(Context context, String devicePath, int baudRate) {
+    public void init(Context context, String devicePath, int baudRate, SerialConnentListener serialConnentListener) {
         AsyncTask.execute(() -> {
             try {
                 //     Log.d("SerialPortManager", "初始化串口");
@@ -96,10 +97,11 @@ public class SerialPortManager {
                 mSerialPort = serialPort;
                 mInputStream = mSerialPort.getInputStream();
                 mOutputStream = mSerialPort.getOutputStream();
-
+                serialConnentListener.onSuccess();
 
             } catch (Exception e) {
                 e.printStackTrace();
+                serialConnentListener.onFail();
             }
         });
         //开始定时获取心电图数据
@@ -409,7 +411,40 @@ public class SerialPortManager {
                         switch (typeByte) {
                             case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
                                 CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
+                                if (mCmdNibpReplyListener!=null){
+                                    switch (cmdNibpReply.getACK()){
+                                        case  SerialContent.NIBP_REPLY_PACKET_0:{
+                                            mCmdNibpReplyListener.obtain_O(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_K:{
+                                            mCmdNibpReplyListener.obtain_K(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_B:{
+                                            mCmdNibpReplyListener.obtain_B(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_A:{
+                                            mCmdNibpReplyListener.obtain_A(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_N:{
+                                            mCmdNibpReplyListener.obtain_N(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_S:{
+                                            mCmdNibpReplyListener.obtain_S(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                        case  SerialContent.NIBP_REPLY_PACKET_R:{
+                                            mCmdNibpReplyListener.obtain_R(new CmdReply(serialMsg));
+                                        }
+                                        break;
+                                    }
 
+
+                                }
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
@@ -435,9 +470,7 @@ public class SerialPortManager {
                             }
                             break;
 
-
-
-                            default:
+                              default:
 
                         }
 

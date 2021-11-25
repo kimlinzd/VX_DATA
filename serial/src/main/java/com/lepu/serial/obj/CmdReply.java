@@ -104,7 +104,22 @@ public class CmdReply {
                         this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT;
                         break;
                     case SerialContent.TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT:
-                        this.cmdReplyType = CmdReplyType. CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT;
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT;
+                        break;
+                    case SerialContent.TOKEN_NIBP_CANCEL_MEASUREMENT:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CANCEL_MEASUREMENT;
+                        break;
+                    case SerialContent.TOKEN_NIBP_SET_PATIENT_TYPE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_PATIENT_TYPE;
+                        break;
+                    case SerialContent.TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE;
+                        break;
+                    case SerialContent.TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE;
+                        break;
+                    case SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS;
                         break;
 
                     default:
@@ -169,14 +184,32 @@ public class CmdReply {
         CMD_TYPE_SUFFOCATION_ALARM_TIME,
 
         /**
-         *开始手动血压测量
+         * 开始手动血压测量
          */
         CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT,
         /**
-         *开始连续测量
+         * 开始连续测量
          */
         CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT,
-
-
+        /**
+         * 取消测量
+         */
+        CMD_TOKEN_NIBP_CANCEL_MEASUREMENT,
+        /**
+         * 血压 设置病人
+         */
+        CMD_TOKEN_NIBP_SET_PATIENT_TYPE,
+        /**
+         * 设置初始充气压
+         */
+        CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE,
+        /**
+         * 血压设置传输模式
+         */
+        CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE,
+        /**
+         * 读取血压参数
+         */
+        CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS,
     }
 }

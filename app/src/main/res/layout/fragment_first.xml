@@ -170,6 +170,60 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <Button
+            android:id="@+id/button_continuous_bp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始连续测量血压"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_cancel_bp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="取消测量"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_bp_set_patient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="血压设置病人"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_bp_set_inflated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="血压设置初始充气"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_set_transfer_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="血压设置传输模式"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_read_bp_param"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="读取血压参数"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
     </LinearLayout>
 
 

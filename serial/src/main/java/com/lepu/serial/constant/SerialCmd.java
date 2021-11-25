@@ -3,12 +3,15 @@ package com.lepu.serial.constant;
 import com.lepu.serial.enums.EcgCalEnum;
 import com.lepu.serial.enums.EcgChn0IndexEnum;
 import com.lepu.serial.enums.EcgLeadModeEnum;
+import com.lepu.serial.enums.NipbpWmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 import com.lepu.serial.enums.RespLeadIndexEnum;
 import com.lepu.serial.obj.SerialMsg;
-import com.lepu.serial.uitl.CRCUitl;
+import com.lepu.serial.uitl.ByteUtils;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.ByteOrder;
 
 /**
  * 串口命令合成
@@ -201,10 +204,104 @@ public class SerialCmd {
     // * 原协议为《第二代无创血压模块通讯协议V1.0.0.0_20211109》
 
     /**
-     * 0x01 开始手动血压测量
+     * 开始手动血压测量
+     * 开始一次手动血压测量。
+     * 模块响应“O”包,表示接收到开始测量的指令。
+     * 模块响应“K”包，表示一次手动血压测量完成。
+     * 模块响应“B”包，表示模块正忙。
+     * 注意：当模块正在进行一次血压测量时，有效的命令是“取消测量”、“复位模块”命令，其它命令模块会返回一个“B”包。
      */
     public static byte[] cmdStartManualBp() {
         SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 开始连续测量
+     * 开始连续测量。连续5分钟的测量，一次测量完成，需要泄气低于15mmHg(5mmHg)，且持续时间超过2秒，才能开始进行下一次测量。
+     * 1.连续测量过程中，当一次测量完成后，如果5分钟倒计时小于20s，则不再继续测量，退出连续测量模式。
+     * 2.五分钟倒计时结束，如果当次测量还未完成，会等待当次测量完成，才会退出连续模式。
+     * 模块响应“O”包,表示接收到开始紧急测量的指令。
+     * 模块响应“K”包，表示紧急测量血压完成。
+     * 注意：当模块正在进行紧急血压测量，有效的命令是“取消测量”、“复位模块”命令，其它命令模块会返回一个“B”包。
+     */
+    public static byte[] cmdStartContinuousBp() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 取消测量
+     * 停止并取消当前的测量。
+     * 模块响应“A”包,表示接收到取消测量的指令。
+     * Note: 取消测量包括手动测量，连续测量(连续五分钟测量)，漏气检测，校验模式1，校验模式
+     */
+    public static byte[] cmdCancelBp() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CANCEL_MEASUREMENT, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 血压测量 设置病人 模块响应“O”包,表示接收到指令。
+     *
+     * @param patientTypeEnum
+     * @return
+     */
+    public static byte[] cmdNibpSetPatient(@NotNull PatientTypeEnum patientTypeEnum) {
+        byte[] data = new byte[1];
+        data[0] = (byte) patientTypeEnum.getValue();
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_SET_PATIENT_TYPE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 设置初始充气压
+     * 成人：80~280mmHg(默认160mmHg)
+     * 儿童：80~210mmHg(默认140mmHg)
+     * 新生儿：60~140mmHg(默认90mmHg)
+     * 大动物：80~280mmHg(默认160mmHg)
+     * 小动物：80~210mmHg(默认140mmHg)
+     * 切换病人类型后，初始充气压会设置为对应病人类型的默认值
+     * 模块响应“O”包,表示接收到指令
+     */
+    public static byte[] cmdNibpSetPatient(short initPre) {
+        byte[] initPreByte = ByteUtils.shortToBytes(initPre, ByteOrder.BIG_ENDIAN);
+        byte[] data = new byte[2];
+        data[0] = initPreByte[0];
+        data[1] = initPreByte[1];
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 设置波形传输模式
+     */
+    public static byte[] cmdNibpSetTransferMode(NipbpWmEnum nipbpWmEnum) {
+        byte[] data = new byte[1];
+        data[0] = (byte) nipbpWmEnum.getValue();
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 读取血压参数
+     * 模块响应“血压参数”包
+     * 上电会主动上发一次，每次测量结束会主动上传一次，上位机读取也会上传一次
+     */
+    public static byte[] cmdNibpReadBpParam() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS, null);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -214,7 +311,9 @@ public class SerialCmd {
     /*************************************************** 血压NIBP业务 end*************************************************************/
 
     public static void main(String[] args) {
-        System.out.println(CRCUitl.CRC8(cmdDataStart()));
+        byte a = (byte) 127;
+        int b = (int) a;
+        System.out.println("b=" + b);
 
     }
 

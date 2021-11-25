@@ -45,8 +45,16 @@ public class SerialContent {
     public static final byte TYPE_TEMP_DATA = 0x00;//上传体温数据
 
     /********************************血压NIBP******************************************/
+
     public static final byte TOKEN_NIBP = 0x04;
     public static final byte TYPE_NIBP_REPLY_PACKET = 0x01; //应答包
+    public static final byte NIBP_REPLY_PACKET_0=(byte)0x4F;
+    public static final byte NIBP_REPLY_PACKET_K=(byte)0x4B;
+    public static final byte NIBP_REPLY_PACKET_B=(byte)0x42;
+    public static final byte NIBP_REPLY_PACKET_A=(byte)0x41;
+    public static final byte NIBP_REPLY_PACKET_N=(byte)0x4E;
+    public static final byte NIBP_REPLY_PACKET_S=(byte)0x53;
+    public static final byte NIBP_REPLY_PACKET_R=(byte)0x52;
     public static final byte TOKEN_NIBP_DATA_5HZ = 0x02;//实时袖带压数据（5Hz）
     public static final byte TOKEN_NIBP_DATA_200HZ = 0x03;//实时原始数据（200Hz）
     public static final byte TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS  = 0x04;//血压参数和模块状态

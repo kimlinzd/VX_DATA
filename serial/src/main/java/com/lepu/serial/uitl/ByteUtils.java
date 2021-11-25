@@ -5,6 +5,8 @@ import android.content.Context;
 import com.lepu.serial.constant.SerialContent;
 
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class ByteUtils {
 
@@ -98,6 +100,40 @@ public class ByteUtils {
         return b;
     }
 
+    /**
+     * int转换为小端byte[]（高位放在高地址中）
+     *
+     * @param iValue
+     * @return
+     */
+    public byte[] Int2Bytes_LE(int iValue) {
+        byte[] rst = new byte[4];
+        // 先写int的最后一个字节
+        rst[0] = (byte) (iValue & 0xFF);
+        // int 倒数第二个字节
+        rst[1] = (byte) ((iValue & 0xFF00) >> 8);
+        // int 倒数第三个字节
+        rst[2] = (byte) ((iValue & 0xFF0000) >> 16);
+        // int 第一个字节
+        rst[3] = (byte) ((iValue & 0xFF000000) >> 24);
+        return rst;
+    }
+
+    /**
+     * 将short型数据转为byte数组 长度是2
+     *
+     * @param x
+     * @param byteOrder 大小端
+     * @return
+     */
+    public static byte[] shortToBytes(short x, ByteOrder byteOrder) {
+        ByteBuffer buffer = ByteBuffer.allocate(2);
+        buffer.order(byteOrder);
+        buffer.putShort(x);
+        return buffer.array();
+    }
+
+
     public static void main(String[] args) {
      /*   byte a = (byte) 0x55;
         byte b = (byte) 0x03;
@@ -111,9 +147,13 @@ public class ByteUtils {
 
         short g = (short) bytes2Short(e, f);
         System.out.println(g + "");*/
+        short a = 250;
+        byte[] b = shortToBytes(a, ByteOrder.BIG_ENDIAN);
 
-        byte[] s = short2byte((short) 0x1FFC);
-        short d = (short) bytes2Short(s[0], s[1]);
+        byte[] c = new byte[2];
+        c[0] = 250 & 0xff00;
+        c[1] = (byte) (250 & 0xff);
+        //  short , short & 0xff
         System.out.println();
 
 

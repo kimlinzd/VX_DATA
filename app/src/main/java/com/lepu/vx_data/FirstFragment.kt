@@ -139,6 +139,62 @@ class FirstFragment : Fragment() {
                 )
 
         }
+
+        // 开始连续测量
+        binding.buttonContinuousBp.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdStartContinuousBp(), cmdNibpReplyListener
+                )
+
+        }
+
+        // 取消测量
+        binding.buttonCancelBp.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdCancelBp(), cmdNibpReplyListener
+                )
+
+        }
+
+
+        // 血压 设置病人
+        binding.buttonBpSetPatient.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpSetPatient(PatientTypeEnum.ADULT), cmdNibpReplyListener
+                )
+
+        }
+
+        //  设置初始充气压
+        binding.buttonBpSetInflated.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpSetPatient(270), cmdNibpReplyListener
+                )
+
+        }
+
+        // 血压设置传输模式
+        binding.buttonSetTransferMode.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpSetTransferMode(NipbpWmEnum.HZ_200), cmdNibpReplyListener
+                )
+
+        }
+        // 读取血压参数
+        binding.buttonReadBpParam.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpReadBpParam(), cmdNibpReplyListener
+                )
+
+        }
+
+
     }
 
     var cmdReplyListener: CmdReplyListener = object : CmdReplyListener {
@@ -271,6 +327,36 @@ class FirstFragment : Fragment() {
                         Log.e(
                             "cmdNibpReplyListener",
                             "CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_CANCEL_MEASUREMENT ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_CANCEL_MEASUREMENT  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_SET_PATIENT_TYPE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_SET_PATIENT_TYPE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS  onTimeOut"
                         )
                 }
             }
