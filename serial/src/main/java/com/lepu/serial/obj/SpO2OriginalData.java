@@ -1,11 +1,15 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.uitl.ByteUtils;
+
+import java.io.Serializable;
 
 /**
  * 血氧SpO2  上传波形数据_原始数据
  */
-public class SpO2OriginalData {
+public class SpO2OriginalData implements Serializable,Cloneable {
     int originalFlag;//是否有原始数据 0没有原始数据 1有原始数据
     int len;
     int[] BFFlag;//BF[x]为脉搏标志位 其中x代表波形数据索引 顺序为BF7 BF6 BF5 BF4 BF3 BF2 BF1 BF0
@@ -34,5 +38,11 @@ public class SpO2OriginalData {
             }
         }
 
+    }
+
+    @NonNull
+    @Override
+    protected SpO2OriginalData clone() throws CloneNotSupportedException {
+        return (SpO2OriginalData)super.clone();
     }
 }

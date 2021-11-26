@@ -1,9 +1,13 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
 /**
  *SpO2数据
  */
-public class SpO2Data {
+public class SpO2Data implements Serializable,Cloneable {
 
 
     int LF;// bit5 LF:低灌注度 0:灌注度正常  1:低灌注度
@@ -27,8 +31,11 @@ public class SpO2Data {
         LF=buf[0] >> 5 & 0x1;
         saturation=buf[1]& 0xff;
 
+    }
 
-
-
+    @NonNull
+    @Override
+    protected SpO2Data clone() throws CloneNotSupportedException {
+        return (SpO2Data)super.clone();
     }
 }

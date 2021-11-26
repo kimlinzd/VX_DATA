@@ -1,14 +1,18 @@
 package com.lepu.serial.obj;
 
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.uitl.ByteUtils;
+
+import java.io.Serializable;
 
 /**
  * 呼吸数据
  * Token	Type
  * 0x02	    0x00
  */
-public class RespData {
+public class RespData implements Serializable,Cloneable {
 
     int dataFormat; //0:波形数据; 1:原始数据
     int leadIndex;//0x0(LA) 0x1(LL)
@@ -106,5 +110,11 @@ public class RespData {
 
     public void setRespWave(short[] respWave) {
         this.respWave = respWave;
+    }
+
+    @NonNull
+    @Override
+    protected RespData clone() throws CloneNotSupportedException {
+        return (RespData)super.clone();
     }
 }

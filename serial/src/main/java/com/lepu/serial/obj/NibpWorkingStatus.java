@@ -1,13 +1,17 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.enums.NibpMsmEnum;
 import com.lepu.serial.enums.NipbpWmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 
+import java.io.Serializable;
+
 /**
  * 血压模块工作状态
  */
-public class NibpWorkingStatus {
+public class NibpWorkingStatus implements Serializable , Cloneable {
     /**
      * 病人类型
      */
@@ -69,5 +73,11 @@ public class NibpWorkingStatus {
 
     public void setNipbpWmEnum(NipbpWmEnum nipbpWmEnum) {
         this.nipbpWmEnum = nipbpWmEnum;
+    }
+
+    @NonNull
+    @Override
+    protected NibpWorkingStatus clone() throws CloneNotSupportedException {
+        return (NibpWorkingStatus)super.clone();
     }
 }

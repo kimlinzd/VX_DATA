@@ -1,9 +1,13 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
 /**
  * 血压NIBP  实时原始数据（200Hz）
  */
-public class NibpOriginalData {
+public class NibpOriginalData implements Serializable,Cloneable {
     /**
      *袖带压数据，单位：mmHg
      */
@@ -112,5 +116,11 @@ public class NibpOriginalData {
 
     public void setP2_L(byte p2_L) {
         P2_L = p2_L;
+    }
+
+    @NonNull
+    @Override
+    protected NibpOriginalData clone() throws CloneNotSupportedException {
+        return (NibpOriginalData)super.clone();
     }
 }

@@ -1,11 +1,15 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.constant.SerialContent;
+
+import java.io.Serializable;
 
 /**
  * 命令回复
  */
-public class CmdReply {
+public class CmdReply implements Serializable,Cloneable {
     /**
      * 命令回复类型
      */
@@ -211,5 +215,11 @@ public class CmdReply {
          * 读取血压参数
          */
         CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS,
+    }
+
+    @NonNull
+    @Override
+    protected CmdNibpReply clone() throws CloneNotSupportedException {
+        return (CmdNibpReply)super.clone();
     }
 }

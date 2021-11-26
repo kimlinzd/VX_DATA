@@ -1,13 +1,20 @@
 package com.lepu.serial.obj;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.uitl.ByteUtils;
+
+import java.io.Serializable;
 
 /**
  * 体温数据
  * Token	Type
  * 0x03	    0x00
  */
-public class TempData {
+public class TempData implements Serializable ,Cloneable   {
     int num;//当前的采样点数，最大为4（默认值为1，固定不变）
     /**
      * 0x00正常；0x01无体温模块；0x02自检失败 顺序为 err3 err2 err1 err0
@@ -34,6 +41,44 @@ public class TempData {
             }
         }
 
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+
+    public int[] getErrFlag() {
+        return errFlag;
+    }
+
+    public void setErrFlag(int[] errFlag) {
+        this.errFlag = errFlag;
+    }
+
+    public int[] getSensorFlag() {
+        return sensorFlag;
+    }
+
+    public void setSensorFlag(int[] sensorFlag) {
+        this.sensorFlag = sensorFlag;
+    }
+
+    public short[] getTempWave() {
+        return tempWave;
+    }
+
+    public void setTempWave(short[] tempWave) {
+        this.tempWave = tempWave;
+    }
+
+    @NonNull
+    @Override
+    protected TempData clone() throws CloneNotSupportedException {
+        return (TempData)super.clone();
     }
 
 

@@ -1,12 +1,16 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.uitl.ByteUtils;
+
+import java.io.Serializable;
 
 /**
  * 血压NIBP 实时袖带压（5Hz）
  */
 
-public class NibpData {
+public class NibpData implements Serializable,Cloneable{
     /**
      *波形数据高位
      */
@@ -48,5 +52,11 @@ public class NibpData {
 
     public void setDB3(byte DB3) {
         this.DB3 = DB3;
+    }
+
+    @NonNull
+    @Override
+    protected NibpData clone() throws CloneNotSupportedException {
+        return (NibpData)super.clone();
     }
 }

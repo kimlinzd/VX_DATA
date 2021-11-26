@@ -1,15 +1,19 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.enums.Nibp01ErrEnum;
 import com.lepu.serial.enums.Nibp02ErrEnum;
 import com.lepu.serial.enums.NibpMsmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 
+import java.io.Serializable;
+
 /**
  * 血压参数和模块状态
  * 血压参数和模块状态包，上电主动上传一次，每次测量结束主动上传一次，上位机读取主动上传一次。
  */
-public class NibpPramAndStatus {
+public class NibpPramAndStatus implements Serializable {
     /**
      * 测量模式
      */
@@ -204,5 +208,11 @@ public class NibpPramAndStatus {
 
     public void setPR_l(int PR_l) {
         this.PR_l = PR_l;
+    }
+
+    @NonNull
+    @Override
+    protected NibpPramAndStatus clone() throws CloneNotSupportedException {
+        return (NibpPramAndStatus)super.clone();
     }
 }

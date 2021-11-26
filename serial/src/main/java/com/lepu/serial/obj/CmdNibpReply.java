@@ -1,10 +1,14 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
+
 /**
  * 血压NIBP业务
  * 应答包
  */
-public class CmdNibpReply {
+public class CmdNibpReply implements Serializable,Cloneable{
     /**
      * 接收到的指令的TYPE位
      */
@@ -43,5 +47,11 @@ public class CmdNibpReply {
 
     public void setACK(byte ACK) {
         this.ACK = ACK;
+    }
+
+    @NonNull
+    @Override
+    protected CmdNibpReply clone() throws CloneNotSupportedException {
+        return (CmdNibpReply)super.clone();
     }
 }

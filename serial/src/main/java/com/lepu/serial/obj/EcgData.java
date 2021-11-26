@@ -1,6 +1,12 @@
 package com.lepu.serial.obj;
 
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.lepu.serial.uitl.ByteUtils;
+
+import java.io.Serializable;
 
 /**
  *
@@ -9,7 +15,7 @@ import com.lepu.serial.uitl.ByteUtils;
  * 0x01 	0x00
  *
  */
-public class EcgData {
+public class EcgData implements Serializable ,Cloneable {
     byte[] originalData;//原始数据
     int len;//采样点数
     int set_1mv;//cal  0x00 ：关闭CAL输出       0x01 ：打开CAL输出
@@ -276,6 +282,12 @@ public class EcgData {
 
     public void setV(short[] v) {
         V = v;
+    }
+
+    @NonNull
+    @Override
+    protected EcgData clone() throws CloneNotSupportedException {
+        return (EcgData)super.clone();
     }
 
     public static void main(String[] args) {

@@ -1,11 +1,14 @@
 package com.lepu.serial.obj;
 
+import androidx.annotation.NonNull;
+
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 
 /**
  * 血压模块信息
  */
-public class NibpModuleInfo {
+public class NibpModuleInfo implements Serializable,Cloneable{
     /**
      * 主MCU软件版本
      * 格式为MV:W.X.Y.Z
@@ -62,5 +65,11 @@ public class NibpModuleInfo {
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
+    }
+
+    @NonNull
+    @Override
+    protected NibpModuleInfo clone() throws CloneNotSupportedException {
+        return (NibpModuleInfo)super.clone();
     }
 }
