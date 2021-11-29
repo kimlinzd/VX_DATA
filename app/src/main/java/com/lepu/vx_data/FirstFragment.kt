@@ -75,7 +75,7 @@ class FirstFragment : Fragment() {
                     cmdReplyListener)
 
         }
-        //设置定标信号
+        //设置定标符号
         binding.buttonSetCal.setOnClickListener {
             SerialPortManager.getInstance()
                 .serialSendData(SerialCmd.cmdSetCal(EcgCalEnum.CALCLOSE),
@@ -97,7 +97,7 @@ class FirstFragment : Fragment() {
         binding.buttonTestFalse.setOnClickListener {
             SerialPortManager.getInstance().setTestMode(false)
         }
-        //设置导联
+        //设置导联模式
         binding.buttonSetLead.setOnClickListener {
 
             SerialPortManager.getInstance()
@@ -193,6 +193,119 @@ class FirstFragment : Fragment() {
                 )
 
         }
+
+        // 主动读取血压模块工作状态
+        binding.buttonReadBpWorkStatus.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpReadBpWorkStatus(), cmdNibpReplyListener
+                )
+
+        }
+
+        // 读取血压模块信息
+        binding.buttonReadBpModuleInfo.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpReadBpModuleInfo(), cmdNibpReplyListener
+                )
+
+        }
+
+        //  控制泵
+        binding.buttonReadBpControlPump.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpControlPump(50), cmdNibpReplyListener
+                )
+
+        }
+
+        //  控制快泵
+        binding.buttonReadBpControlQuickValve.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpControlQuickValve(NibpValveControlEnum.VALVE_OPEN),
+                    cmdNibpReplyListener
+                )
+
+        }
+
+        //  控制慢泵
+        binding.buttonReadBpControlSlowValve.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpControlQSlowValve(NibpValveControlEnum.VALVE_OPEN),
+                    cmdNibpReplyListener
+                )
+
+        }
+
+        //  睡眠模式
+        binding.buttonNibpSetSleepMode.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpSetSleepMode(), cmdNibpReplyListener
+                )
+
+        }
+
+        //  复位模块
+        binding.buttonNibpSetReset.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpSetResetModule(), cmdNibpReplyListener
+                )
+
+        }
+
+        //辅助静脉穿刺
+        binding.buttonNibpAuxiliaryVenipuncture.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpAuxiliaryVenipuncture(230), cmdNibpReplyListener
+                )
+
+        }
+
+        // 压力校验模式1（内部充气源）
+        binding.buttonCalibrationMode1.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpCalibrationMode1(230), cmdNibpReplyListener
+                )
+
+        }
+
+        // 压力校验模式2（外部充气源）
+        binding.buttonCalibrationMode2.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpCalibrationMode2(), cmdNibpReplyListener
+                )
+
+        }
+
+
+        //漏气检测
+        binding.buttonLeakDetection.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpLeakDetection(), cmdNibpReplyListener
+                )
+
+        }
+
+        // 校准指令
+        binding.buttonCalibration.setOnClickListener {
+            SerialPortManager.getInstance()
+                .serialSendData(
+                    SerialCmd.cmdNibpCalibration(NibpCalibrationMode.CALIBRATION,250), cmdNibpReplyListener
+                )
+
+        }
+
+
 
 
     }
@@ -357,6 +470,72 @@ class FirstFragment : Fragment() {
                         Log.e(
                             "cmdStartContinuousBp",
                             "CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_CONTROL_PUMP ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_CONTROL_PUMP  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_SLEEP_MODE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_SLEEP_MODE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_RESET_MODULE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_RESET_MODULE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_RESET_MODULE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_RESET_MODULE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1 ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2 ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2  onTimeOut"
+                        )
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_LEAK_DETECTION ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_LEAK_DETECTION  onTimeOut"
+                        )
+
+                    CmdReply.CmdReplyType.CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR  ->
+                        Log.e(
+                            "cmdStartContinuousBp",
+                            "CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR  onTimeOut"
                         )
                 }
             }

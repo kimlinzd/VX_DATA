@@ -15,6 +15,8 @@ public class SpO2OriginalData implements Serializable,Cloneable {
     int[] BFFlag;//BF[x]为脉搏标志位 其中x代表波形数据索引 顺序为BF7 BF6 BF5 BF4 BF3 BF2 BF1 BF0
     short[][] spO2Original;
 
+    public SpO2OriginalData() {
+    }
 
     public SpO2OriginalData(byte[] buf) {
         originalFlag = buf[0] >> 4;

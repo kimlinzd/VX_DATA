@@ -40,8 +40,10 @@ public class EcgData implements Serializable ,Cloneable {
     private short[] aVF;
     private short[] V;
 
+    public EcgData() {
+    }
 
-    public EcgData(byte[] buf,byte[] originalData) {
+    public EcgData(byte[] buf, byte[] originalData) {
         this.originalData=originalData;
         len = buf[0] & 0x0f;
         set_1mv = buf[1] >> 6;

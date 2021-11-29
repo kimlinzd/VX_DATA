@@ -3,6 +3,8 @@ package com.lepu.serial.constant;
 import com.lepu.serial.enums.EcgCalEnum;
 import com.lepu.serial.enums.EcgChn0IndexEnum;
 import com.lepu.serial.enums.EcgLeadModeEnum;
+import com.lepu.serial.enums.NibpCalibrationMode;
+import com.lepu.serial.enums.NibpValveControlEnum;
 import com.lepu.serial.enums.NipbpWmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 import com.lepu.serial.enums.RespLeadIndexEnum;
@@ -307,14 +309,291 @@ public class SerialCmd {
         return msg.toBytes();
     }
 
+    /**
+     * 主动读取血压模块工作状态
+     * 模块响应“血压模块工作状态”包
+     * 上电会主动上发一次，上位机读取也会上传一次。
+     */
+    public static byte[] cmdNibpReadBpWorkStatus() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 读取血压模块信息
+     * 模块响应“血压模块信息”包
+     */
+    public static byte[] cmdNibpReadBpModuleInfo() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 控制泵
+     * 0 表示停止，1-100 表示不同的充气力度，100 是泵最大力度的充气。
+     * 模块响应“O”包,表示接收到指令。
+     */
+    public static byte[] cmdNibpControlPump(int inflationStrength) {
+        byte[] data = new byte[1];
+        data[0] = (byte) inflationStrength;
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CONTROL_PUMP, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 控制快阀。模块响应“O”包,表示接收到指令。
+     */
+    public static byte[] cmdNibpControlQuickValve(NibpValveControlEnum nibpValveControlEnum) {
+        byte[] data = new byte[1];
+        data[0] = nibpValveControlEnum.getValue();
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CONTROL_QUICK_VALVE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 控制慢阀。模块响应“O”包,表示接收到指令。
+     */
+    public static byte[] cmdNibpControlQSlowValve(NibpValveControlEnum nibpValveControlEnum) {
+        byte[] data = new byte[1];
+        data[0] = nibpValveControlEnum.getValue();
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CONTROL_SLOW_VALVE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 睡眠模式
+     * 设置NIBP进入睡眠模式。模块响应“S”包,表示模块进入睡眠模式。
+     */
+    public static byte[] cmdNibpSetSleepMode() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_SLEEP_MODE, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 复位模块
+     * 复位模块。模块响应“R”包,表示接收到复位指令。
+     */
+    public static byte[] cmdNibpSetResetModule() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_RESET_MODULE, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 辅助静脉穿刺
+     * IP ：初始充气压
+     * 成人：20~120mmHg(自动80mmHg)，模块设置step：1mmHg，上位机设置step：10mmHg，需要上层在170秒时取消测量。
+     * 儿童：20~80mmHg(自动60mmHg)，模块设置step：1mmHg，上位机设置step：10mmHg，需要上层在170秒时取消测量。
+     * 新生儿：20~50mmHg(自动60mmHg)，模块设置step：1mmHg，上位机设置step：10mmHg，需要上层在85秒时取消测量。
+     * 大动物：同成人\或不支持此功能
+     * 小动物：同儿童\或不支持此功能
+     * <p>
+     * 上位机下发“辅助静脉穿刺”命令后，若模块上行“O”包,表示接收到指令，并执行命令，
+     * 若上位机下发“辅助静脉穿刺”命令后，模块响应“B”包,表示模块正忙，不会执行命令，正常执行这项功能后，
+     * 如果出现超时或者过压后模块依次上行“血压参数”包（主要目的是提供相应的错误信息）和“K”包(表示这项功能测量完成)
+     * <p>
+     * Note:在接收到“O”包后，“K”包前，只响应“取消测量”、“复位模块包”、“设置波形传输模式”、“读取血压参数”、
+     * “读取血压模块工作状态”、“读取血压模块信息”。其它命令会响应“B”包；
+     *
+     * @param pre 初始充气压
+     * @return
+     */
+    public static byte[] cmdNibpAuxiliaryVenipuncture(short pre) {
+        byte[] initPreByte = ByteUtils.shortToBytes(pre, ByteOrder.BIG_ENDIAN);
+        byte[] data = new byte[2];
+        data[0] = initPreByte[0];
+        data[1] = initPreByte[1];
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_AUXILIARY_VENIPUNCTURE, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 压力校验模式1（内部充气源）
+     * <p>
+     * 成人类型下，压力值建议设置为250mmHg
+     * 儿童类型下，压力值建议设置为200mmHg
+     * 新生儿类型下，压力值建议设置为120mmHg
+     * <p>
+     * 上位机下发“压力检验模式1”命令后，若模块上行“O”包,表示接收到指令，并执行命令，
+     * 若上位机下发“压力检验模式1”命令后，模块响应“B”包,表示模块正忙，不会执行命令，
+     * 正常执行这项功能后，如果出现超时或者过压后模块依次上行“血压参数”包（主要目的是提供相应的错误信息）和“K”包(表示这项功能测量完成)
+     * Note:在接收到“O”包后，“K”包前，只响应“取消测量”、“复位模块包”、“设置波形传输模式”、
+     * “读取血压参数”、“读取血压模块工作状态”、“读取血压模块信息”。其它命令会响应“B”包；
+     *
+     * @param pre 气压
+     * @return
+     */
+    public static byte[] cmdNibpCalibrationMode1(short pre) {
+        byte[] initPreByte = ByteUtils.shortToBytes(pre, ByteOrder.BIG_ENDIAN);
+        byte[] data = new byte[2];
+        data[0] = initPreByte[0];
+        data[1] = initPreByte[1];
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 压力校验模式2（外部充气源）
+     * <p>
+     * 上位机下发“压力检验模式2”命令后，若模块上行“O”包,表示接收到指令，并执行命令，
+     * 若上位机下发“压力检验模式2”命令后，模块响应“B”包,表示模块正忙，不会执行命令，
+     * 正常执行这项功能后，如果出现超时或者过压后模块依次上行“血压参数”包（主要目的是提供相应的错误信息）和“K”包(表示这项功能测量完成)
+     * <p>
+     * Note:在接收到“O”包后，“K”包前，只响应“取消测量”、“复位模块包”、“设置波形传输模式”、
+     * “读取血压参数”、“读取血压模块工作状态”、“读取血压模块信息”。其它命令会响应“B”包；
+     */
+    public static byte[] cmdNibpCalibrationMode2() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+
+    /**
+     * 漏气检测
+     * <p>
+     * 模块实现： 成人/小儿充气至150mmHg左右(新生儿充气至120mmHg左右)，并且保持一段时间直到漏气检测完成，通常会在30秒内完成检测。上位机同事请注意，上位机只支持成人和小儿类型的漏气检测，新生儿类型下不支持漏气检测，且新生儿类型下漏气检测的选项应该设置成灰色的(参照迈瑞N12/ePM )。
+     * <p>
+     * 上位机下发“漏气检测”命令后，若模块上行“O”包,表示接收到指令，并执行命令，
+     * 若上位机下发“漏气检测”命令后，模块响应“B”包,表示模块正忙，不会执行命令，
+     * 正常执行这项功能后，漏气检测完成后模块依次上行“血压参数”包（主要目的是提供相应的错误信息）和“K”包(表示这项功能测量完成)
+     * Note:在接收到“O”包后，“K”包前，只响应“取消测量”、“复位模块包”、“设置波形传输模式”、“读取血压参数”、
+     * “读取血压模块工作状态”、“读取血压模块信息”。其它命令会响应“B”包；
+     */
+    public static byte[] cmdNibpLeakDetection() {
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_LEAK_DETECTION, null);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+
+    /**
+     * 校准压力传感器
+     * <p>
+     * 设置压力检验模式1。模块响应“O”包,表示接收到指令。
+     * 压力值建议设置为250mmHg，且需要在成人类型下使用此功能。
+     *
+     * @param nibpCalibrationMode
+     * @param pre
+     * @return
+     */
+    public static byte[] cmdNibpCalibration(NibpCalibrationMode nibpCalibrationMode, short pre) {
+        byte[] data = new byte[2];
+        short mode=nibpCalibrationMode.getValue();
+        short dataShort = (short) ((mode << 12) | (pre));
+        data = ByteUtils.shortToBytes(dataShort, ByteOrder.BIG_ENDIAN);
+
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+
+    //
 
     /*************************************************** 血压NIBP业务 end*************************************************************/
 
     public static void main(String[] args) {
-        byte a = (byte) 127;
-        int b = (int) a;
-        System.out.println("b=" + b);
+        byte[] data = new byte[2];
+        short mode=NibpCalibrationMode.STOP_CALIBRATION.getValue();
+        short dataShort = (short) ((mode << 12) | (220));
+        data = ByteUtils.shortToBytes(dataShort, ByteOrder.BIG_ENDIAN);
 
+        int oo = ((data[0] & 0xf0) >> 4);
+        data[0] = (byte) ((data[0] & 0x0f) << 4);
+
+        System.out.println(ByteUtils.byte2short(data) + "");
+       /* short argB1 = 2;
+        short argB2 = 230;
+
+
+        System.out.println("argB1==" + shortToBit(argB1));
+        System.out.println("argB2==" + shortToBit(argB2));
+
+
+        //   short s = (short) ((a << 12) + b);
+// (short) ((argB1 & 0xFF)| (argB2 << 8));
+
+        short s = (short) ((argB1 << 12) | (argB2));
+        System.out.println("合并==" + shortToBit(s));
+
+
+        byte[] c = ByteUtils.shortToBytes(s, ByteOrder.BIG_ENDIAN);
+        System.out.println("分解==" + byteToBit(c[0]));
+        System.out.println("分解==" + byteToBit(c[1]));
+        int oo = ((c[0] & 0xf0) >> 4);
+
+
+        byte dd = (byte) ((c[0] & 0x0f) << 4);
+        System.out.println("dd==" + byteToBit(dd));
+
+        // short a＝(c[0]<<8)|(c[1]&0xff);
+        c[0] = (byte) ((c[0] & 0x0f) << 4);
+
+        System.out.println(ByteUtils.byte2short(c) + "ee");
+
+        System.out.println("" + shortToBit((short) (((c[0] & 0x0f) << 4) + c[1])));
+
+        System.out.println(oo + "---" + (short) (((c[0] & 0x0f) << 8) + c[1]));*/
+
+
+    }
+
+    /**
+     * Byte转Bit
+     */
+    public static String byteToBit(byte b) {
+        return "" + (byte) ((b >> 7) & 0x1) +
+                (byte) ((b >> 6) & 0x1) +
+                (byte) ((b >> 5) & 0x1) +
+                (byte) ((b >> 4) & 0x1) +
+                (byte) ((b >> 3) & 0x1) +
+                (byte) ((b >> 2) & 0x1) +
+                (byte) ((b >> 1) & 0x1) +
+                (byte) ((b >> 0) & 0x1);
+    }
+
+    /**
+     * short转Bit
+     */
+    public static String shortToBit(short b) {
+        return ""
+                + (short) ((b >> 15) & 0x1)
+                + (short) ((b >> 14) & 0x1)
+                + (short) ((b >> 13) & 0x1)
+                + (short) ((b >> 12) & 0x1)
+                + (short) ((b >> 11) & 0x1)
+                + (short) ((b >> 10) & 0x1)
+                + (short) ((b >> 9) & 0x1)
+                + (short) ((b >> 8) & 0x1)
+                + (short) ((b >> 7) & 0x1) +
+                (short) ((b >> 6) & 0x1) +
+                (short) ((b >> 5) & 0x1) +
+                (short) ((b >> 4) & 0x1) +
+                (short) ((b >> 3) & 0x1) +
+                (short) ((b >> 2) & 0x1) +
+                (short) ((b >> 1) & 0x1) +
+                (short) ((b >> 0) & 0x1);
     }
 
 }

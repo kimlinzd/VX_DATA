@@ -8,7 +8,6 @@ import com.lepu.serial.obj.CmdReply;
 public interface CmdReplyListener {
     //请求成功
     void onSuccess(CmdReply cmdReply);
-
     //请求失败
     void onFail(CmdReply cmdReply);
     //请求超时

@@ -3,7 +3,7 @@ package com.lepu.vx_data
 import android.app.Application
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.algorithm.Init
-import com.lepu.serial.listener.SerialConnentListener
+import com.lepu.serial.listener.SerialConnectListener
 import com.lepu.serial.manager.SerialPortManager
 
 class MyApp: Application() {
@@ -26,10 +26,12 @@ class MyApp: Application() {
         Init.init(this)
 
         SerialPortManager.getInstance()
-            .init(this, "/dev/ttyS1", 460800, object : SerialConnentListener {
+            .init(this, "/dev/ttyS1", 460800, object :
+                SerialConnectListener {
                 override fun onSuccess() {}
                 override fun onFail() {}
             })
+
       //  SerialPortManager.getInstance().setTestMode(true)
       //  EcgDataSaveManager.getInstance().init(this)
 

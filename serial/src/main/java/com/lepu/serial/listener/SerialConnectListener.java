@@ -5,7 +5,7 @@ import com.lepu.serial.obj.CmdReply;
 /**
  * 串口连接监听
  */
-public interface SerialConnentListener {
+public interface SerialConnectListener {
     //连接成功
     void onSuccess();
 

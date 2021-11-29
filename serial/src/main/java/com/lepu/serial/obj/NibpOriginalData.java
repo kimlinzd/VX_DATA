@@ -2,6 +2,8 @@ package com.lepu.serial.obj;
 
 import androidx.annotation.NonNull;
 
+import com.lepu.serial.uitl.ByteUtils;
+
 import java.io.Serializable;
 
 /**
@@ -11,111 +13,63 @@ public class NibpOriginalData implements Serializable,Cloneable {
     /**
      *袖带压数据，单位：mmHg
      */
-    byte CUFF_H;
-    /**
-     *袖带压数据，单位：mmHg
-     */
-    byte CUFF_L;
-    /**
-     *袖带压AD值数据
-     */
-    byte AD_H;
-    /**
-     *袖带压AD值数据
-     */
-    byte AD_L;
-    /**
-     *脉搏波1数据
-     */
-    byte P1_H;
-    /**
-     *脉搏波1数据
-     */
-    byte P1_L;
-    /**
-     *脉搏波2数据
-     */
-    byte P2_H;
-    /**
-     *脉搏波2数据
-     */
-    byte P2_L;
+    int CUFF;
 
+    /**
+     *袖带压AD值数据
+     */
+    int AD;
+
+    /**
+     *脉搏波1数据
+     */
+    int P1;
+
+    /**
+     *脉搏波2数据
+     */
+    int P2;
+
+    public NibpOriginalData() {
+    }
 
     public NibpOriginalData(byte[] buf) {
-        CUFF_H=buf[0];
-        CUFF_L=buf[1];
-        AD_H=buf[2];
-        AD_L=buf[3];
-        P1_H=buf[4];
-        P1_L=buf[5];
-        P2_H=buf[6];
-        P2_L=buf[7];
+        CUFF= ByteUtils.bytes2Short(buf[0],buf[1]);
+        AD= ByteUtils.bytes2Short(buf[0],buf[1]);
+        P1= ByteUtils.bytes2Short(buf[0],buf[1]);
+        P2= ByteUtils.bytes2Short(buf[0],buf[1]);
+      }
 
+    public int getCUFF() {
+        return CUFF;
     }
 
-    public byte getCUFF_H() {
-        return CUFF_H;
+    public void setCUFF(int CUFF) {
+        this.CUFF = CUFF;
     }
 
-    public void setCUFF_H(byte CUFF_H) {
-        this.CUFF_H = CUFF_H;
+    public int getAD() {
+        return AD;
     }
 
-    public byte getCUFF_L() {
-        return CUFF_L;
+    public void setAD(int AD) {
+        this.AD = AD;
     }
 
-    public void setCUFF_L(byte CUFF_L) {
-        this.CUFF_L = CUFF_L;
+    public int getP1() {
+        return P1;
     }
 
-    public byte getAD_H() {
-        return AD_H;
+    public void setP1(int p1) {
+        P1 = p1;
     }
 
-    public void setAD_H(byte AD_H) {
-        this.AD_H = AD_H;
+    public int getP2() {
+        return P2;
     }
 
-    public byte getAD_L() {
-        return AD_L;
-    }
-
-    public void setAD_L(byte AD_L) {
-        this.AD_L = AD_L;
-    }
-
-    public byte getP1_H() {
-        return P1_H;
-    }
-
-    public void setP1_H(byte p1_H) {
-        P1_H = p1_H;
-    }
-
-    public byte getP1_L() {
-        return P1_L;
-    }
-
-    public void setP1_L(byte p1_L) {
-        P1_L = p1_L;
-    }
-
-    public byte getP2_H() {
-        return P2_H;
-    }
-
-    public void setP2_H(byte p2_H) {
-        P2_H = p2_H;
-    }
-
-    public byte getP2_L() {
-        return P2_L;
-    }
-
-    public void setP2_L(byte p2_L) {
-        P2_L = p2_L;
+    public void setP2(int p2) {
+        P2 = p2;
     }
 
     @NonNull

@@ -27,6 +27,9 @@ public class CmdNibpReply implements Serializable,Cloneable{
      */
     byte ACK;
 
+    public CmdNibpReply() {
+    }
+
     public CmdNibpReply(byte[] buf) {
         cmdType = buf[0];
         ACK = buf[1];

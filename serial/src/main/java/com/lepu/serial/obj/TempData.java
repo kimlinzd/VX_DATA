@@ -30,6 +30,9 @@ public class TempData implements Serializable ,Cloneable   {
      */
     short[] tempWave;
 
+    public TempData() {
+    }
+
     public TempData(byte[] buf) {
         num = buf[0] & 0x0f;
         errFlag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1};

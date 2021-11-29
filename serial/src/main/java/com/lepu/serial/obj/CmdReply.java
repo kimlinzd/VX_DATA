@@ -29,7 +29,9 @@ public class CmdReply implements Serializable,Cloneable {
 
     public CmdReply(byte token, byte type) {
         getCmdReplyTypeByType(token, type);
+     }
 
+    public CmdReply() {
     }
 
     public CmdReplyType getCmdReplyType() {
@@ -125,6 +127,46 @@ public class CmdReply implements Serializable,Cloneable {
                     case SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS:
                         this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS;
                         break;
+                    case SerialContent.TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE;
+                        break;
+
+                    case SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO;
+                        break;
+                    case SerialContent.TOKEN_NIBP_CONTROL_PUMP:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_PUMP;
+                        break;
+                    case SerialContent.TOKEN_NIBP_CONTROL_QUICK_VALVE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE;
+                        break;
+                    case SerialContent.TOKEN_NIBP_CONTROL_SLOW_VALVE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE;
+                        break;
+                     case SerialContent.TOKEN_NIBP_SLEEP_MODE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SLEEP_MODE;
+                        break;
+
+                    case SerialContent.TOKEN_NIBP_RESET_MODULE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_RESET_MODULE;
+                        break;
+
+                    case SerialContent.TOKEN_NIBP_AUXILIARY_VENIPUNCTURE:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE;
+                        break;
+
+                    case SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1;
+                        break;
+                    case SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2;
+                        break;
+                    case SerialContent.TOKEN_NIBP_LEAK_DETECTION:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_LEAK_DETECTION;
+                        break;
+                    case SerialContent.TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR:
+                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR;
+                        break;
 
                     default:
 
@@ -215,6 +257,54 @@ public class CmdReply implements Serializable,Cloneable {
          * 读取血压参数
          */
         CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS,
+        /**
+         *  读取血压模块工作状态
+         */
+        CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE,
+        /**
+         *  读取血压模块信息
+         */
+        CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO,
+        /**
+         *   控制泵
+         */
+        CMD_TOKEN_NIBP_CONTROL_PUMP,
+        /**
+         *   控制块泵
+         */
+        CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE,
+        /**
+         *   控制慢泵
+         */
+        CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE,
+        /**
+         *   睡眠模式
+         */
+        CMD_TOKEN_NIBP_SLEEP_MODE,
+        /**
+         *   复位模块
+         */
+        CMD_TOKEN_NIBP_RESET_MODULE,
+        /**
+         *   复位模块
+         */
+        CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE,
+        /**
+         *压力校验模式1（内部充气源）
+         */
+        CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1,
+        /**
+         * 压力校验模式2（外部充气源）
+         */
+        CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2,
+        /**
+         * 漏气检测
+         */
+        CMD_TOKEN_NIBP_LEAK_DETECTION,
+        /**
+         * 校准压力传感器
+         */
+        CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR
     }
 
     @NonNull

@@ -6,6 +6,7 @@ import com.lepu.serial.enums.Nibp01ErrEnum;
 import com.lepu.serial.enums.Nibp02ErrEnum;
 import com.lepu.serial.enums.NibpMsmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
+import com.lepu.serial.uitl.ByteUtils;
 
 import java.io.Serializable;
 
@@ -42,41 +43,22 @@ public class NibpPramAndStatus implements Serializable {
      * 可靠性指示
      */
     int tip;
-
     /**
-     * 收缩压 h
+     * 收缩压
      */
-    int sys_h;
-
+    int sys;
     /**
-     * 收缩压 l
+     * 舒张压
      */
-    int sys_l;
-
+    int dia;
     /**
-     * 舒张压 h
+     * 平均压
      */
-    int dia_h;
+    int map;
     /**
-     * 舒张压 l
+     * 脉率
      */
-    int dia_l;
-    /**
-     * 平均压 h
-     */
-    int map_h;
-    /**
-     * 平均压 l
-     */
-    int map_l;
-    /**
-     * 脉率 h
-     */
-    int PR_h;
-    /**
-     * 脉率 l
-     */
-    int PR_l;
+    int PR;
 
     public NibpPramAndStatus() {
     }
@@ -88,14 +70,11 @@ public class NibpPramAndStatus implements Serializable {
         nibp01ErrEnum = Nibp01ErrEnum.getNibpErrEnum(buf[1]);
         nibp02ErrEnum = Nibp02ErrEnum.getNibpErrEnum(nibp01ErrEnum, buf[2]);
         tip = buf[3];
-        sys_h = buf[4];
-        sys_l = buf[5];
-        dia_h = buf[6];
-        dia_l = buf[7];
-        map_h = buf[8];
-        map_l = buf[9];
-        PR_h = buf[10];
-        PR_l = buf[11];
+        sys= ByteUtils.bytes2Short(buf[4],buf[5]);
+        dia= ByteUtils.bytes2Short(buf[6],buf[7]);
+        map= ByteUtils.bytes2Short(buf[8],buf[9]);
+        PR= ByteUtils.bytes2Short(buf[10],buf[11]);
+
     }
 
     public NibpMsmEnum getMsm() {
@@ -146,68 +125,36 @@ public class NibpPramAndStatus implements Serializable {
         this.tip = tip;
     }
 
-    public int getSys_h() {
-        return sys_h;
+    public int getSys() {
+        return sys;
     }
 
-    public void setSys_h(int sys_h) {
-        this.sys_h = sys_h;
+    public void setSys(int sys) {
+        this.sys = sys;
     }
 
-    public int getSys_l() {
-        return sys_l;
+    public int getDia() {
+        return dia;
     }
 
-    public void setSys_l(int sys_l) {
-        this.sys_l = sys_l;
+    public void setDia(int dia) {
+        this.dia = dia;
     }
 
-    public int getDia_h() {
-        return dia_h;
+    public int getMap() {
+        return map;
     }
 
-    public void setDia_h(int dia_h) {
-        this.dia_h = dia_h;
+    public void setMap(int map) {
+        this.map = map;
     }
 
-    public int getDia_l() {
-        return dia_l;
+    public int getPR() {
+        return PR;
     }
 
-    public void setDia_l(int dia_l) {
-        this.dia_l = dia_l;
-    }
-
-    public int getMap_h() {
-        return map_h;
-    }
-
-    public void setMap_h(int map_h) {
-        this.map_h = map_h;
-    }
-
-    public int getMap_l() {
-        return map_l;
-    }
-
-    public void setMap_l(int map_l) {
-        this.map_l = map_l;
-    }
-
-    public int getPR_h() {
-        return PR_h;
-    }
-
-    public void setPR_h(int PR_h) {
-        this.PR_h = PR_h;
-    }
-
-    public int getPR_l() {
-        return PR_l;
-    }
-
-    public void setPR_l(int PR_l) {
-        this.PR_l = PR_l;
+    public void setPR(int PR) {
+        this.PR = PR;
     }
 
     @NonNull

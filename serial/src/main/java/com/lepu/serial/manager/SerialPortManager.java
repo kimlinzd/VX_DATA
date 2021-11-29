@@ -11,7 +11,7 @@ import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
-import com.lepu.serial.listener.SerialConnentListener;
+import com.lepu.serial.listener.SerialConnectListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
@@ -83,7 +83,7 @@ public class SerialPortManager {
      * @param devicePath 串口名 /dev/ttyS1
      * @param baudRate   波特率 480600
      */
-    public void init(Context context, String devicePath, int baudRate, SerialConnentListener serialConnentListener) {
+    public void init(Context context, String devicePath, int baudRate, SerialConnectListener serialConnentListener) {
         AsyncTask.execute(() -> {
             try {
                 //     Log.d("SerialPortManager", "初始化串口");

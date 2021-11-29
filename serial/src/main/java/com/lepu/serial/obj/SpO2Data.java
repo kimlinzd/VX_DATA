@@ -22,6 +22,9 @@ public class SpO2Data implements Serializable,Cloneable {
      */
     short[][] spO2wave;
 
+    public SpO2Data() {
+    }
+
     public SpO2Data(byte[] buf) {
         PD=buf[0] >> 0 & 0x1;
         PO=buf[0] >> 1 & 0x1;

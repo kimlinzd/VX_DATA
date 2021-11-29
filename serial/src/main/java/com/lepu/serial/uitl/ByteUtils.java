@@ -53,6 +53,14 @@ public class ByteUtils {
         return n;
     }
 
+    public static short byte2short(byte[] b){
+        short l = 0;
+        for (int i = 0; i < 2; i++) {
+            l<<=8; //<<=和我们的 +=是一样的，意思就是 l = l << 8
+            l |= (b[i] & 0xff); //和上面也是一样的  l = l | (b[i]&0xff)
+        }
+        return l;
+    }
     /**
      * 串口读取专用
      *
