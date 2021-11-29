@@ -411,6 +411,13 @@ public class SerialPortManager {
                         switch (typeByte) {
                             case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
                                 CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
+                                serialMsg.getContent().type=cmdNibpReply.getCmdType();
+                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
+                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            ==new CmdReply(serialMsg).getCmdReplyType()){
+                                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                                    }
+                                }
                                 if (mCmdNibpReplyListener!=null){
                                     switch (cmdNibpReply.getACK()){
                                         case  SerialContent.NIBP_REPLY_PACKET_0:{
@@ -449,24 +456,51 @@ public class SerialPortManager {
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
                                 NibpData nibpData = new NibpData(serialMsg.getContent().data);
-
+                                LiveEventBus.get(EventMsgConst.MsgNibpData)
+                                        .post(nibpData);
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_200HZ: {//实时原始数据（200Hz）
                                 NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
+                                        .post(nibpOriginalData);
 
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: {//血压参数和模块状态
+                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
+                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS).getCmdReplyType()){
+                                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                                    }
+                                }
                                 NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
+                                        .post(nibpPramAndStatus);
                              }
                             break;
                             case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: {//血压模块工作状态
+                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
+                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE).getCmdReplyType()){
+                                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                                    }
+                                }
                                 NibpWorkingStatus nibpPramAndStatus = new NibpWorkingStatus(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.NibpWorkingStatus)
+                                        .post(nibpPramAndStatus);
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: {//血压模块信息
+                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
+                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO).getCmdReplyType()){
+                                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                                    }
+                                }
                                 NibpModuleInfo nibpModuleInfo = new NibpModuleInfo(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.NibpModuleInfo)
+                                        .post(nibpModuleInfo);
                             }
                             break;
 

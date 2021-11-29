@@ -239,7 +239,7 @@
                     android:id="@+id/button_read_bp_work_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="读取血压参数"
+                    android:text="读取血压工作状态"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />

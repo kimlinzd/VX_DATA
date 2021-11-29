@@ -47,5 +47,17 @@ object EventMsgConst {
      *命令回复数据
      */
     const val  CmdReplyData = "com.lepu.serial.obj.CmdReply"
+    /**
+     * 血压参数和模块状态
+     */
+    const val NibpPramAndStatus="com.lepu.serial.obj.NibpPramAndStatus";
+    /**
+     *血压模块工作状态
+     */
+    const val NibpWorkingStatus="com.lepu.serial.obj.NibpWorkingStatus";
+    /**
+     * 血压模块信息
+     */
+    const val NibpModuleInfo="com.lepu.serial.obj.NibpModuleInfo";
 
 }
