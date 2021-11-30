@@ -78,6 +78,15 @@ class MainActivity : AppCompatActivity() {
             Log.e("接收到呼吸数据信息", "窒息时间" + data.apneaDelay)
         }
         )
+
+        //接收到血压数据信息
+        LiveEventBus.get(EventMsgConst.MsgNibpData).observe(this, {
+
+            Log.e("接收到血压数据信息", "血压数据")
+        }
+        )
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

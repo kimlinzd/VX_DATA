@@ -16,7 +16,7 @@ import java.io.Serializable;
  *
  */
 public class EcgData implements Serializable ,Cloneable {
-    byte[] originalData;//原始数据
+
     int len;//采样点数
     int set_1mv;//cal  0x00 ：关闭CAL输出       0x01 ：打开CAL输出
     int chn0Index;//当前通道数为1时有效,当前导联名称： I导联=0,II导联=1,III导联=2
@@ -28,6 +28,10 @@ public class EcgData implements Serializable ,Cloneable {
     int[] flagPU;//博起标志 顺序为 PU0 PU1 PU2 PU3
     short[][] ecgWave;//通道数据
 
+    /**
+     * 给缓存数据的时候使用
+     */
+     long startTime;
 
     /**
      * 导联数据， short数组  通过计算得出
@@ -44,7 +48,7 @@ public class EcgData implements Serializable ,Cloneable {
     }
 
     public EcgData(byte[] buf, byte[] originalData) {
-        this.originalData=originalData;
+
         len = buf[0] & 0x0f;
         set_1mv = buf[1] >> 6;
         chn0Index = buf[1] >> 4 & 3;
@@ -142,12 +146,12 @@ public class EcgData implements Serializable ,Cloneable {
 
     }
 
-    public byte[] getOriginalData() {
-        return originalData;
+    public long getStartTime() {
+        return startTime;
     }
 
-    public void setOriginalData(byte[] originalData) {
-        this.originalData = originalData;
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     public int getLen() {
