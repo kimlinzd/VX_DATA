@@ -20,13 +20,13 @@ object EventMsgConst {
      */
     const val MsgEcgData = "com.lepu.serial.obj.EcgData"
     /**
-     *血压NIBP 上传试试袖带压
+     *血压NIBP 实时原始数据（5Hz）
      */
-    const val MsgNibpData  = "com.lepu.serial.obj.NibpData"
+    const val MsgNibp5HZData  = "com.lepu.serial.obj.Nibp5HZData"
     /**
-     *血压NIBP 上传实时原始数据
+     *血压NIBP 实时原始数据（200Hz）
      */
-    const val MsgNibpOriginalData  = "com.lepu.serial.obj.NibpOriginalData"
+    const val MsgNibp200HZData  = "com.lepu.serial.obj.Nibp200HZData"
     /**
      *呼吸数据
      */

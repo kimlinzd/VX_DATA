@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 血压NIBP 实时袖带压（5Hz）
  */
 
-public class NibpData implements Serializable,Cloneable{
+public class Nibp5HZData implements Serializable,Cloneable{
     /**
      *波形数据
      */
@@ -20,10 +20,10 @@ public class NibpData implements Serializable,Cloneable{
      */
    byte DB3;
 
-    public NibpData() {
+    public Nibp5HZData() {
     }
 
-    public NibpData(byte[] buf) {
+    public Nibp5HZData(byte[] buf) {
         DB1=ByteUtils.bytes2Short(buf[0],buf[1]);
          DB3=buf[2];
     }
@@ -46,7 +46,7 @@ public class NibpData implements Serializable,Cloneable{
 
     @NonNull
     @Override
-    protected NibpData clone() throws CloneNotSupportedException {
-        return (NibpData)super.clone();
+    protected Nibp5HZData clone() throws CloneNotSupportedException {
+        return (Nibp5HZData)super.clone();
     }
 }

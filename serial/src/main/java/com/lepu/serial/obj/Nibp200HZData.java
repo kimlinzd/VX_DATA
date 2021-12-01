@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * 血压NIBP  实时原始数据（200Hz）
  */
-public class NibpOriginalData implements Serializable,Cloneable {
+public class Nibp200HZData implements Serializable,Cloneable {
     /**
      *袖带压数据，单位：mmHg
      */
@@ -30,14 +30,14 @@ public class NibpOriginalData implements Serializable,Cloneable {
      */
     int P2;
 
-    public NibpOriginalData() {
+    public Nibp200HZData() {
     }
 
-    public NibpOriginalData(byte[] buf) {
+    public Nibp200HZData(byte[] buf) {
         CUFF= ByteUtils.bytes2Short(buf[0],buf[1]);
-        AD= ByteUtils.bytes2Short(buf[0],buf[1]);
-        P1= ByteUtils.bytes2Short(buf[0],buf[1]);
-        P2= ByteUtils.bytes2Short(buf[0],buf[1]);
+        AD= ByteUtils.bytes2Short(buf[2],buf[3]);
+        P1= ByteUtils.bytes2Short(buf[4],buf[5]);
+        P2= ByteUtils.bytes2Short(buf[6],buf[7]);
       }
 
     public int getCUFF() {
@@ -74,7 +74,7 @@ public class NibpOriginalData implements Serializable,Cloneable {
 
     @NonNull
     @Override
-    protected NibpOriginalData clone() throws CloneNotSupportedException {
-        return (NibpOriginalData)super.clone();
+    protected Nibp200HZData clone() throws CloneNotSupportedException {
+        return (Nibp200HZData)super.clone();
     }
 }

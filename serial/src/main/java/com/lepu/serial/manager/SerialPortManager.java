@@ -16,9 +16,9 @@ import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
-import com.lepu.serial.obj.NibpData;
+import com.lepu.serial.obj.Nibp5HZData;
 import com.lepu.serial.obj.NibpModuleInfo;
-import com.lepu.serial.obj.NibpOriginalData;
+import com.lepu.serial.obj.Nibp200HZData;
 import com.lepu.serial.obj.NibpPramAndStatus;
 import com.lepu.serial.obj.NibpWorkingStatus;
 import com.lepu.serial.obj.RespData;
@@ -455,14 +455,14 @@ public class SerialPortManager {
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
-                                NibpData nibpData = new NibpData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibpData)
+                                Nibp5HZData nibpData = new Nibp5HZData(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibp5HZData)
                                         .post(nibpData);
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_200HZ: {//实时原始数据（200Hz）
-                                NibpOriginalData nibpOriginalData = new NibpOriginalData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
+                                Nibp200HZData nibpOriginalData = new Nibp200HZData(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibp200HZData)
                                         .post(nibpOriginalData);
 
                             }
@@ -475,7 +475,7 @@ public class SerialPortManager {
                                     }
                                 }
                                 NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibpOriginalData)
+                                LiveEventBus.get(EventMsgConst.NibpPramAndStatus)
                                         .post(nibpPramAndStatus);
                              }
                             break;
