@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         //接收到血压数据信息
-        LiveEventBus.get(EventMsgConst.MsgNibpData).observe(this, {
+        LiveEventBus.get(EventMsgConst.MsgNibp5HZData).observe(this, {
 
             Log.e("接收到血压数据信息", "血压数据")
         }
