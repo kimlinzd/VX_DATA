@@ -16,9 +16,9 @@ import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
-import com.lepu.serial.obj.Nibp5HZData;
+import com.lepu.serial.obj.NibpCP5HZData;
 import com.lepu.serial.obj.NibpModuleInfo;
-import com.lepu.serial.obj.Nibp200HZData;
+import com.lepu.serial.obj.NibpCP200HZData;
 import com.lepu.serial.obj.NibpPramAndStatus;
 import com.lepu.serial.obj.NibpWorkingStatus;
 import com.lepu.serial.obj.RespData;
@@ -455,14 +455,14 @@ public class SerialPortManager {
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
-                                Nibp5HZData nibpData = new Nibp5HZData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibp5HZData)
+                                NibpCP5HZData nibpData = new NibpCP5HZData(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibpCP5HZData)
                                         .post(nibpData);
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_200HZ: {//实时原始数据（200Hz）
-                                Nibp200HZData nibpOriginalData = new Nibp200HZData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibp200HZData)
+                                NibpCP200HZData nibpOriginalData = new NibpCP200HZData(serialMsg.getContent().data);
+                                LiveEventBus.get(EventMsgConst.MsgNibpCP200HZData)
                                         .post(nibpOriginalData);
 
                             }

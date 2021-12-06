@@ -58,7 +58,7 @@ public class EcgData implements Serializable ,Cloneable {
         hr = (buf[4] & 0xff + ((buf[5] & 0xff) << 8));
         flagPR = new int[]{buf[6] >> 4 & 0x1, buf[6] >> 5 & 0x1, buf[6] >> 6 & 0x1, buf[6] >> 7 & 0x1};
         flagPU = new int[]{buf[6] >> 0 & 0x1, buf[6] >> 1 & 0x1, buf[6] >> 2 & 0x1, buf[6] >> 3 & 0x1};
-        ecgWave = new short[chn][len];
+        ecgWave = new short[chn+1][len];
         //导联数据
         I = new short[len];
         II = new short[len];
@@ -83,7 +83,6 @@ public class EcgData implements Serializable ,Cloneable {
             for (int i = 0; i < len; i++) {
                 I[i] = (short) (ecgWave[0][i]  );
                 II[i] = (short) (ecgWave[1][i]  );
-
                 // III = II - I
                 this.III[i] = (short) (II[i] - I[i]);
                 // aVR = -(I+II)/2
@@ -96,6 +95,8 @@ public class EcgData implements Serializable ,Cloneable {
                 this.V[i] = (short) (ecgWave[2][i]  );
             }
         }
+
+
 
     }
 

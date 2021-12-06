@@ -172,7 +172,7 @@ class FirstFragment : Fragment() {
         binding.buttonBpSetInflated.setOnClickListener {
             SerialPortManager.getInstance()
                 .serialSendData(
-                    SerialCmd.cmdNibpSetPatient(270), cmdNibpReplyListener
+                    SerialCmd.cmdNibpSetPatient(160), cmdNibpReplyListener
                 )
 
         }
@@ -401,7 +401,12 @@ class FirstFragment : Fragment() {
 
     var cmdNibpReplyListener: CmdNibpReplyListener = object : CmdNibpReplyListener {
         override fun obtain_O(cmdReply: CmdReply?) {
+            Log.e(
+                "obtain_O",
+                "obtain_O "
+            )
 
+           // 0x01，0x02，0x04，0x05，0x0A，0x0B，0x0C，0x0E，0x0F，0x10，0x11，0x12
         }
 
         override fun obtain_K(cmdReply: CmdReply?) {

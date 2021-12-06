@@ -69,6 +69,29 @@ public class StringtoHexUitl {
                 + (byte) ((b >> 1) & 0x1) + (byte) ((b >> 0) & 0x1);
     }
 
+    /**
+     * short转Bit
+     */
+    public static String shortToBit(short b) {
+        return ""
+                + (short) ((b >> 15) & 0x1)
+                + (short) ((b >> 14) & 0x1)
+                + (short) ((b >> 13) & 0x1)
+                + (short) ((b >> 12) & 0x1)
+                + (short) ((b >> 11) & 0x1)
+                + (short) ((b >> 10) & 0x1)
+                + (short) ((b >> 9) & 0x1)
+                + (short) ((b >> 8) & 0x1)
+                + (short) ((b >> 7) & 0x1) +
+                (short) ((b >> 6) & 0x1) +
+                (short) ((b >> 5) & 0x1) +
+                (short) ((b >> 4) & 0x1) +
+                (short) ((b >> 3) & 0x1) +
+                (short) ((b >> 2) & 0x1) +
+                (short) ((b >> 1) & 0x1) +
+                (short) ((b >> 0) & 0x1);
+    }
+
     public static void main(String[] args) {
         //包头AA 55 长度27 index 83 class F3 token 01 type 00 status0 04 status1 03
         //07 03 3C 00 00 00 00 00 00 C5 FF 00 00 00 00 D7 FF 00 00 00 00 F0 FF 00 00 00 00 01 00 6E

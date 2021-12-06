@@ -70,10 +70,10 @@ public class NibpPramAndStatus implements Serializable {
         nibp01ErrEnum = Nibp01ErrEnum.getNibpErrEnum(buf[1]);
         nibp02ErrEnum = Nibp02ErrEnum.getNibpErrEnum(nibp01ErrEnum, buf[2]);
         tip = buf[3];
-        sys= ByteUtils.bytes2Short(buf[4],buf[5]);
-        dia= ByteUtils.bytes2Short(buf[6],buf[7]);
-        map= ByteUtils.bytes2Short(buf[8],buf[9]);
-        PR= ByteUtils.bytes2Short(buf[10],buf[11]);
+        sys= ByteUtils.bytes2Short(buf[5],buf[4]);
+        dia= ByteUtils.bytes2Short(buf[7],buf[6]);
+        map= ByteUtils.bytes2Short(buf[9],buf[8]);
+        PR= ByteUtils.bytes2Short(buf[11],buf[10]);
 
     }
 
