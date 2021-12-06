@@ -45,8 +45,11 @@ SerialPortManager.getInstance().closeSerialPort()
         )
  
  其他数据：
- 血压NIBP：NibpData
- 血压NIBP（原始数据）:NibpOriginalData
+ 血压NIBP 袖带压5HZ：NibpCP5HZData
+ 血压NIBP 实时原始数据（200Hz）:NibpCP200HZData
+ 血压模块信息： NibpModuleInfo 
+ 血压参数和模块状态：NibpPramAndStatus 
+ 血压模块工作状态：NibpWorkingStatus 
  呼吸数据:RespData
  血氧SpO2数据:SpO2Data
  血氧SpO2数据(原始数据)：SpO2OriginalData
