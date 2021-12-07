@@ -1,5 +1,6 @@
 package com.lepu.serial.obj;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
@@ -7,15 +8,15 @@ import androidx.annotation.NonNull;
 import com.lepu.serial.uitl.ByteUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * 心电数据
  * Token	Type
  * 0x01 	0x00
- *
  */
-public class EcgData implements Serializable ,Cloneable {
+public class EcgData implements Serializable, Cloneable, Parcelable {
 
     int len;//采样点数
     int set_1mv;//cal  0x00 ：关闭CAL输出       0x01 ：打开CAL输出
@@ -31,7 +32,7 @@ public class EcgData implements Serializable ,Cloneable {
     /**
      * 给缓存数据的时候使用
      */
-     long startTime;
+    long startTime;
 
     /**
      * 导联数据， short数组  通过计算得出
@@ -58,7 +59,7 @@ public class EcgData implements Serializable ,Cloneable {
         hr = (buf[4] & 0xff + ((buf[5] & 0xff) << 8));
         flagPR = new int[]{buf[6] >> 4 & 0x1, buf[6] >> 5 & 0x1, buf[6] >> 6 & 0x1, buf[6] >> 7 & 0x1};
         flagPU = new int[]{buf[6] >> 0 & 0x1, buf[6] >> 1 & 0x1, buf[6] >> 2 & 0x1, buf[6] >> 3 & 0x1};
-        ecgWave = new short[chn+1][len];
+        ecgWave = new short[chn][len];
         //导联数据
         I = new short[len];
         II = new short[len];
@@ -97,7 +98,30 @@ public class EcgData implements Serializable ,Cloneable {
         }
 
 
+    }
 
+    /**
+     * 计算导联数据
+     * @param ecgWave
+     */
+    public void initLeadData(short[][] ecgWave){
+        //计算出其他通道数据
+        if (chn == 3) {
+             for (int i = 0; i < len; i++) {
+                I[i] = (short) (ecgWave[0][i]  );
+                II[i] = (short) (ecgWave[1][i]  );
+                // III = II - I
+                this.III[i] = (short) (II[i] - I[i]);
+                // aVR = -(I+II)/2
+                this.aVR[i] = (short) ((II[i] + I[i]) / -2);
+                // aVL = (2*I-II)/2
+                this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
+                // aVF = (2*II-I)/2
+                this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
+                // v1
+                this.V[i] = (short) (ecgWave[2][i]  );
+            }
+        }
     }
 
     /**
@@ -309,9 +333,96 @@ public class EcgData implements Serializable ,Cloneable {
 
 
         SerialMsg serialMsg = new SerialMsg(data);
-   //     EcgData ecgData = new EcgData(serialMsg.content.data);
+        //     EcgData ecgData = new EcgData(serialMsg.content.data);
 
         System.out.println(data.length + "");
 
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.set_1mv);
+        dest.writeInt(this.chn0Index);
+        dest.writeInt(this.len);
+        dest.writeInt(this.chn);
+        dest.writeIntArray(this.leadOff);
+        dest.writeIntArray(this.dCout);
+        dest.writeInt(this.hr);
+        dest.writeIntArray(this.flagPR);
+        dest.writeIntArray(this.flagPU);
+
+        for (int i = 0; i <chn; i++) {
+            List<Integer> wave=new ArrayList<>();
+            for (int j = 0; j < len; j++) {
+                wave.add((int)this.ecgWave[i][j]);
+            }
+            dest.readList(wave,Integer.class.getClassLoader());
+        }
+
+        dest.writeLong(this.startTime);
+
+    }
+
+    public void readFromParcel(Parcel source) {
+        this.set_1mv = source.readInt();
+        this.chn0Index = source.readInt();
+        this.len = source.readInt();
+        this.chn = source.readInt();
+        this.leadOff = source.createIntArray();
+        this.dCout = source.createIntArray();
+        this.hr = source.readInt();
+        this.flagPR = source.createIntArray();
+        this.flagPU = source.createIntArray();
+        this.ecgWave=new short[chn][len];
+        for (int i = 0; i <chn; i++) {
+            List<Integer> wave=source.readArrayList(Integer.class.getClassLoader());
+            for (int j = 0; j < len; j++) {
+                ecgWave[i][j]=(short)wave.get(j).intValue();
+            }
+
+        }
+     //   this.ecgWave = source.readParcelable(short[][].class.getClassLoader());
+        this.startTime = source.readLong();
+
+    }
+
+    protected EcgData(Parcel in) {
+        this.set_1mv = in.readInt();
+        this.chn0Index = in.readInt();
+        this.len = in.readInt();
+        this.chn = in.readInt();
+        this.leadOff = in.createIntArray();
+        this.dCout = in.createIntArray();
+        this.hr = in.readInt();
+        this.flagPR = in.createIntArray();
+        this.flagPU = in.createIntArray();
+        this.ecgWave=new short[chn][len];
+        for (int i = 0; i <chn; i++) {
+            List<Integer> wave=in.readArrayList(Integer.class.getClassLoader());
+            for (int j = 0; j < len; j++) {
+                ecgWave[i][j]=(short)wave.get(j).intValue();
+            }
+
+        }
+     //   this.ecgWave = in.readParcelable(short[][].class.getClassLoader());
+        this.startTime = in.readLong();
+
+    }
+
+    public static final Parcelable.Creator<EcgData> CREATOR = new Parcelable.Creator<EcgData>() {
+        @Override
+        public EcgData createFromParcel(Parcel source) {
+            return new EcgData(source);
+        }
+
+        @Override
+        public EcgData[] newArray(int size) {
+            return new EcgData[size];
+        }
+    };
 }

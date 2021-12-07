@@ -595,15 +595,15 @@ public class SerialPortManager {
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (500 > (ecgTestData.length - fileindex)) {
+            if (800 > (ecgTestData.length - fileindex)) {
                 ecgdataLength = ecgTestData.length - fileindex;
             } else {
-                ecgdataLength = 500;
+                ecgdataLength = 800;
             }
             byte[] ecgdata = new byte[ecgdataLength];
              System.arraycopy(ecgTestData, fileindex, ecgdata, 0, ecgdataLength);
-            fileindex = fileindex + 500;
-            if (ecgdata.length<500){
+            fileindex = fileindex + 800;
+            if (ecgdata.length<800){
                 fileindex=0;
             }
             SerialTaskBean serialTaskBean = new SerialTaskBean();

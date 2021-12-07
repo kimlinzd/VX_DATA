@@ -192,7 +192,7 @@ public class SerialContent {
 
 
         //测数据 拼接数据
-        short[][] ecgTestShort = new short[3][4];
+    /*    short[][] ecgTestShort = new short[3][4];
         for (int i = 0; i < ecgTestShort.length; i++) {
             for (int j = 0; j < ecgTestShort[0].length; j++) {
                 if (i == 0) {
@@ -206,7 +206,7 @@ public class SerialContent {
         }
 
 
-        EcgData ecgData2=new EcgData(ecgTestShort);
+        EcgData ecgData2=new EcgData(ecgTestShort);*/
 
         System.out.println();
     }
