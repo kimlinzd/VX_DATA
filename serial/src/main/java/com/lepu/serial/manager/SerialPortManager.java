@@ -14,23 +14,15 @@ import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.listener.SerialConnectListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
-import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.EcgDemoWave;
+import com.lepu.serial.obj.NibpCP200HZData;
 import com.lepu.serial.obj.NibpCP5HZData;
 import com.lepu.serial.obj.NibpModuleInfo;
-import com.lepu.serial.obj.NibpCP200HZData;
 import com.lepu.serial.obj.NibpPramAndStatus;
 import com.lepu.serial.obj.NibpWorkingStatus;
-import com.lepu.serial.obj.RespData;
 import com.lepu.serial.obj.SerialMsg;
-import com.lepu.serial.obj.SpO2Data;
-import com.lepu.serial.obj.SpO2OriginalData;
-import com.lepu.serial.obj.TempData;
-import com.lepu.serial.task.BaseTaskBean;
 import com.lepu.serial.task.CmdReplyTimeOutTask;
-import com.lepu.serial.task.OnTaskListener;
-import com.lepu.serial.task.SerialPortDataTask;
-import com.lepu.serial.task.SerialTaskBean;
+import com.lepu.serial.task.DataToObjTask;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
 
@@ -39,7 +31,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,15 +45,19 @@ public class SerialPortManager {
     SerialPort mSerialPort;
     InputStream mInputStream;
     OutputStream mOutputStream;
-    //处理串口数据队列
-    public SerialPortDataTask mSerialPortDataTask;
+
     //单例
     private static SerialPortManager instance = null;
     //请求命令回调
     CmdReplyListener mCmdReplyListener;
-    List<CmdReplyTimeOutTask> mCmdReplyTimeOutTaskList=new ArrayList<>();
+    List<CmdReplyTimeOutTask> mCmdReplyTimeOutTaskList = new ArrayList<>();
     //血压请求命令回调
     CmdNibpReplyListener mCmdNibpReplyListener;
+    ThreadPoolExecutor executorECG = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    ThreadPoolExecutor executorRESP = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    ThreadPoolExecutor executorTEMP = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    ThreadPoolExecutor executorSpO2 = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+    ThreadPoolExecutor executorNibp = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 
     //心电测试数据的游标
     int mTestEcgIndex;
@@ -106,9 +104,7 @@ public class SerialPortManager {
         });
         //开始定时获取心电图数据
         startGetEcgData();
-        //设置任务监听
-        mSerialPortDataTask = SerialPortDataTask.getInstance();
-        mSerialPortDataTask.setOnTaskListener(onTaskListener);
+
         mContext = context;
     }
 
@@ -132,14 +128,8 @@ public class SerialPortManager {
                         } else {//正式数据
                             if (mInputStream == null) return;
                             byte[] buffer = ByteUtils.readStream(mInputStream);
-                            SerialTaskBean serialTaskBean = new SerialTaskBean();
-                            serialTaskBean.data = buffer;
-                            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-                            baseTaskBean.taskBean = serialTaskBean;
-                            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-                            // 添加到排队列表中去
-                            mSerialPortDataTask.addTask(baseTaskBean);
-
+                            //处理数据
+                            dataProcess(buffer);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -246,31 +236,30 @@ public class SerialPortManager {
 
     byte[] surplusData;//用于记录任务剩余的数据 放入下一个任务继续遍历
     int taskindex = 0;
-    OnTaskListener<BaseTaskBean<SerialTaskBean>> onTaskListener = new OnTaskListener<BaseTaskBean<SerialTaskBean>>() {
-        @Override
-        public void exNextTask(BaseTaskBean<SerialTaskBean> task) {
+    long time = 0;
 
-            //    Log.d("收到数据", StringtoHexUitl.byteArrayToHexStr(task.taskBaen.data));
-
-            byte[] data;
-            //如果有剩余的数据，需要把剩余的剩余的数据重新处理
-            if (surplusData != null) {
-                data = new byte[surplusData.length + task.taskBean.data.length];
-                System.arraycopy(surplusData, 0, data, 0, surplusData.length);
-                System.arraycopy(task.taskBean.data, 0, data, surplusData.length, task.taskBean.data.length);
-                surplusData=null;
-            } else {
-                data = task.taskBean.data;
-            }
-            //用于记录一段完整的报文
-            byte[] completeData = null;
-            //遍历数据
-            for (int i = 0; i < data.length; i++) {
-                //第三个是长度
-                if (i + 2 >= data.length) {
-                    //把最后的数据 放在下一个任务中
-                    surplusData = new byte[data.length - i];
-                    System.arraycopy(data, i, surplusData, 0, data.length - i);
+    public void dataProcess(byte[] dataArr) {
+        time = System.currentTimeMillis();
+    //    Log.e("接收到数据时间", time + "");
+        byte[] data;
+        //如果有剩余的数据，需要把剩余的剩余的数据重新处理
+        if (surplusData != null) {
+            data = new byte[surplusData.length + dataArr.length];
+            System.arraycopy(surplusData, 0, data, 0, surplusData.length);
+            System.arraycopy(dataArr, 0, data, surplusData.length, dataArr.length);
+            surplusData = null;
+        } else {
+            data = dataArr;
+        }
+        //用于记录一段完整的报文
+        byte[] completeData = null;
+        //遍历数据
+        for (int i = 0; i < data.length; i++) {
+            //第三个是长度
+            if (i + 2 >= data.length) {
+                //把最后的数据 放在下一个任务中
+                surplusData = new byte[data.length - i];
+                System.arraycopy(data, i, surplusData, 0, data.length - i);
                     break;
                 }
                 //判断开头
@@ -290,29 +279,19 @@ public class SerialPortManager {
                             i = i + completeData.length - 1;
                             //分发数据
                             distributeMsg(completeData);
-                        }else {
-                            Log.d("taskindex", taskindex+"");
+
+                        } else {
+                            Log.d("taskindex", taskindex + "");
                         }
                     }
                 }
-            }
-
-
-
-            mSerialPortDataTask.exOk(task);
 
         }
+        time = System.currentTimeMillis() - time;
+     //   Log.e("接收到处理完数据时间", time + "----"+taskindex);
 
-        @Override
-        public void noTask() {
-          /*  if ((System.currentTimeMillis() - gettasktime) > 50) {
-                Log.d("noTask", "任务完成时间-----" + (System.currentTimeMillis() - gettasktime));
-            } else {
-                Log.d("noTask", "任务完成时间" + (System.currentTimeMillis() - gettasktime));
-            }*/
+    }
 
-        }
-    };
 
 
     /**
@@ -355,40 +334,27 @@ public class SerialPortManager {
                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         //上传心电数据
-                        EcgData ecgData = new EcgData(serialMsg.getContent().data);
-                        LiveEventBus.get(EventMsgConst.MsgEcgData)
-                                .post(ecgData);
-                     }
+                        executorECG.execute(new DataToObjTask(serialMsg));
+
+                    }
                     break;
                     case SerialContent.TOKEN_RESP: {
                         //上传呼吸RESP
-                        RespData respData = new RespData(serialMsg.getContent().data);
-                        LiveEventBus.get(EventMsgConst.MsgRespData)
-                                .post(respData);
+                        executorRESP.execute(new DataToObjTask(serialMsg));
+
                     }
                     break;
                     case SerialContent.TOKEN_TEMP: {
                         //上传体温数据
-                        TempData tempData = new TempData(serialMsg.getContent().data);
-                        LiveEventBus.get(EventMsgConst.MsgTempData)
-                                .post(tempData);
+                        executorTEMP.execute(new DataToObjTask(serialMsg));
+
                     }
                     break;
 
                     case SerialContent.TOKEN_SP02: {
                         //血氧SpO2
-                        if (typeByte == SerialContent.TYPE_DATA_SP02) {
-                            //上传波形数据_原始数据
-                            SpO2OriginalData spO2OriginalData = new SpO2OriginalData(serialMsg.getContent().data);
-                            LiveEventBus.get(EventMsgConst.MsgSpO2OriginalData)
-                                    .post(spO2OriginalData);
-                        } else if (typeByte == SerialContent.TYPE_DATA_SP02_ORIGINAL) {
-                            //上传SpO2数据
-                            SpO2Data spO2Data = new SpO2Data(serialMsg.getContent().data);
-                            LiveEventBus.get(EventMsgConst.MsgSpO2Data)
-                                    .post(spO2Data);
+                         executorSpO2.execute(new DataToObjTask(serialMsg));
 
-                        }
                     }
                     break;
                 }
@@ -411,10 +377,10 @@ public class SerialPortManager {
                         switch (typeByte) {
                             case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
                                 CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
-                                serialMsg.getContent().type=cmdNibpReply.getCmdType();
-                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
-                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            ==new CmdReply(serialMsg).getCmdReplyType()){
+                                serialMsg.getContent().type = cmdNibpReply.getCmdType();
+                                for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
+                                    if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            == new CmdReply(serialMsg).getCmdReplyType()) {
                                         mCmdReplyTimeOutTaskList.get(i).cencel();
                                     }
                                 }
@@ -454,55 +420,21 @@ public class SerialPortManager {
                                 }
                             }
                             break;
-                            case SerialContent.TOKEN_NIBP_DATA_5HZ: {//血压NIBP 实时袖带压（5Hz）
-                                NibpCP5HZData nibpData = new NibpCP5HZData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibpCP5HZData)
-                                        .post(nibpData);
-                            }
-                            break;
-                            case SerialContent.TOKEN_NIBP_DATA_200HZ: {//实时原始数据（200Hz）
-                                NibpCP200HZData nibpOriginalData = new NibpCP200HZData(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.MsgNibpCP200HZData)
-                                        .post(nibpOriginalData);
+                            case SerialContent.TOKEN_NIBP_DATA_5HZ: //血压NIBP 实时袖带压（5Hz）
+                            case SerialContent.TOKEN_NIBP_DATA_200HZ: //实时原始数据（200Hz）
+                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: //血压参数和模块状态
+                            case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: //血压模块工作状态
+                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: //血压模块信息
+                                for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
+                                    if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
+                                            == new CmdReply(serialMsg).getCmdReplyType()) {
+                                        mCmdReplyTimeOutTaskList.get(i).cencel();
+                                    }
+                                }
+                                executorNibp.execute(new DataToObjTask(serialMsg));
+                                break;
 
-                            }
-                            break;
-                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: {//血压参数和模块状态
-                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
-                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS).getCmdReplyType()){
-                                        mCmdReplyTimeOutTaskList.get(i).cencel();
-                                    }
-                                }
-                                NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.NibpPramAndStatus)
-                                        .post(nibpPramAndStatus);
-                             }
-                            break;
-                            case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: {//血压模块工作状态
-                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
-                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE).getCmdReplyType()){
-                                        mCmdReplyTimeOutTaskList.get(i).cencel();
-                                    }
-                                }
-                                NibpWorkingStatus nibpPramAndStatus = new NibpWorkingStatus(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.NibpWorkingStatus)
-                                        .post(nibpPramAndStatus);
-                            }
-                            break;
-                            case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: {//血压模块信息
-                                for (int i=0;i<mCmdReplyTimeOutTaskList.size();i++){
-                                    if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            ==new CmdReply(SerialContent.TOKEN_NIBP,SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO).getCmdReplyType()){
-                                        mCmdReplyTimeOutTaskList.get(i).cencel();
-                                    }
-                                }
-                                NibpModuleInfo nibpModuleInfo = new NibpModuleInfo(serialMsg.getContent().data);
-                                LiveEventBus.get(EventMsgConst.NibpModuleInfo)
-                                        .post(nibpModuleInfo);
-                            }
-                            break;
+
 
                               default:
 
@@ -564,15 +496,6 @@ public class SerialPortManager {
             }
             ecgdata[38] = CRCUitl.getCRC8(ecgdata, ecgdata.length - 1);
 
-            //测试游标
-            mTestEcgIndex = mTestEcgIndex + 4;
-            SerialTaskBean serialTaskBean = new SerialTaskBean();
-            serialTaskBean.data = ecgdata;
-            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-            baseTaskBean.taskBean = serialTaskBean;
-            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-            // 添加到排队列表中去
-            mSerialPortDataTask.addTask(baseTaskBean);
 
         }
 
@@ -606,13 +529,7 @@ public class SerialPortManager {
             if (ecgdata.length<800){
                 fileindex=0;
             }
-            SerialTaskBean serialTaskBean = new SerialTaskBean();
-            serialTaskBean.data = ecgdata;
-            BaseTaskBean<SerialTaskBean> baseTaskBean = new BaseTaskBean<>();
-            baseTaskBean.taskBean = serialTaskBean;
-            baseTaskBean.taskNo = String.valueOf(System.currentTimeMillis());
-            // 添加到排队列表中去
-            mSerialPortDataTask.addTask(baseTaskBean);
+            dataProcess(ecgdata);
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -104,8 +104,21 @@ public class StringtoHexUitl {
         };
 
 byte b= 0x0f;
-System.out.println(byteToBit((byte) 0x03));
+//System.out.println(byteToBit((byte) 0x03));
 
+       byte[] aa= ByteUtils.Int2Bytes_LE(123456789);
+
+System.out.println( ByteUtils.bytes2UIntBig(aa[3],aa[2],aa[1],aa[0])+"");
+    }
+
+
+    public static int toInt(byte[] bytes, int offset) {
+        int ret = 0;
+        for (int i=0; i<4 && i+offset<bytes.length; i++) {
+            ret <<= 8;
+            ret |= (int)bytes[i] & 0xFF;
+        }
+        return ret;
     }
 
 

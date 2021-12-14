@@ -82,8 +82,9 @@ public class SerialContent {
 
     /********************************血氧SpO2******************************************/
     public static final byte TOKEN_SP02 = 0x06;     //血氧SpO2
-    public static final byte TYPE_DATA_SP02 = 0x00; //上传波形数据_原始数据 血氧SpO2
-    public static final byte TYPE_DATA_SP02_ORIGINAL = 0x00;//上传SpO2数据 血氧SpO2
+    public static final byte TYPE_DATA_SP02_WAVE = 0x01;//血氧SpO2 波形数据
+    public static final byte TYPE_DATA_SP02 = 0x2; //  血氧SpO2 数据
+
 
 
    /* public static final byte TYPE_DATA_NIBP = 0x00; //上传实时袖带压 血压NIBP

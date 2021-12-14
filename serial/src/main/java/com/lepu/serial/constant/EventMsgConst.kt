@@ -38,7 +38,7 @@ object EventMsgConst {
     /**
      *血氧SpO2  上传波形数据_原始数据
      */
-    const val MsgSpO2OriginalData  = "com.lepu.serial.obj.SpO2OriginalData"
+    const val MsgSpO2WaveData  = "com.lepu.serial.obj.SpO2WaveData"
     /**
      *体温数据
      */

@@ -114,7 +114,7 @@ public class ByteUtils {
      * @param iValue
      * @return
      */
-    public byte[] Int2Bytes_LE(int iValue) {
+    public static byte[] Int2Bytes_LE(int iValue) {
         byte[] rst = new byte[4];
         // 先写int的最后一个字节
         rst[0] = (byte) (iValue & 0xFF);
