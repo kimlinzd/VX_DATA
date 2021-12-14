@@ -52,7 +52,7 @@ SerialPortManager.getInstance().closeSerialPort()
  血压模块工作状态：NibpWorkingStatus 
  呼吸数据:RespData
  血氧SpO2数据:SpO2Data
- 血氧SpO2数据(原始数据)：SpO2OriginalData
+ 血氧SpO2数据(波形数据)： SpO2WaveData
  体温数据：TempData
  
  LiveEventBus key详见：EventMsgConst
