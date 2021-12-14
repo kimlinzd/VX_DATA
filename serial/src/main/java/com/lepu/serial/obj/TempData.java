@@ -30,6 +30,8 @@ public class TempData implements Serializable ,Cloneable   {
      */
     short[] tempWave;
 
+    byte[] originalData;//原始数据 用于保存
+
     public TempData() {
     }
 
@@ -44,6 +46,17 @@ public class TempData implements Serializable ,Cloneable   {
             }
         }
 
+        originalData=buf;
+
+    }
+
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     public int getNum() {

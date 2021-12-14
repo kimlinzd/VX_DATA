@@ -30,6 +30,8 @@ public class NibpCP200HZData implements Serializable,Cloneable {
      */
     int P2;
 
+    byte[] originalData;//原始数据 用于保存
+
     public NibpCP200HZData() {
     }
 
@@ -38,7 +40,16 @@ public class NibpCP200HZData implements Serializable,Cloneable {
         AD= ByteUtils.bytes2Short(buf[3],buf[2]);
         P1= ByteUtils.bytes2Short(buf[5],buf[4]);
         P2= ByteUtils.bytes2Short(buf[7],buf[6]);
+        originalData=buf;
       }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
+    }
 
     public int getCUFF() {
         return CUFF;

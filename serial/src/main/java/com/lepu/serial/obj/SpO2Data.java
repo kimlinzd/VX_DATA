@@ -82,6 +82,7 @@ public class SpO2Data implements Serializable, Cloneable {
     int PR;//脉率数据
     int PI;//灌注度数据
 
+    byte[] originalData;//原始数据 用于保存
 
     public SpO2Data() {
     }
@@ -103,6 +104,129 @@ public class SpO2Data implements Serializable, Cloneable {
         spO2 = buf[4];
         PR = ByteUtils.bytes2Short(buf[5], buf[6]);
         PI = ByteUtils.bytes2Short(buf[7], buf[8]);
+
+        originalData=buf;
+    }
+
+
+    public int getSPO2_SENSOR_DROP_MARK() {
+        return SPO2_SENSOR_DROP_MARK;
+    }
+
+    public void setSPO2_SENSOR_DROP_MARK(int SPO2_SENSOR_DROP_MARK) {
+        this.SPO2_SENSOR_DROP_MARK = SPO2_SENSOR_DROP_MARK;
+    }
+
+    public int getSPO2_SENSOR_NOT_CONNECTED_MARK() {
+        return SPO2_SENSOR_NOT_CONNECTED_MARK;
+    }
+
+    public void setSPO2_SENSOR_NOT_CONNECTED_MARK(int SPO2_SENSOR_NOT_CONNECTED_MARK) {
+        this.SPO2_SENSOR_NOT_CONNECTED_MARK = SPO2_SENSOR_NOT_CONNECTED_MARK;
+    }
+
+    public int getSPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK() {
+        return SPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK;
+    }
+
+    public void setSPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK(int SPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK) {
+        this.SPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK = SPO2_AMBIENT_LIGHT_IS_TOO_STRONG_MARK;
+    }
+
+    public int getSPO2_NO_PULSATION_MARK() {
+        return SPO2_NO_PULSATION_MARK;
+    }
+
+    public void setSPO2_NO_PULSATION_MARK(int SPO2_NO_PULSATION_MARK) {
+        this.SPO2_NO_PULSATION_MARK = SPO2_NO_PULSATION_MARK;
+    }
+
+    public int getSPO2_SENSOR_INCOMPATIBLE_MARK() {
+        return SPO2_SENSOR_INCOMPATIBLE_MARK;
+    }
+
+    public void setSPO2_SENSOR_INCOMPATIBLE_MARK(int SPO2_SENSOR_INCOMPATIBLE_MARK) {
+        this.SPO2_SENSOR_INCOMPATIBLE_MARK = SPO2_SENSOR_INCOMPATIBLE_MARK;
+    }
+
+    public int getBAD_SPO2_SIGNAL_MARK() {
+        return BAD_SPO2_SIGNAL_MARK;
+    }
+
+    public void setBAD_SPO2_SIGNAL_MARK(int BAD_SPO2_SIGNAL_MARK) {
+        this.BAD_SPO2_SIGNAL_MARK = BAD_SPO2_SIGNAL_MARK;
+    }
+
+    public int getSPO2_INTERFERENCE_FLAG() {
+        return SPO2_INTERFERENCE_FLAG;
+    }
+
+    public void setSPO2_INTERFERENCE_FLAG(int SPO2_INTERFERENCE_FLAG) {
+        this.SPO2_INTERFERENCE_FLAG = SPO2_INTERFERENCE_FLAG;
+    }
+
+    public int getSPO2_SENSOR_FAILURE_FLAG() {
+        return SPO2_SENSOR_FAILURE_FLAG;
+    }
+
+    public void setSPO2_SENSOR_FAILURE_FLAG(int SPO2_SENSOR_FAILURE_FLAG) {
+        this.SPO2_SENSOR_FAILURE_FLAG = SPO2_SENSOR_FAILURE_FLAG;
+    }
+
+    public int getSPO2_SEARCH_PULSE_MARKER() {
+        return SPO2_SEARCH_PULSE_MARKER;
+    }
+
+    public void setSPO2_SEARCH_PULSE_MARKER(int SPO2_SEARCH_PULSE_MARKER) {
+        this.SPO2_SEARCH_PULSE_MARKER = SPO2_SEARCH_PULSE_MARKER;
+    }
+
+    public int getSPO2_WEAK_PERFUSION_MARKER() {
+        return SPO2_WEAK_PERFUSION_MARKER;
+    }
+
+    public void setSPO2_WEAK_PERFUSION_MARKER(int SPO2_WEAK_PERFUSION_MARKER) {
+        this.SPO2_WEAK_PERFUSION_MARKER = SPO2_WEAK_PERFUSION_MARKER;
+    }
+
+    public int getStatus1() {
+        return status1;
+    }
+
+    public void setStatus1(int status1) {
+        this.status1 = status1;
+    }
+
+    public int getSpO2() {
+        return spO2;
+    }
+
+    public void setSpO2(int spO2) {
+        this.spO2 = spO2;
+    }
+
+    public int getPR() {
+        return PR;
+    }
+
+    public void setPR(int PR) {
+        this.PR = PR;
+    }
+
+    public int getPI() {
+        return PI;
+    }
+
+    public void setPI(int PI) {
+        this.PI = PI;
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     @NonNull

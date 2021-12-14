@@ -26,6 +26,8 @@ public class RespData implements Serializable,Cloneable {
     int rr; // 呼吸率
     short[] respWave;//呼吸数据
 
+    byte[] originalData;//原始数据 用于保存
+
     public RespData() {
     }
 
@@ -42,18 +44,17 @@ public class RespData implements Serializable,Cloneable {
                 respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+5], buf[i*2+6]);
             }
         }
+        originalData=buf;
 
-     /*   format = buf[0]>>4;
-        len = buf[0] & 0x0f;
-        lungMove = (buf[1] & 0x01) == 0x01;
-        asphyxia = (buf[1] & 0x10) == 0x10;
+    }
 
-        if (len > 0) {
-            respWave = new short[len];
-            for (int i=0; i<len; i++) {
-                respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+4], buf[i*2+5]);
-            }
-        }*/
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     public int getDataFormat() {

@@ -288,7 +288,7 @@ public class SerialPortManager {
 
         }
         time = System.currentTimeMillis() - time;
-     //   Log.e("接收到处理完数据时间", time + "----"+taskindex);
+      //  Log.e("接收到处理完数据时间", time + "----"+taskindex);
 
     }
 

@@ -60,6 +60,8 @@ public class NibpPramAndStatus implements Serializable {
      */
     int PR;
 
+    byte[] originalData;//原始数据 用于保存
+
     public NibpPramAndStatus() {
     }
 
@@ -74,7 +76,16 @@ public class NibpPramAndStatus implements Serializable {
         dia= ByteUtils.bytes2Short(buf[7],buf[6]);
         map= ByteUtils.bytes2Short(buf[9],buf[8]);
         PR= ByteUtils.bytes2Short(buf[11],buf[10]);
+        originalData=buf;
 
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     public NibpMsmEnum getMsm() {

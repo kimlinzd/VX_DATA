@@ -10,22 +10,33 @@ import java.io.Serializable;
  * 血压NIBP 实时袖带压（5Hz）
  */
 
-public class NibpCP5HZData implements Serializable,Cloneable{
+public class NibpCP5HZData implements Serializable, Cloneable {
     /**
-     *波形数据
+     * 波形数据
      */
-   int DB1;
+    int DB1;
     /**
-     *保留
+     * 保留
      */
-   byte DB3;
+    byte DB3;
+
+    byte[] originalData;//原始数据 用于保存
 
     public NibpCP5HZData() {
     }
 
     public NibpCP5HZData(byte[] buf) {
-        DB1=ByteUtils.bytes2Short(buf[1],buf[0]);
-         DB3=buf[2];
+        DB1 = ByteUtils.bytes2Short(buf[1], buf[0]);
+        DB3 = buf[2];
+        originalData = buf;
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     public int getDB1() {

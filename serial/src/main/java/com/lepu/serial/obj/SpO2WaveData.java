@@ -19,6 +19,8 @@ public class SpO2WaveData implements Serializable, Cloneable {
      */
     short[] wave;
 
+    byte[] originalData;//原始数据 用于保存
+
     public SpO2WaveData() {
     }
 
@@ -33,6 +35,40 @@ public class SpO2WaveData implements Serializable, Cloneable {
                 wave[i] = buf[i + 2];
             }
         }
+
+        originalData=buf;
+    }
+
+    public int getLen() {
+        return len;
+    }
+
+    public void setLen(int len) {
+        this.len = len;
+    }
+
+    public int[] getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int[] flag) {
+        this.flag = flag;
+    }
+
+    public short[] getWave() {
+        return wave;
+    }
+
+    public void setWave(short[] wave) {
+        this.wave = wave;
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     @NonNull
