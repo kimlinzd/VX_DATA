@@ -28,7 +28,7 @@ public class TempData implements Serializable ,Cloneable   {
      * 内容为：体温数据ShortData[num] 小端
      * 体温数据，单位：0.1摄氏度（其中数据为0x8000时代表测量范围外的无效值（--））
      */
-    short[] tempWave;
+    short temp;
 
     byte[] originalData;//原始数据 用于保存
 
@@ -40,10 +40,11 @@ public class TempData implements Serializable ,Cloneable   {
         errFlag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1};
         sensorFlag = new int[]{buf[1] >> 3 & 0x1, buf[1] >> 2 & 0x1, buf[1] >> 1 & 0x1, buf[1] >> 0 & 0x1};
         if (num > 0) {
-            tempWave = new short[num];
+            temp= (short) ByteUtils.bytes2Short(buf[2], buf[3]);
+        /*    tempWave = new short[num];
             for (int i = 0; i < num; i++) {
                 tempWave[i] = (short) ByteUtils.bytes2Short(buf[i * 2 + 2], buf[i * 2 + 3]);
-            }
+            }*/
         }
 
         originalData=buf;
@@ -83,12 +84,12 @@ public class TempData implements Serializable ,Cloneable   {
         this.sensorFlag = sensorFlag;
     }
 
-    public short[] getTempWave() {
-        return tempWave;
+    public short getTemp() {
+        return temp;
     }
 
-    public void setTempWave(short[] tempWave) {
-        this.tempWave = tempWave;
+    public void setTemp(short temp) {
+        this.temp = temp;
     }
 
     @NonNull

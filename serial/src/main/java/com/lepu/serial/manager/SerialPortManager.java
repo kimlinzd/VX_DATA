@@ -518,15 +518,15 @@ public class SerialPortManager {
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (800 > (ecgTestData.length - fileindex)) {
+            if (1100 > (ecgTestData.length - fileindex)) {
                 ecgdataLength = ecgTestData.length - fileindex;
             } else {
-                ecgdataLength = 800;
+                ecgdataLength = 1100;
             }
             byte[] ecgdata = new byte[ecgdataLength];
              System.arraycopy(ecgTestData, fileindex, ecgdata, 0, ecgdataLength);
-            fileindex = fileindex + 800;
-            if (ecgdata.length<800){
+            fileindex = fileindex + 1100;
+            if (ecgdata.length<1100){
                 fileindex=0;
             }
             dataProcess(ecgdata);

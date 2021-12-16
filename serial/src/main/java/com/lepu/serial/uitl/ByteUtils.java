@@ -87,7 +87,7 @@ public class ByteUtils {
     public static byte[] getFromAssets(Context context) {
         byte[] result = new byte[0];
         try {
-            InputStream in = context.getResources().getAssets().open("ecg_test_data_1.DAT");
+            InputStream in = context.getResources().getAssets().open("ecg_test_data.DAT");
             // 获取文件的字节数
             int lenght = in.available();
             // 创建byte数组
