@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        SerialPortManager.getInstance().setTestMode(true)
+     //   SerialPortManager.getInstance().setTestMode(true)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
         //实时袖带压（5Hz）
         LiveEventBus.get(EventMsgConst.MsgNibpCP5HZData).observe(this, {
             val data = it as NibpCP5HZData
-    //        Log.e("接收到血压数据信息", "血压数据")
+            Log.e("接收到血压数据信息", "血压数据")
         }
         )
         //血压NIBP 实时袖带压（200Hz）
@@ -109,7 +109,15 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.NibpWorkingStatus).observe(this, {
             val data = it as NibpWorkingStatus
 
-     //       Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp)
+            Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp)
+        }
+        )
+
+        // 血压模块信息
+        LiveEventBus.get(EventMsgConst.NibpModuleInfo).observe(this, {
+            val data = it as NibpModuleInfo
+
+            Log.e("血压模块信息", "血压模块信息  +mainMCU=="+data.mainMCU)
         }
         )
 
@@ -117,7 +125,7 @@ class MainActivity : AppCompatActivity() {
          LiveEventBus.get(EventMsgConst.NibpPramAndStatus).observe(this, {
             val data = it as NibpPramAndStatus
 
-       //     Log.e("测量完毕", "收缩压:"+data.sys+"---"+"舒张压:"+data.dia+"---PR:"+data.pr)
+            Log.e("测量完毕", "收缩压:"+data.sys+"---"+"舒张压:"+data.dia+"---PR:"+data.pr)
         }
         )
 

@@ -32,7 +32,7 @@ public class DataToObjTask extends Thread {
     public DataToObjTask(SerialMsg serialMsg) {
         this.data = serialMsg.getContent().data;
         this.tokenByte = serialMsg.getContent().token;
-        this.typeByte = serialMsg.getType();
+        this.typeByte = serialMsg.getContent().type;
         this.classByte=serialMsg.getType();
         this.serialMsg=serialMsg;
     }

@@ -160,16 +160,16 @@ public class SerialPortManager {
     }
 
     /**
-     * 向串口写入数据
+     * 向串口写入数据 血压
      */
     public void serialSendData(byte[] bytes, CmdNibpReplyListener cmdNibpReplyListener) {
         try {
             mCmdNibpReplyListener = cmdNibpReplyListener;
             writeBytes (bytes);
-            CmdReplyTimeOutTask cmdReplyTimeOutTask=
+        /*    CmdReplyTimeOutTask cmdReplyTimeOutTask=
                     new CmdReplyTimeOutTask(cmdNibpReplyListener,new CmdReply(bytes[5],bytes[6]), ConfigConst.CMD_NIBP_TIMEOUT);
             mCmdReplyTimeOutTaskList.add(cmdReplyTimeOutTask);
-            cmdReplyTimeOutTask.start();
+            cmdReplyTimeOutTask.start();*/
         } catch (Exception ex) {
             ex.printStackTrace();
             if (mCmdNibpReplyListener != null) {
@@ -321,6 +321,8 @@ public class SerialPortManager {
                     if(mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
                             ==new CmdReply(serialMsg ).getCmdReplyType()){
                         mCmdReplyTimeOutTaskList.get(i).cencel();
+                        mCmdReplyTimeOutTaskList.remove(i);
+                        i--;
                     }
                 }
 
@@ -378,12 +380,12 @@ public class SerialPortManager {
                             case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
                                 CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
                                 serialMsg.getContent().type = cmdNibpReply.getCmdType();
-                                for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
+                              /*  for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
                                     if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
                                             == new CmdReply(serialMsg).getCmdReplyType()) {
                                         mCmdReplyTimeOutTaskList.get(i).cencel();
                                     }
-                                }
+                                }*/
                                 if (mCmdNibpReplyListener!=null){
                                     switch (cmdNibpReply.getACK()){
                                         case  SerialContent.NIBP_REPLY_PACKET_0:{
@@ -425,12 +427,12 @@ public class SerialPortManager {
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: //血压参数和模块状态
                             case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: //血压模块工作状态
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: //血压模块信息
-                                for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
+                            /*    for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
                                     if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
                                             == new CmdReply(serialMsg).getCmdReplyType()) {
                                         mCmdReplyTimeOutTaskList.get(i).cencel();
                                     }
-                                }
+                                }*/
                                 executorNibp.execute(new DataToObjTask(serialMsg));
                                 break;
 

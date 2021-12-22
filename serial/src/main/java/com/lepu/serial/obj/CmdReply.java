@@ -20,15 +20,15 @@ public class CmdReply implements Serializable,Cloneable {
      */
     String version;
 
-    public CmdReply(SerialMsg serialMsg) {
-        getCmdReplyTypeByType(serialMsg.content.token, serialMsg.content.type);
+    public  CmdReply(SerialMsg serialMsg) {
+        cmdReplyType= getCmdReplyTypeByType(serialMsg.content.token, serialMsg.content.type);
         if (serialMsg.content.data != null && serialMsg.content.data.length > 0) {
             version = new String(serialMsg.content.data);
         }
     }
 
     public CmdReply(byte token, byte type) {
-        getCmdReplyTypeByType(token, type);
+        cmdReplyType = getCmdReplyTypeByType(token, type);
      }
 
     public CmdReply() {
@@ -39,7 +39,7 @@ public class CmdReply implements Serializable,Cloneable {
     }
 
     public void setCmdReplyType(CmdReplyType cmdReplyType) {
-        this.cmdReplyType = cmdReplyType;
+       this.cmdReplyType=cmdReplyType;
     }
 
     public String getVersion() {
@@ -50,28 +50,28 @@ public class CmdReply implements Serializable,Cloneable {
         this.version = version;
     }
 
-    public void getCmdReplyTypeByType(byte token, byte type) {
+    public static CmdReplyType  getCmdReplyTypeByType(byte token, byte type) {
         switch (token) {
             case SerialContent.TOKEN_PARAM: {
                 switch (type) {
                     case SerialContent.TYPE_RESET:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_RESET;
-                        break;
+                       return  CmdReplyType.CMD_TYPE_RESET;
+
                     case SerialContent.TYPE_VERSION_INFO:
-                        this.cmdReplyType = CmdReplyType.CMD_VERSION_INFO;
-                        break;
+                        return CmdReplyType.CMD_VERSION_INFO;
+
                     case SerialContent.TYPE_SET_PARAM:
-                        this.cmdReplyType = CmdReplyType.CMD_SET_PARAM;
-                        break;
+                        return CmdReplyType.CMD_SET_PARAM;
+
                     case SerialContent.TYPE_PATIENT:
-                        this.cmdReplyType = CmdReplyType.CMD_PATIENT;
-                        break;
+                        return CmdReplyType.CMD_PATIENT;
+
                     case SerialContent.TYPE_DATA_START:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_DATA_START;
-                        break;
+                        return CmdReplyType.CMD_TYPE_DATA_START;
+
                     case SerialContent.TYPE_DATA_STOP:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_DATA_STOP;
-                        break;
+                        return CmdReplyType.CMD_TYPE_DATA_STOP;
+
                     default:
 
                 }
@@ -80,11 +80,11 @@ public class CmdReply implements Serializable,Cloneable {
             case SerialContent.TOKEN_ECG:
                 switch (type) {
                     case SerialContent.TYPE_ECG_LEAD_MODE:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_ECG_LEAD_MODE;
-                        break;
+                        return  CmdReplyType.CMD_TYPE_ECG_LEAD_MODE;
+
                     case SerialContent.TYPE_CALIBRATION_SIGNAL:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL;
-                        break;
+                        return CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL;
+
 
                     default:
 
@@ -93,11 +93,10 @@ public class CmdReply implements Serializable,Cloneable {
             case SerialContent.TOKEN_RESP:
                 switch (type) {
                     case SerialContent.TYPE_RESP_LEAD:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_RESP_LEAD;
-                        break;
+                        return CmdReplyType.CMD_TYPE_RESP_LEAD;
+
                     case SerialContent.TYPE_SUFFOCATION_ALARM_TIME:
-                        this.cmdReplyType = CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME;
-                        break;
+                        return CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME;
 
                     default:
 
@@ -107,66 +106,66 @@ public class CmdReply implements Serializable,Cloneable {
             case SerialContent.TOKEN_NIBP:
                 switch (type) {
                     case SerialContent.TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT;
+
                     case SerialContent.TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT;
+
                     case SerialContent.TOKEN_NIBP_CANCEL_MEASUREMENT:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CANCEL_MEASUREMENT;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_CANCEL_MEASUREMENT;
+
                     case SerialContent.TOKEN_NIBP_SET_PATIENT_TYPE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_PATIENT_TYPE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_SET_PATIENT_TYPE;
+
                     case SerialContent.TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_SET_INITIAL_INFLATION_PRESSURE;
+
                     case SerialContent.TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_SET_WAVE_TRANSMISSION_MODE;
+
                     case SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_PARAMETERS;
+
                     case SerialContent.TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_READ_THE_WORKING_STATUS_OF_THE_BLOOD_PRESSURE_MODULE;
+
 
                     case SerialContent.TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_READ_BLOOD_PRESSURE_MODULE_INFO;
+
                     case SerialContent.TOKEN_NIBP_CONTROL_PUMP:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_PUMP;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_CONTROL_PUMP;
+
                     case SerialContent.TOKEN_NIBP_CONTROL_QUICK_VALVE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_CONTROL_QUICK_VALVE;
+
                     case SerialContent.TOKEN_NIBP_CONTROL_SLOW_VALVE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_CONTROL_SLOW_VALVE;
+
                      case SerialContent.TOKEN_NIBP_SLEEP_MODE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_SLEEP_MODE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_SLEEP_MODE;
+
 
                     case SerialContent.TOKEN_NIBP_RESET_MODULE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_RESET_MODULE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_RESET_MODULE;
+
 
                     case SerialContent.TOKEN_NIBP_AUXILIARY_VENIPUNCTURE:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE;
+
 
                     case SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1;
+
                     case SerialContent.TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2;
+
                     case SerialContent.TOKEN_NIBP_LEAK_DETECTION:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_LEAK_DETECTION;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_LEAK_DETECTION;
+
                     case SerialContent.TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR:
-                        this.cmdReplyType = CmdReplyType.CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR;
-                        break;
+                        return CmdReplyType.CMD_TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR;
+
 
                     default:
 
@@ -177,6 +176,7 @@ public class CmdReply implements Serializable,Cloneable {
 
         }
 
+return null;
 
     }
 
