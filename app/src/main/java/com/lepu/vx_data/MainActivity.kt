@@ -64,11 +64,16 @@ class MainActivity : AppCompatActivity() {
     private fun initService() {
          SerialService.startService(this)
      }
+     var index=0;
 
     private fun observeLiveDataObserve() {
         //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
             val data = it as EcgData
+            index++;
+            if(index%125==0){
+         //       Log.e("接收到心电图信息", System.currentTimeMillis().toString());
+            }
             //   Log.e("接收到心电图信息", data.toString())
         }
         )
@@ -96,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         //实时袖带压（5Hz）
         LiveEventBus.get(EventMsgConst.MsgNibpCP5HZData).observe(this, {
             val data = it as NibpCP5HZData
-            Log.e("接收到血压数据信息", "血压数据")
+       //     Log.e("接收到血压数据信息", "血压数据")
         }
         )
         //血压NIBP 实时袖带压（200Hz）
@@ -109,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.NibpWorkingStatus).observe(this, {
             val data = it as NibpWorkingStatus
 
-            Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp)
+        //    Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp)
         }
         )
 
@@ -117,18 +122,24 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.NibpModuleInfo).observe(this, {
             val data = it as NibpModuleInfo
 
-            Log.e("血压模块信息", "血压模块信息  +mainMCU=="+data.mainMCU)
+        //    Log.e("血压模块信息", "血压模块信息  +mainMCU=="+data.mainMCU)
         }
         )
 
         //血压参数和模块状态
-         LiveEventBus.get(EventMsgConst.NibpPramAndStatus).observe(this, {
-            val data = it as NibpPramAndStatus
+         LiveEventBus.get(EventMsgConst.MsgSpO2WaveData).observe(this, {
+            val data = it as SpO2WaveData
 
-            Log.e("测量完毕", "收缩压:"+data.sys+"---"+"舒张压:"+data.dia+"---PR:"+data.pr)
+       //   Log.e("血氧波形数据", "data[0]="+data.wave[0]+"-----data[1]="+data.wave[1])
         }
         )
+        //血氧波形数据源
+        LiveEventBus.get(EventMsgConst.NibpPramAndStatus).observe(this, {
+            val data = it as NibpPramAndStatus
 
+            //   Log.e("测量完毕", "收缩压:"+data.sys+"---"+"舒张压:"+data.dia+"---PR:"+data.pr)
+        }
+        )
 
     }
 

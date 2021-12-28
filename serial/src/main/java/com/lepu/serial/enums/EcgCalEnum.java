@@ -24,4 +24,9 @@ public enum EcgCalEnum {
     public byte getValue() {
         return value;
     }
+
+    public static void main(String[] args) {
+        EcgCalEnum ecgCalEnum=EcgCalEnum.valueOf("CALOPEN");
+        System.out.println("D");
+    }
 }
