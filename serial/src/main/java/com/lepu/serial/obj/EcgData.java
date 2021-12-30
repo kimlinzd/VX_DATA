@@ -76,21 +76,41 @@ public class EcgData implements Serializable {
         }
 
         //计算出其他通道数据
-        if (chn == 3) {
+        switch (chn) {
+            case 1: {
+                //3导联
+                for (int i = 0; i < len; i++) {
+                    I[i] = (short) (ecgWave[0][i]);
+                    II[i] = (short) 0;
+                    // III = II - I
+                    this.III[i] = (short) 0;
+                    // aVR = -(I+II)/2
+                    this.aVR[i] = (short) 0;
+                    // aVL = (2*I-II)/2
+                    this.aVL[i] = (short) 0;
+                    // aVF = (2*II-I)/2
+                    this.aVF[i] = (short) 0;
+                    // v1
+                    this.V[i] = (short) 0;
+                }
+            }
 
-            for (int i = 0; i < len; i++) {
-                I[i] = (short) (ecgWave[0][i]  );
-                II[i] = (short) (ecgWave[1][i]  );
-                // III = II - I
-                this.III[i] = (short) (II[i] - I[i]);
-                // aVR = -(I+II)/2
-                this.aVR[i] = (short) ((II[i] + I[i]) / -2);
-                // aVL = (2*I-II)/2
-                this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
-                // aVF = (2*II-I)/2
-                this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
-                // v1
-                this.V[i] = (short) (ecgWave[2][i]);
+            case 3: {
+                //五导联
+                for (int i = 0; i < len; i++) {
+                    I[i] = (short) (ecgWave[0][i]);
+                    II[i] = (short) (ecgWave[1][i]);
+                    // III = II - I
+                    this.III[i] = (short) (II[i] - I[i]);
+                    // aVR = -(I+II)/2
+                    this.aVR[i] = (short) ((II[i] + I[i]) / -2);
+                    // aVL = (2*I-II)/2
+                    this.aVL[i] = (short) ((2 * I[i] - II[i]) / 2);
+                    // aVF = (2*II-I)/2
+                    this.aVF[i] = (short) ((2 * II[i] - I[i]) / 2);
+                    // v1
+                    this.V[i] = (short) (ecgWave[2][i]);
+                }
             }
         }
 
