@@ -94,7 +94,7 @@ public class EcgData implements Serializable {
                     this.V[i] = (short) 0;
                 }
             }
-
+       break;
             case 3: {
                 //五导联
                 for (int i = 0; i < len; i++) {
@@ -112,6 +112,7 @@ public class EcgData implements Serializable {
                     this.V[i] = (short) (ecgWave[2][i]);
                 }
             }
+            break;
         }
 
 
