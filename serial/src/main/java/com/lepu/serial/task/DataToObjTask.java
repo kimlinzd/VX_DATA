@@ -55,7 +55,9 @@ public class DataToObjTask extends Thread {
                 switch (tokenByte) {
                     case SerialContent.TOKEN_ECG: {
                         index++;
-
+                        if (index==125){
+                            index=0;
+                        }
                         //上传心电数据
                         EcgData ecgData = new EcgData(data);
                         ecgData.setEcgIndex(index);
