@@ -25,6 +25,8 @@ public class EcgData implements Serializable {
     int[] flagPU;//博起标志 顺序为 PU0 PU1 PU2 PU3
     short[][] ecgWave;//通道数据
     byte[] originalData;//原始数据 用于保存
+    //记录ecg游标 用于测试是否丢包 自定义参数 非参数板提供
+    int ecgIndex;
 
     /**
      * 给缓存数据的时候使用
@@ -350,6 +352,14 @@ public class EcgData implements Serializable {
 
     public void setOriginalData(byte[] originalData) {
         this.originalData = originalData;
+    }
+
+    public int getEcgIndex() {
+        return ecgIndex;
+    }
+
+    public void setEcgIndex(int ecgIndex) {
+        this.ecgIndex = ecgIndex;
     }
 
     @NonNull

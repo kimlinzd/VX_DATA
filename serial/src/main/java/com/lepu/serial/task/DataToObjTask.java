@@ -58,6 +58,7 @@ public class DataToObjTask extends Thread {
 
                         //上传心电数据
                         EcgData ecgData = new EcgData(data);
+                        ecgData.setEcgIndex(index);
                         LiveEventBus.get(EventMsgConst.MsgEcgData)
                                 .post(ecgData);
 

@@ -103,7 +103,7 @@ class FirstFragment : Fragment() {
             SerialPortManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdSetLeadMode(
-                        EcgLeadModeEnum.LINE5,
+                        EcgLeadModeEnum.LINE3,
                         EcgChn0IndexEnum.LEAD_I
                     ), cmdReplyListener)
         }
