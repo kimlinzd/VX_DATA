@@ -12,7 +12,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.constant.EventMsgConst
-import com.lepu.serial.manager.SerialPortManager
 import com.lepu.serial.obj.*
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
@@ -136,8 +135,7 @@ class MainActivity : AppCompatActivity() {
         //血氧波形数据源
         LiveEventBus.get(EventMsgConst.NibpPramAndStatus).observe(this, {
             val data = it as NibpPramAndStatus
-
-            //   Log.e("测量完毕", "收缩压:"+data.sys+"---"+"舒张压:"+data.dia+"---PR:"+data.pr)
+         Log.e("测量完毕", "收缩压:" + data.sys + "---" + "舒张压:" + data.dia + "---PR:" + data.pr)
         }
         )
 

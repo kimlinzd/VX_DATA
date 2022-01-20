@@ -4,7 +4,11 @@ import android.util.Log;
 
 import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.EventMsgConst;
+import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.listener.CmdNibpReplyListener;
+import com.lepu.serial.manager.SerialPortManager;
+import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgData;
 import com.lepu.serial.obj.NibpCP200HZData;
 import com.lepu.serial.obj.NibpCP5HZData;
@@ -139,6 +143,9 @@ public class DataToObjTask extends Thread {
                                 NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(data);
                                 LiveEventBus.get(EventMsgConst.NibpPramAndStatus)
                                         .post(nibpPramAndStatus);
+                                //收到结果包需要回复 否者会连续的到三次结果包
+                                SerialPortManager.getInstance()
+                                        .serialSendData(SerialCmd.cmdNibpPressureReply());
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: {//血压模块工作状态

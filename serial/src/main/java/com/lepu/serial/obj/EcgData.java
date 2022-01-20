@@ -120,6 +120,29 @@ public class EcgData implements Serializable {
 
     }
 
+    /**
+     * 这个方法只解析波形和心率
+     * @param buf
+     * @return
+     */
+    public EcgData getWave(byte[] buf){
+        EcgData ecgData=new EcgData();
+        ecgData.ecgWave = new short[chn][len];
+        ecgData.len = buf[0] & 0x0f;
+        ecgData.chn = buf[1] & 0x0f;
+        ecgData.hr = (buf[4] & 0xff + ((buf[5] & 0xff) << 8));
+        for (int i = 0; i < ecgData.len; i++) {
+            for (int j = 0; j < ecgData.chn; j++) {
+                int index1 = j * 2 + i * 2 * ecgData.chn + 7;
+                int index2 = j * 2 + i * 2 * ecgData.chn + 8;
+                short ecgWaveData = (short) ByteUtils.bytes2Short(buf[index1], buf[index2]);
+                ecgData.ecgWave[j][i] = ecgWaveData;
+            }
+        }
+        return ecgData;
+    }
+
+
     public void toBytes(EcgData ecgData, short len) {
         byte[] bytes = new byte[2];
         bytes[0] = (byte) (len & 0xff >> 8);

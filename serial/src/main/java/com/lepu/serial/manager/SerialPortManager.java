@@ -26,6 +26,8 @@ import com.lepu.serial.task.DataToObjTask;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -162,7 +164,7 @@ public class SerialPortManager {
     /**
      * 向串口写入数据 血压
      */
-    public void serialSendData(byte[] bytes, CmdNibpReplyListener cmdNibpReplyListener) {
+    public void serialSendData(byte[] bytes,   CmdNibpReplyListener cmdNibpReplyListener) {
         try {
             mCmdNibpReplyListener = cmdNibpReplyListener;
             writeBytes (bytes);
@@ -175,6 +177,17 @@ public class SerialPortManager {
             if (mCmdNibpReplyListener != null) {
                 mCmdNibpReplyListener.onFail(new CmdReply(bytes[5],bytes[6]));
             }
+        }
+    }
+
+    /**
+     * 向串口写入数据 血压
+     */
+    public void serialSendData(byte[] bytes) {
+        try {
+            writeBytes (bytes);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 

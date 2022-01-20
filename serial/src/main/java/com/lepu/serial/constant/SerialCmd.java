@@ -498,11 +498,23 @@ public class SerialCmd {
      */
     public static byte[] cmdNibpCalibration(NibpCalibrationMode nibpCalibrationMode, short pre) {
         byte[] data = new byte[2];
-        short mode=nibpCalibrationMode.getValue();
+        short mode = nibpCalibrationMode.getValue();
         short dataShort = (short) ((mode << 12) | (pre));
         data = ByteUtils.shortToBytes(dataShort, ByteOrder.BIG_ENDIAN);
 
         SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_CALIBRATE_THE_PRESSURE_SENSOR, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+
+    /**
+     * 血压参数回答包
+     **/
+    public static byte[] cmdNibpPressureReply() {
+        byte[] data = new byte[2];
+        SerialContent content = new SerialContent(SerialContent.TOKEN_NIBP, SerialContent.TOKEN_NIBP_PRESSURE_REPLY, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();
@@ -515,7 +527,7 @@ public class SerialCmd {
 
     public static void main(String[] args) {
         byte[] data = new byte[2];
-        short mode=NibpCalibrationMode.STOP_CALIBRATION.getValue();
+        short mode = NibpCalibrationMode.STOP_CALIBRATION.getValue();
         short dataShort = (short) ((mode << 12) | (220));
         data = ByteUtils.shortToBytes(dataShort, ByteOrder.BIG_ENDIAN);
 
