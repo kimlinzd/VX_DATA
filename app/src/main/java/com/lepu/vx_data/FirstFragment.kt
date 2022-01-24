@@ -70,9 +70,7 @@ class FirstFragment : Fragment() {
         }
         //设置病人类型
         binding.buttonSetPatientType.setOnClickListener {
-            SerialPortManager.getInstance()
-                .serialSendData(SerialCmd.cmdSetPatientType(PatientTypeEnum.ADULT),
-                    cmdReplyListener)
+
 
         }
         //设置定标符号

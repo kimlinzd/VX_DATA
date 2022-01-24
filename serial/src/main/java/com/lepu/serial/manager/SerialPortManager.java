@@ -5,9 +5,8 @@ import android.os.AsyncTask;
 import android.serialport.SerialPort;
 import android.util.Log;
 
-import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.ConfigConst;
-import com.lepu.serial.constant.EventMsgConst;
+import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
@@ -15,18 +14,11 @@ import com.lepu.serial.listener.SerialConnectListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
 import com.lepu.serial.obj.EcgDemoWave;
-import com.lepu.serial.obj.NibpCP200HZData;
-import com.lepu.serial.obj.NibpCP5HZData;
-import com.lepu.serial.obj.NibpModuleInfo;
-import com.lepu.serial.obj.NibpPramAndStatus;
-import com.lepu.serial.obj.NibpWorkingStatus;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.task.CmdReplyTimeOutTask;
 import com.lepu.serial.task.DataToObjTask;
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -482,7 +474,13 @@ public class SerialPortManager {
      * @param testMode
      */
     public void setTestMode(boolean testMode) {
+        if (testMode) {
+            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStop());
+        } else {
+            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStart());
+        }
         SerialContent.IS_TEST_DATA = testMode;
+
     }
 
     /**
