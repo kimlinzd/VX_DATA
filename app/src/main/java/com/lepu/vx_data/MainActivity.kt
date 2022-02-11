@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
         //接收到呼吸数据信息
         LiveEventBus.get(EventMsgConst.MsgTempData).observe(this, {
             val data = it as TempData
-      //      Log.e("接收到体温数据信息", "temp·············· =" + data.temp)
+         //   Log.e("接收到体温数据信息", "temp·············· =" + data.temp1+"---"+data.temp2)
         }
         )
         //接收到心电图信息

@@ -1,8 +1,5 @@
 package com.lepu.serial.obj;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 
 import com.lepu.serial.uitl.ByteUtils;
@@ -14,21 +11,35 @@ import java.io.Serializable;
  * Token	Type
  * 0x03	    0x00
  */
-public class TempData implements Serializable ,Cloneable   {
-    int num;//当前的采样点数，最大为4（默认值为1，固定不变）
+public class TempData implements Serializable, Cloneable {
     /**
      * 0x00正常；0x01无体温模块；0x02自检失败 顺序为 err3 err2 err1 err0
      */
-    int[] errFlag;
+    boolean errFlag;
     /**
-     * 探头脱落标识。 0不脱落，1脱落
+     * 当前的采样点数，最大为4（默认值为1，固定不变）
      */
-    int[] sensorFlag;
+    int num;
+    /**
+     * T1探头脱落标识。 0不脱落，1脱落
+     */
+    boolean sensorFlagT1;
+    /**
+     * T2探头脱落标识。 0不脱落，1脱落
+     */
+    boolean sensorFlagT2;
+
     /**
      * 内容为：体温数据ShortData[num] 小端
      * 体温数据，单位：0.1摄氏度（其中数据为0x8000时代表测量范围外的无效值（--））
      */
-    short temp;
+    short temp1;
+
+    /**
+     * 内容为：体温数据ShortData[num] 小端
+     * 体温数据，单位：0.1摄氏度（其中数据为0x8000时代表测量范围外的无效值（--））
+     */
+    short temp2;
 
     byte[] originalData;//原始数据 用于保存
 
@@ -36,28 +47,34 @@ public class TempData implements Serializable ,Cloneable   {
     }
 
     public TempData(byte[] buf) {
+
+        errFlag = (buf[0] >> 4 & 0x1) == 1;
         num = buf[0] & 0x0f;
-        errFlag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1};
-        sensorFlag = new int[]{buf[1] >> 3 & 0x1, buf[1] >> 2 & 0x1, buf[1] >> 1 & 0x1, buf[1] >> 0 & 0x1};
+        sensorFlagT1 = (buf[1] >> 0 & 0x01) == 1;
+        sensorFlagT2 = (buf[1] >> 4 & 0x01) == 1;
+
         if (num > 0) {
-            temp= (short) ByteUtils.bytes2Short(buf[2], buf[3]);
+            temp1 = (short) ByteUtils.bytes2Short(buf[2], buf[3]);
+            if (buf.length > 4) {
+                temp2 = (short) ByteUtils.bytes2Short(buf[4], buf[5]);
+            }
         /*    tempWave = new short[num];
             for (int i = 0; i < num; i++) {
                 tempWave[i] = (short) ByteUtils.bytes2Short(buf[i * 2 + 2], buf[i * 2 + 3]);
             }*/
         }
 
-        originalData=buf;
+        originalData = buf;
 
     }
 
 
-    public byte[] getOriginalData() {
-        return originalData;
+    public boolean isErrFlag() {
+        return errFlag;
     }
 
-    public void setOriginalData(byte[] originalData) {
-        this.originalData = originalData;
+    public void setErrFlag(boolean errFlag) {
+        this.errFlag = errFlag;
     }
 
     public int getNum() {
@@ -68,28 +85,44 @@ public class TempData implements Serializable ,Cloneable   {
         this.num = num;
     }
 
-    public int[] getErrFlag() {
-        return errFlag;
+    public boolean isSensorFlagT1() {
+        return sensorFlagT1;
     }
 
-    public void setErrFlag(int[] errFlag) {
-        this.errFlag = errFlag;
+    public void setSensorFlagT1(boolean sensorFlagT1) {
+        this.sensorFlagT1 = sensorFlagT1;
     }
 
-    public int[] getSensorFlag() {
-        return sensorFlag;
+    public boolean isSensorFlagT2() {
+        return sensorFlagT2;
     }
 
-    public void setSensorFlag(int[] sensorFlag) {
-        this.sensorFlag = sensorFlag;
+    public void setSensorFlagT2(boolean sensorFlagT2) {
+        this.sensorFlagT2 = sensorFlagT2;
     }
 
-    public short getTemp() {
-        return temp;
+    public short getTemp1() {
+        return temp1;
     }
 
-    public void setTemp(short temp) {
-        this.temp = temp;
+    public void setTemp1(short temp1) {
+        this.temp1 = temp1;
+    }
+
+    public short getTemp2() {
+        return temp2;
+    }
+
+    public void setTemp2(short temp2) {
+        this.temp2 = temp2;
+    }
+
+    public byte[] getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(byte[] originalData) {
+        this.originalData = originalData;
     }
 
     @NonNull
