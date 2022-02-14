@@ -1,11 +1,14 @@
 package com.lepu.serial.obj;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.lepu.serial.enums.NibpMsmEnum;
 import com.lepu.serial.enums.NipbpWmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 import com.lepu.serial.uitl.ByteUtils;
+import com.lepu.serial.uitl.StringtoHexUitl;
 
 import java.io.Serializable;
 
@@ -37,10 +40,9 @@ public class NibpWorkingStatus implements Serializable , Cloneable {
 
     public NibpWorkingStatus(byte[] buf) {
         short db12 = (short) ByteUtils.bytes2Short(buf[1], buf[0]);
-        PatientTypeEnum patientTypeEnum = PatientTypeEnum.getPatientTypeEnum(db12 >> 13);
-
-        int sp = (int) (db12 >> 4 & (0xFF << 4));
-        nibpMsmEnum = NibpMsmEnum.getNibpMSM(db12 >> 0 & (0xFF >> 12));
+        patientTypeEnum = PatientTypeEnum.getPatientTypeEnum(db12 >> 13);
+        sp = (int) ((db12 <<3 )>>7);
+        nibpMsmEnum = NibpMsmEnum.getNibpMSM((db12   & 0x0f));
         short db32 = (short) ByteUtils.bytes2Short(buf[3], buf[2]);
         nipbpWmEnum = NipbpWmEnum.getNipbpWmEnum((db32 >> 13));
 

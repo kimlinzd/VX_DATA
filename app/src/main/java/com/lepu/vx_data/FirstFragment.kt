@@ -170,7 +170,7 @@ class FirstFragment : Fragment() {
         binding.buttonBpSetInflated.setOnClickListener {
             SerialPortManager.getInstance()
                 .serialSendData(
-                    SerialCmd.cmdNibpSetPatient(160), cmdNibpReplyListener
+                    SerialCmd.cmdNibpSetPatient(230), cmdNibpReplyListener
                 )
 
         }
@@ -259,11 +259,13 @@ class FirstFragment : Fragment() {
 
         //辅助静脉穿刺
         binding.buttonNibpAuxiliaryVenipuncture.setOnClickListener {
-            SerialPortManager.getInstance()
-                .serialSendData(
-                    SerialCmd.cmdNibpAuxiliaryVenipuncture(230), cmdNibpReplyListener
-                )
-
+            Log.e("lzd","辅助静脉穿刺")
+          /*  SerialPortManager.getInstance().serialSendData( SerialCmd.cmdNibpAuxiliaryVenipuncture(
+                160)
+                )*/
+            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdNibpAuxiliaryVenipuncture(
+                80
+            ))
         }
 
         // 压力校验模式1（内部充气源）

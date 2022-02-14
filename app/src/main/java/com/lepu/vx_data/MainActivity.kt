@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.NibpWorkingStatus).observe(this, {
             val data = it as NibpWorkingStatus
 
-        //    Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp)
+            Log.e("接收到血压模块工作状态", "血压模块工作状态  +SP=="+data.sp+"--"+data.nibpMsmEnum.value)
         }
         )
 
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.NibpModuleInfo).observe(this, {
             val data = it as NibpModuleInfo
 
-        //    Log.e("血压模块信息", "血压模块信息  +mainMCU=="+data.mainMCU)
+            Log.e("血压模块信息", "血压模块信息  +mainMCU=="+data.mainMCU)
         }
         )
 

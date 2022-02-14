@@ -83,4 +83,8 @@ public enum NibpMsmEnum {
         }
 
     }
+
+    public int getValue() {
+        return value;
+    }
 }
