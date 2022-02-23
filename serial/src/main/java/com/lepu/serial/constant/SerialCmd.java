@@ -274,7 +274,7 @@ public class SerialCmd {
      * 切换病人类型后，初始充气压会设置为对应病人类型的默认值
      * 模块响应“O”包,表示接收到指令
      */
-    public static byte[] cmdNibpSetPatient(short initPre) {
+    public static byte[] cmdNibpSetInitialPressure(short initPre) {
         byte[] initPreByte = ByteUtils.shortToBytes(initPre, ByteOrder.BIG_ENDIAN);
         byte[] data = new byte[2];
         data[0] = initPreByte[0];

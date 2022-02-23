@@ -170,7 +170,7 @@ class FirstFragment : Fragment() {
         binding.buttonBpSetInflated.setOnClickListener {
             SerialPortManager.getInstance()
                 .serialSendData(
-                    SerialCmd.cmdNibpSetPatient(230), cmdNibpReplyListener
+                    SerialCmd.cmdNibpSetInitialPressure(230), cmdNibpReplyListener
                 )
 
         }

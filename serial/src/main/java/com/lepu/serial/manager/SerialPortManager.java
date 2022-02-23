@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -127,6 +128,7 @@ public class SerialPortManager {
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        closeSerialPort();
                     }
 
                 }
@@ -154,7 +156,7 @@ public class SerialPortManager {
     }
 
     /**
-     * 向串口写入数据 血压
+     * 向串口写入数据 
      */
     public void serialSendData(byte[] bytes,   CmdNibpReplyListener cmdNibpReplyListener) {
         try {
@@ -556,7 +558,7 @@ public class SerialPortManager {
 
 
     public static void main(String[] args) {
-        byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x2F, (byte) 0xF3, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x3C
+     /*   byte[] data = {(byte) 0xAA, (byte) 0x55, (byte) 0x27, (byte) 0x2F, (byte) 0xF3, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x03, (byte) 0x00, (byte) 0x00, (byte) 0x3C
                 , (byte) 0x00, (byte) 0x00, (byte) 0xC9, (byte) 0xFF, (byte) 0xC5, (byte) 0xFF, (byte) 0xEC, (byte) 0xFF, (byte) 0xCA, (byte) 0xFF, (byte) 0xC5, (byte) 0xFF
                 , (byte) 0xEA, (byte) 0xFF, (byte) 0xCC, (byte) 0xFF, (byte) 0xC9, (byte) 0xFF, (byte) 0xED, (byte) 0xFF, (byte) 0xCA, (byte) 0xFF, (byte) 0xCA, (byte) 0xFF, (byte) 0xEF
                 , (byte) 0xFF, (byte) 0x33};
@@ -564,8 +566,25 @@ public class SerialPortManager {
 
         byte[] data1 = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09};
 
-        System.out.println(data1);
+        System.out.println(data1);*/
 
+     /*   int[] a=new int[]{1,2,3,4,5,6,7,8,9,10};
+        int[] b=new int[5];
+        System.arraycopy(a,5  ,b,0,5);
+        System.out.println(Arrays.toString(b));*/
+        System.out.println(aa(0)+"\n");
+        System.out.println(aa(50)+"\n");
+        System.out.println(aa(60)+"\n");
+
+        int i=1000;
+       i=i--;
+        System.out.println( i+"\n");
+    }
+
+    public static int aa(int spo2){
+        int a=((100-spo2)>>1)<<1;
+
+        return a;
     }
 
 
