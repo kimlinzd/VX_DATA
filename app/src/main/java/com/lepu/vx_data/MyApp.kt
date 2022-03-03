@@ -1,6 +1,7 @@
 package com.lepu.vx_data
 
 import android.app.Application
+import android.util.Log
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.algorithm.Init
 import com.lepu.serial.listener.SerialConnectListener
@@ -28,8 +29,12 @@ class MyApp: Application() {
         SerialPortManager.getInstance()
             .init(this, "/dev/ttyS1", 460800, object :
                 SerialConnectListener {
-                override fun onSuccess() {}
-                override fun onFail() {}
+                override fun onSuccess() {
+                    Log.e("lzd","打开串口成功")
+                }
+                override fun onFail() {
+                    Log.e("lzd","打开串口失败")
+                }
             })
 
       //  SerialPortManager.getInstance().setTestMode(true)

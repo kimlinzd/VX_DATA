@@ -12,4 +12,6 @@ public class ConfigConst {
      * 血压命令超时时间
      */
     public static final long CMD_NIBP_TIMEOUT=1000;
+
+    public static final float MV_1_SHORT = 1048.576F;
 }

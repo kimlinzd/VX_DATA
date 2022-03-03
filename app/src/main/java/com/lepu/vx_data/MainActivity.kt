@@ -70,7 +70,9 @@ class MainActivity : AppCompatActivity() {
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
             val data = it as EcgData
             index++;
+
             if(index%125==0){
+                Log.e("接收到心电图信息", data.chn0Index.toString());
          //       Log.e("接收到心电图信息", System.currentTimeMillis().toString());
             }
             //   Log.e("接收到心电图信息", data.toString())

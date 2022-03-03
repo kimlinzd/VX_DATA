@@ -92,10 +92,7 @@ public class SerialContent {
     public static final byte TYPE_DATA_NIBP_ORIGINAL = 0x01;//上传实时原始数据 血压NIBP*/
 
 
-    /**
-     * 是否是测试数据
-     */
-    public static boolean IS_TEST_DATA = false;
+
 
     public SerialContent(byte[] buf) {
         token = buf[0];

@@ -71,7 +71,7 @@ public class ByteUtils {
      */
     public static byte[] readStream(InputStream inStream) throws Exception {
         int count = 0;
-        while (count == 0 && !SerialContent.IS_TEST_DATA) {
+        while (count == 0 ) {
             count = inStream.available();
         }
         byte[] b = new byte[count];
@@ -95,6 +95,7 @@ public class ByteUtils {
             // 将文件中的数据读到byte数组中
             in.read(buffer);
             result = buffer;
+            in.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

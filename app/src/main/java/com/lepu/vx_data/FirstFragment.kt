@@ -89,12 +89,14 @@ class FirstFragment : Fragment() {
         }
         //测试数据
         binding.buttonTestTrue.setOnClickListener {
-            SerialPortManager.getInstance().setTestMode(true)
+            SerialPortManager.getInstance().setModel(ModelEnum.MODEL_TEST)
         }
         //正式数据
         binding.buttonTestFalse.setOnClickListener {
-            SerialPortManager.getInstance().setTestMode(false)
+            SerialPortManager.getInstance().setModel(ModelEnum.MODEL_NORMAL)
         }
+
+
         //设置导联模式
         binding.buttonSetLead.setOnClickListener {
 
@@ -102,7 +104,7 @@ class FirstFragment : Fragment() {
                 .serialSendData(
                     SerialCmd.cmdSetLeadMode(
                         EcgLeadModeEnum.LINE3,
-                        EcgChn0IndexEnum.LEAD_I
+                        EcgChn0IndexEnum.LEAD_III
                     ), cmdReplyListener)
         }
         //设置呼吸导联

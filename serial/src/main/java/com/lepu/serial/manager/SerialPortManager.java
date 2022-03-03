@@ -6,8 +6,8 @@ import android.serialport.SerialPort;
 import android.util.Log;
 
 import com.lepu.serial.constant.ConfigConst;
-import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
+import com.lepu.serial.enums.ModelEnum;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.listener.SerialConnectListener;
@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -58,10 +57,11 @@ public class SerialPortManager {
     int mTestEcgIndex;
     //
     Context mContext;
-    //
-    byte[] ecgTestData = new byte[0];
+    //测试数据
+    byte[] mEcgTestData = null;
+    //模式
+    ModelEnum mModelEnum = ModelEnum.MODEL_NORMAL;
 
-    long gettasktime = System.currentTimeMillis();
 
     public static SerialPortManager getInstance() {
         if (instance == null) {
@@ -91,16 +91,16 @@ public class SerialPortManager {
                 mInputStream = mSerialPort.getInputStream();
                 mOutputStream = mSerialPort.getOutputStream();
                 serialConnentListener.onSuccess();
+                //开始定时获取心电图数据
+                startGetEcgData();
 
+                mContext = context;
             } catch (Exception e) {
                 e.printStackTrace();
                 serialConnentListener.onFail();
             }
         });
-        //开始定时获取心电图数据
-        startGetEcgData();
 
-        mContext = context;
     }
 
     /**
@@ -114,17 +114,15 @@ public class SerialPortManager {
                 @Override
                 public void run() {
                     try {
-
-                        if (SerialContent.IS_TEST_DATA) {//测试模式
-                            //测试数据
-                        //    sendTestEcgData();
-                            //昨天采集的数据
-                            sendTestEcgDataFile();
-                        } else {//正式数据
+                        if (mModelEnum == ModelEnum.MODEL_NORMAL) {
+                            //正式数据
                             if (mInputStream == null) return;
                             byte[] buffer = ByteUtils.readStream(mInputStream);
                             //处理数据
                             dataProcess(buffer);
+                        } else if (mModelEnum == ModelEnum.MODEL_TEST) {
+                            //测试模式
+                            sendTestEcgDataFile();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -473,15 +471,17 @@ public class SerialPortManager {
     /**
      * 设置测试模式
      *
-     * @param testMode
+     * @param modelEnum
      */
-    public void setTestMode(boolean testMode) {
-        if (testMode) {
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStop());
-        } else {
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStart());
+    public void setModel(ModelEnum modelEnum) {
+        if (modelEnum==ModelEnum.MODEL_NORMAL){
+            mEcgTestData = null;
+
+        }else if (modelEnum==ModelEnum.MODEL_TEST){
+
         }
-        SerialContent.IS_TEST_DATA = testMode;
+
+        mModelEnum = modelEnum;
 
     }
 
@@ -489,7 +489,7 @@ public class SerialPortManager {
      * 发送测试数据
      */
     private void sendTestEcgData() {
-        gettasktime = System.currentTimeMillis();
+
         //500个数据 4个发送 分11次发完
         int sendCount = 12;
         if (mTestEcgIndex == 480) {
@@ -514,9 +514,6 @@ public class SerialPortManager {
 
         }
 
-         Log.d("noTask", "单组处理时间发送时间" + (System.currentTimeMillis() - gettasktime)+"---"+mTestEcgIndex+"---");
-
-
     }
 
     int fileindex = 0;
@@ -526,23 +523,22 @@ public class SerialPortManager {
      */
     private void sendTestEcgDataFile() {
 
-
         try {
-            if (ecgTestData.length == 0) {
-                ecgTestData = ByteUtils.getFromAssets(mContext);
+            if (mEcgTestData == null) {
+                mEcgTestData = ByteUtils.getFromAssets(mContext);
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (1100 > (ecgTestData.length - fileindex)) {
-                ecgdataLength = ecgTestData.length - fileindex;
+            if (1100 > (mEcgTestData.length - fileindex)) {
+                ecgdataLength = mEcgTestData.length - fileindex;
             } else {
                 ecgdataLength = 1100;
             }
             byte[] ecgdata = new byte[ecgdataLength];
-             System.arraycopy(ecgTestData, fileindex, ecgdata, 0, ecgdataLength);
+            System.arraycopy(mEcgTestData, fileindex, ecgdata, 0, ecgdataLength);
             fileindex = fileindex + 1100;
-            if (ecgdata.length<1100){
-                fileindex=0;
+            if (ecgdata.length < 1100) {
+                fileindex = 0;
             }
             dataProcess(ecgdata);
 
@@ -550,11 +546,33 @@ public class SerialPortManager {
             e.printStackTrace();
         }
 
-
-        // Log.d("noTask", "单组处理时间发送时间" + (System.currentTimeMillis() - gettasktime)+"---"+mTestEcgIndex+"---");
-
-
     }
+
+
+    /**
+     * 制作定标
+     */
+    public short[] makeScale() {
+
+        short[] headArray = new short[50 * 2];
+        short[] dataArray = new short[50 * 2];
+        short[] endArray = new short[50 * 2];
+
+        //short value = (short) (409*Const.DATA_HIEGHT / Const.SMART_ECG_EXTRA_VALUE);//1mv*2048/5=409
+        short value = (short) (ConfigConst.MV_1_SHORT);
+        for (int i = 0; i < dataArray.length; i++) {
+            dataArray[i] = value;
+        }
+
+        short[] destArray = new short[headArray.length + dataArray.length + endArray.length];
+
+        System.arraycopy(headArray, 0, destArray, 0, headArray.length);
+        System.arraycopy(dataArray, 0, destArray, headArray.length, dataArray.length);
+        System.arraycopy(endArray, 0, destArray, headArray.length + dataArray.length, endArray.length);
+
+        return destArray;
+    }
+
 
 
     public static void main(String[] args) {
