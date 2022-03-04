@@ -8,11 +8,11 @@ public enum EcgCalEnum {
     /**
      * 关闭CAL输出
      */
-    CALOPEN((byte)0x00),
+    CALCLOSE((byte)0x00),
     /**
      * 打开CAL输出
      */
-    CALCLOSE((byte)0x01);
+    CALOPEN((byte)0x01);
 
 
     private final byte value;
