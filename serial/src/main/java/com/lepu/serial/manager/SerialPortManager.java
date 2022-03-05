@@ -119,9 +119,15 @@ public class SerialPortManager {
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
                             buffer = sendTestEcgDataFile();
+                        }else if (mModelEnum == ModelEnum.MODEL_STOP){
+                            buffer=null;
                         }
-                        //处理数据
-                        dataProcess(buffer);
+
+                        if (buffer!=null){
+                            //处理数据
+                            dataProcess(buffer);
+                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         closeSerialPort();
