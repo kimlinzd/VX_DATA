@@ -70,6 +70,10 @@ public class ByteUtils {
      * @功能 读取流
      */
     public static byte[] readStream(InputStream inStream) throws Exception {
+        if (inStream==null){
+            return null;
+        }
+
         int count = 0;
         while (count == 0 ) {
             count = inStream.available();

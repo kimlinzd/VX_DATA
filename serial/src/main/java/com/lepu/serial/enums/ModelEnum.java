@@ -12,5 +12,10 @@ public enum ModelEnum {
      * 测试模式
      */
     MODEL_TEST,
+    /**
+     * 暂停模式
+     */
+    MODEL_STOP
+
 
 }

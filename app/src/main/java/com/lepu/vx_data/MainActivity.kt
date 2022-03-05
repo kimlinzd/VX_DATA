@@ -1,6 +1,7 @@
 package com.lepu.vx_data
 
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,11 +16,16 @@ import com.lepu.serial.constant.EventMsgConst
 import com.lepu.serial.obj.*
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
+import java.io.File
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    var executorSave = Executors.newFixedThreadPool(1) as ThreadPoolExecutor
+    private lateinit var file:File
 
 //    lateinit var serialService: SerialService
 //    private val serialConn = object : ServiceConnection {
@@ -37,6 +43,7 @@ class MainActivity : AppCompatActivity() {
      //   SerialPortManager.getInstance().setTestMode(true)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        file= FileUtils.createFile(Environment.getExternalStorageDirectory().getAbsolutePath(),"test.txt")
 
         setSupportActionBar(binding.toolbar)
 
@@ -57,30 +64,35 @@ class MainActivity : AppCompatActivity() {
 //        FilterManager.getInstance().filter(null,array,7,null)
     }
 
+    var ecgIndex=0;
+    var respIndex=0;
+
     /**
      * 在这里初始化服务
      */
     private fun initService() {
          SerialService.startService(this)
      }
-     var index=0;
+
 
     private fun observeLiveDataObserve() {
         //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
             val data = it as EcgData
-            index++;
+            ecgIndex++;
 
-            if(index%125==0){
-                Log.e("接收到心电图信息", data.chn0Index.toString());
-         //       Log.e("接收到心电图信息", System.currentTimeMillis().toString());
+            if(ecgIndex<=125){
+           //     executorSave.execute(SaveTask(data.originalData))
             }
-            //   Log.e("接收到心电图信息", data.toString())
+               Log.e("接收到心电图信息", data.hr.toString())
         }
         )
         //接收到呼吸数据信息
         LiveEventBus.get(EventMsgConst.MsgRespData).observe(this, {
             val data = it as RespData
+            respIndex++
+
+
       //          Log.e("接收到呼吸数据信息", "RR=" + data.rr)
         }
         )

@@ -114,16 +114,14 @@ public class SerialPortManager {
                 @Override
                 public void run() {
                     try {
-                        if (mModelEnum == ModelEnum.MODEL_NORMAL) {
-                            //正式数据
-                            if (mInputStream == null) return;
-                            byte[] buffer = ByteUtils.readStream(mInputStream);
-                            //处理数据
-                            dataProcess(buffer);
-                        } else if (mModelEnum == ModelEnum.MODEL_TEST) {
+                        //正式数据
+                        byte[] buffer = ByteUtils.readStream(mInputStream);
+                        if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
-                            sendTestEcgDataFile();
+                            buffer = sendTestEcgDataFile();
                         }
+                        //处理数据
+                        dataProcess(buffer);
                     } catch (Exception e) {
                         e.printStackTrace();
                         closeSerialPort();
@@ -521,7 +519,7 @@ public class SerialPortManager {
     /**
      * 发送测试数据
      */
-    private void sendTestEcgDataFile() {
+    private byte[] sendTestEcgDataFile() {
 
         try {
             if (mEcgTestData == null) {
@@ -540,12 +538,12 @@ public class SerialPortManager {
             if (ecgdata.length < 1100) {
                 fileindex = 0;
             }
-            dataProcess(ecgdata);
+            return ecgdata;
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return null;
     }
 
 
