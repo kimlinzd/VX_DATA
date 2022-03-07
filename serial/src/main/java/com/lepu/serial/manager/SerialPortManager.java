@@ -220,26 +220,7 @@ public class SerialPortManager {
             }
         }
 
-        if (mSerialPort != null) {
-            mSerialPort.close();
-            mSerialPort = null;
-        }
-        if (mInputStream != null) {
-            try {
-                mInputStream.close();
-                mInputStream = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        if (mOutputStream != null) {
-            try {
-                mOutputStream.close();
-                mOutputStream = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+
 
         mSerialPort.tryClose();
 
