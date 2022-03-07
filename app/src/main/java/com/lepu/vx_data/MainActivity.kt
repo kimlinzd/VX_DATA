@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             respIndex++
 
 
-      //          Log.e("接收到呼吸数据信息", "RR=" + data.rr)
+                Log.e("接收到呼吸数据信息", "RR=" + data.rr)
         }
         )
 
