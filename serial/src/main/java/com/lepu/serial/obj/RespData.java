@@ -37,7 +37,7 @@ public class RespData implements Serializable,Cloneable {
         num = buf[0] & 0x0f;
         flag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1, buf[1] >> 3 & 0x1, buf[1] >> 2 & 0x1, buf[1] >> 1 & 0x1, buf[1] >> 0 & 0x1};
         apneaDelay = buf[2] & 0xff;
-        rr=ByteUtils.bytes2Short(buf[3],buf[4]);
+         rr=ByteUtils.bytes2Short(buf[3],buf[4]);
         if (num > 0) {
             respWave = new short[num];
             for (int i=0; i<num; i++) {

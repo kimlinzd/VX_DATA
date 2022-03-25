@@ -1,7 +1,6 @@
 package com.lepu.serial.manager;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.serialport.SerialPort;
 import android.util.Log;
 
@@ -77,9 +76,8 @@ public class SerialPortManager {
      * @param baudRate   波特率 480600
      */
     public void init(Context context, String devicePath, int baudRate, SerialConnectListener serialConnentListener) {
-        AsyncTask.execute(() -> {
-            try {
-                //     Log.d("SerialPortManager", "初始化串口");
+        try {
+            Log.d("SerialPortManager", "初始化串口");
                 //打开串口
                 SerialPort serialPort = SerialPort //
                         .newBuilder(devicePath, baudRate) // 串口地址地址，波特率
@@ -93,13 +91,14 @@ public class SerialPortManager {
                 serialConnentListener.onSuccess();
                 //开始定时获取心电图数据
                 startGetEcgData();
-
-                mContext = context;
+            mContext = context;
+            Log.d("SerialPortManager", "初始化串口成功");
             } catch (Exception e) {
-                e.printStackTrace();
-                serialConnentListener.onFail();
+            e.printStackTrace();
+            Log.d("SerialPortManager", "初始化串口失败");
+            serialConnentListener.onFail();
             }
-        });
+
 
     }
 
