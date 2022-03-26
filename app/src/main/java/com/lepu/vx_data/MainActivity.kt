@@ -3,6 +3,7 @@ package com.lepu.vx_data
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,12 @@ import com.lepu.vx_data.databinding.ActivityMainBinding
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
+import android.content.Intent
+import com.lepu.serial.constant.SerialCmd
+import com.lepu.serial.manager.SerialPortManager
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -76,6 +83,19 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun observeLiveDataObserve() {
+        thread {
+            while (true){
+                sleep(100)
+                SerialPortManager.getInstance()
+                    .serialSendData(
+                        SerialCmd.cmdNibpReadBpModuleInfo()
+                    )
+            }
+
+        }
+
+
+
         //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
             val data = it as EcgData
@@ -175,5 +195,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
+           System.exit(0)
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

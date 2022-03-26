@@ -3,6 +3,7 @@ package com.lepu.vx_data
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,10 @@ import com.lepu.serial.listener.CmdReplyListener
 import com.lepu.serial.manager.SerialPortManager
 import com.lepu.serial.obj.CmdReply
 import com.lepu.vx_data.databinding.FragmentFirstBinding
+import android.widget.Toast
+
+
+
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -556,4 +561,6 @@ class FirstFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
 }
