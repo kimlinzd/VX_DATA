@@ -193,10 +193,10 @@ public class SerialPortManager {
     }
 
     private void writeBytes (byte[] bytes) throws IOException {
-        if (mOutputStream!=null){
+      /*  if (mOutputStream!=null){
             mOutputStream.write(bytes);
             mOutputStream.flush();
-        }
+        }*/
     }
 
     /**
