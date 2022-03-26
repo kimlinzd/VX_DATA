@@ -205,7 +205,7 @@ public class SerialPortManager {
      * 关闭标志
      */
     public void Close() {
-        this.closeFlag = false;
+        this.closeFlag = true;
     }
     /**
      * 关闭串口 结束读取任务
