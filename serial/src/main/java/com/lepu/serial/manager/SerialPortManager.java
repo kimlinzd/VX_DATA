@@ -54,12 +54,14 @@ public class SerialPortManager {
 
     //心电测试数据的游标
     int mTestEcgIndex;
-    //
+    //上下文
     Context mContext;
     //测试数据
     byte[] mEcgTestData = null;
     //模式
     ModelEnum mModelEnum = ModelEnum.MODEL_NORMAL;
+    //关闭标志
+    private boolean closeFlag = false;
 
 
     public static SerialPortManager getInstance() {
@@ -78,26 +80,26 @@ public class SerialPortManager {
     public void init(Context context, String devicePath, int baudRate, SerialConnectListener serialConnentListener) {
         try {
             Log.d("SerialPortManager", "初始化串口");
-                //打开串口
-                SerialPort serialPort = SerialPort //
-                        .newBuilder(devicePath, baudRate) // 串口地址地址，波特率
-                        .parity(0) // 校验位；0:无校验位(NONE，默认)；1:奇校验位(ODD);2:偶校验位(EVEN)
-                        .dataBits(8) // 数据位,默认8；可选值为5~8
-                        .stopBits(1) // 停止位，默认1；1:1位停止位；2:2位停止位
-                        .build();
-                mSerialPort = serialPort;
-                mInputStream = mSerialPort.getInputStream();
-                mOutputStream = mSerialPort.getOutputStream();
-                serialConnentListener.onSuccess();
-                //开始定时获取心电图数据
-                startGetEcgData();
+            //打开串口
+            SerialPort serialPort = SerialPort //
+                    .newBuilder(devicePath, baudRate) // 串口地址地址，波特率
+                    .parity(0) // 校验位；0:无校验位(NONE，默认)；1:奇校验位(ODD);2:偶校验位(EVEN)
+                    .dataBits(8) // 数据位,默认8；可选值为5~8
+                    .stopBits(1) // 停止位，默认1；1:1位停止位；2:2位停止位
+                    .build();
+            mSerialPort = serialPort;
+            mInputStream = mSerialPort.getInputStream();
+            mOutputStream = mSerialPort.getOutputStream();
+            serialConnentListener.onSuccess();
+            //开始定时获取心电图数据
+            startGetEcgData();
             mContext = context;
             Log.d("SerialPortManager", "初始化串口成功");
-            } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             Log.d("SerialPortManager", "初始化串口失败");
             serialConnentListener.onFail();
-            }
+        }
 
 
     }
@@ -112,14 +114,18 @@ public class SerialPortManager {
             mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+                    if (closeFlag) {
+                        closeSerialTask();
+                        return;
+                    }
                     try {
                         //正式数据
                         byte[] buffer = ByteUtils.readStream(mInputStream);
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
                             buffer = sendTestEcgDataFile();
-                        }else if (mModelEnum == ModelEnum.MODEL_STOP){
-                            buffer=null;
+                        } else if (mModelEnum == ModelEnum.MODEL_STOP) {
+                            buffer = null;
                         }
 
                         if (buffer!=null){
@@ -129,7 +135,7 @@ public class SerialPortManager {
 
                     } catch (Exception e) {
                         e.printStackTrace();
-                        closeSerialPort();
+                        closeSerialTask();
                     }
 
                 }
@@ -199,7 +205,7 @@ public class SerialPortManager {
     /**
      * 关闭串口 结束读取任务
      */
-    public void closeSerialPort() {
+    public void closeSerialTask() {
         if (mScheduledThreadPoolExecutor != null) {
             try {
                 // shutdown只是起到通知的作用
@@ -537,6 +543,8 @@ public class SerialPortManager {
     }
 
 
+
+
     /**
      * 制作定标
      */
@@ -592,6 +600,8 @@ public class SerialPortManager {
 
         return a;
     }
+
+
 
 
 
