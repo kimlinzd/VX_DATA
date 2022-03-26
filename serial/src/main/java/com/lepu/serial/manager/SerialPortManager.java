@@ -201,11 +201,16 @@ public class SerialPortManager {
         mOutputStream.flush();
     }
 
-
+    /**
+     * 关闭标志
+     */
+    public void Close() {
+        this.closeFlag = false;
+    }
     /**
      * 关闭串口 结束读取任务
      */
-    public void closeSerialTask() {
+    private void closeSerialTask() {
         if (mScheduledThreadPoolExecutor != null) {
             try {
                 // shutdown只是起到通知的作用
