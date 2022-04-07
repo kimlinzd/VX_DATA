@@ -73,7 +73,6 @@ public class ByteUtils {
         if (inStream==null){
             return null;
         }
-
         int count = 0;
         while (count == 0 ) {
             count = inStream.available();

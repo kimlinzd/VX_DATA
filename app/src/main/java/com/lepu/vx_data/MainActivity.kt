@@ -3,7 +3,6 @@ package com.lepu.vx_data
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
-import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -20,12 +19,6 @@ import com.lepu.vx_data.databinding.ActivityMainBinding
 import java.io.File
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
-import android.content.Intent
-import com.lepu.serial.constant.SerialCmd
-import com.lepu.serial.manager.SerialPortManager
-import java.lang.Thread.sleep
-import kotlin.concurrent.thread
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-     //   SerialPortManager.getInstance().setTestMode(true)
+        //   SerialPortManager.getInstance().setTestMode(true)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         file= FileUtils.createFile(Environment.getExternalStorageDirectory().getAbsolutePath(),"test.txt")
@@ -63,7 +56,7 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-       // initService()
+        // initService()
 
         observeLiveDataObserve()
 
@@ -78,33 +71,20 @@ class MainActivity : AppCompatActivity() {
      * 在这里初始化服务
      */
     private fun initService() {
-         SerialService.startService(this)
-     }
+        SerialService.startService(this)
+    }
 
 
     private fun observeLiveDataObserve() {
-        thread {
-            while (true){
-                sleep(100)
-                SerialPortManager.getInstance()
-                    .serialSendData(
-                        SerialCmd.cmdNibpReadBpModuleInfo()
-                    )
-            }
-
-        }
-
-
-
         //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgEcgData).observe(this, {
             val data = it as EcgData
             ecgIndex++;
 
             if(ecgIndex<=125){
-           //     executorSave.execute(SaveTask(data.originalData))
+                //     executorSave.execute(SaveTask(data.originalData))
             }
-               Log.e("接收到心电图信息", data.hr.toString())
+            Log.e("接收到心电图信息", data.hr.toString())
         }
         )
         //接收到呼吸数据信息
@@ -113,20 +93,20 @@ class MainActivity : AppCompatActivity() {
             respIndex++
 
 
-                Log.e("接收到呼吸数据信息", "RR=" + data.rr)
+            Log.e("接收到呼吸数据信息", "RR=" + data.rr)
         }
         )
 
         //接收到呼吸数据信息
         LiveEventBus.get(EventMsgConst.MsgTempData).observe(this, {
             val data = it as TempData
-         //   Log.e("接收到体温数据信息", "temp·············· =" + data.temp1+"---"+data.temp2)
+            //   Log.e("接收到体温数据信息", "temp·············· =" + data.temp1+"---"+data.temp2)
         }
         )
         //接收到心电图信息
         LiveEventBus.get(EventMsgConst.MsgSpO2Data).observe(this, {
             val data = it as SpO2Data
-    //           Log.e("接收到血氧信息", "PI===="+data.pi)
+            //           Log.e("接收到血氧信息", "PI===="+data.pi)
         }
         )
 
@@ -134,13 +114,13 @@ class MainActivity : AppCompatActivity() {
         //实时袖带压（5Hz）
         LiveEventBus.get(EventMsgConst.MsgNibpCP5HZData).observe(this, {
             val data = it as NibpCP5HZData
-       //     Log.e("接收到血压数据信息", "血压数据")
+            //     Log.e("接收到血压数据信息", "血压数据")
         }
         )
         //血压NIBP 实时袖带压（200Hz）
         LiveEventBus.get(EventMsgConst.MsgNibpCP200HZData).observe(this, {
             val data = it as NibpCP200HZData
-     //       Log.e("接收到血压数据信息", "实时原始数据（200Hz）")
+            //       Log.e("接收到血压数据信息", "实时原始数据（200Hz）")
         }
         )
         //血压模块工作状态
@@ -160,16 +140,16 @@ class MainActivity : AppCompatActivity() {
         )
 
         //血压参数和模块状态
-         LiveEventBus.get(EventMsgConst.MsgSpO2WaveData).observe(this, {
+        LiveEventBus.get(EventMsgConst.MsgSpO2WaveData).observe(this, {
             val data = it as SpO2WaveData
 
-       //   Log.e("血氧波形数据", "data[0]="+data.wave[0]+"-----data[1]="+data.wave[1])
+            //   Log.e("血氧波形数据", "data[0]="+data.wave[0]+"-----data[1]="+data.wave[1])
         }
         )
         //血氧波形数据源
         LiveEventBus.get(EventMsgConst.NibpPramAndStatus).observe(this, {
             val data = it as NibpPramAndStatus
-         Log.e("测量完毕", "收缩压:" + data.sys + "---" + "舒张压:" + data.dia + "---PR:" + data.pr)
+            Log.e("测量完毕", "收缩压:" + data.sys + "---" + "舒张压:" + data.dia + "---PR:" + data.pr)
         }
         )
 
@@ -195,11 +175,5 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
-    }
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
-           System.exit(0)
-        }
-        return super.onKeyDown(keyCode, event)
     }
 }
