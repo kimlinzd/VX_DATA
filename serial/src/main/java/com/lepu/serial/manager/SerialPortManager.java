@@ -26,13 +26,16 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 串口管理 打开串口 读取数据流 写入数据流
  */
 public class SerialPortManager {
-
+    //定时获取串口数据任务
+    ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
     SerialPort mSerialPort;
     InputStream mInputStream;
     OutputStream mOutputStream;
@@ -105,25 +108,38 @@ public class SerialPortManager {
     /**
      * 开始读取串口数据
      */
+    int readTimeOut=5;//超时未获取到参数板次数 在正确模式下（MODEL_NORMAL） 超过次数需要发送启动数据传输命令
     public void startGetEcgData() {
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                while (!closeFlag) {
+
+        if (mScheduledThreadPoolExecutor == null) {
+            mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+            mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    if (closeFlag) {
+                        closeSerialTask();
+                        return;
+                    }
                     try {
-                        byte[] buffer = null;
+                        //正式数据
+                        byte[] buffer = ByteUtils.readStream(mInputStream);
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
-                            sleep(100);
                             //测试模式
                             buffer = sendTestEcgDataFile();
-                        } else if (mModelEnum == ModelEnum.MODEL_NORMAL) {
-                            //正式数据
-                            buffer = ByteUtils.readStream(mInputStream);
+                        } else if (mModelEnum == ModelEnum.MODEL_STOP) {
+                            buffer = null;
+                        }
+                        //判断是否在正常模式下获取不到数据
+                        if (mModelEnum==ModelEnum.MODEL_NORMAL&&buffer==null){
+                            readTimeOut-=1;
+                            if (readTimeOut<=0){
+                                serialSendData(SerialCmd.cmdDataStart());
+                            }
+                        }else {
+                            readTimeOut=5;
                         }
 
-
-                        if (buffer != null) {
+                        if (buffer!=null){
                             //处理数据
                             dataProcess(buffer);
                         }
@@ -132,13 +148,10 @@ public class SerialPortManager {
                         e.printStackTrace();
                         closeSerialTask();
                     }
+
                 }
-                closeSerialTask();
-
-            }
-        }.start();
-
-
+            }, 10, 100, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
+        }
     }
 
     /**
@@ -161,7 +174,7 @@ public class SerialPortManager {
     }
 
     /**
-     * 向串口写入数据 
+     * 向串口写入数据
      */
     public void serialSendData(byte[] bytes,   CmdNibpReplyListener cmdNibpReplyListener) {
         try {
@@ -190,8 +203,8 @@ public class SerialPortManager {
         }
     }
 
-    private void writeBytes (byte[] bytes) throws IOException {
-        if (mOutputStream != null) {
+    private void  writeBytes (byte[] bytes) throws IOException {
+        if (mOutputStream!=null){
             mOutputStream.write(bytes);
             mOutputStream.flush();
         }
@@ -207,6 +220,26 @@ public class SerialPortManager {
      * 关闭串口 结束读取任务
      */
     private void closeSerialTask() {
+        if (mScheduledThreadPoolExecutor != null) {
+            try {
+                // shutdown只是起到通知的作用
+                // 只调用shutdown方法结束线程池是不够的
+                mScheduledThreadPoolExecutor.shutdown();
+                // (所有的任务都结束的时候，返回TRUE)
+                if (!mScheduledThreadPoolExecutor.awaitTermination(0, TimeUnit.MILLISECONDS)) {
+                    // 超时的时候向线程池中所有的线程发出中断(interrupted)。
+                    mScheduledThreadPoolExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                // awaitTermination方法被中断的时候也中止线程池中全部的线程的执行。
+                e.printStackTrace();
+            } finally {
+                mScheduledThreadPoolExecutor.shutdownNow();
+                mScheduledThreadPoolExecutor = null;
+            }
+        }
+
+
 
         mSerialPort.tryClose();
 
@@ -220,7 +253,7 @@ public class SerialPortManager {
 
     public void dataProcess(byte[] dataArr) {
         time = System.currentTimeMillis();
-    //    Log.e("接收到数据时间", time + "");
+        //    Log.e("接收到数据时间", time + "");
         byte[] data;
         //如果有剩余的数据，需要把剩余的剩余的数据重新处理
         if (surplusData != null) {
@@ -240,35 +273,35 @@ public class SerialPortManager {
                 //把最后的数据 放在下一个任务中
                 surplusData = new byte[data.length - i];
                 System.arraycopy(data, i, surplusData, 0, data.length - i);
+                break;
+            }
+            //判断开头
+            if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
+                completeData = new byte[(0x00ff & data[i + 2])];
+                if (i + completeData.length > data.length) {
+                    //把最后的数据 放在下一个任务中
+                    surplusData = new byte[data.length - i];
+                    System.arraycopy(data, i, surplusData, 0, data.length - i);
                     break;
-                }
-                //判断开头
-                if (data[i] == SerialContent.SYNC_H && data[i + 1] == SerialContent.SYNC_L) {
-                    completeData = new byte[(0x00ff & data[i + 2])];
-                    if (i + completeData.length > data.length) {
-                        //把最后的数据 放在下一个任务中
-                        surplusData = new byte[data.length - i];
-                        System.arraycopy(data, i, surplusData, 0, data.length - i);
-                        break;
-                    } else {
-                        taskindex++;
-                        System.arraycopy(data, i, completeData, 0, completeData.length);
-                        //校验数据
-                        if (CRCUitl.CRC8(completeData)  ) {
-                            //越过已处理数据
-                            i = i + completeData.length - 1;
-                            //分发数据
-                            distributeMsg(completeData);
+                } else {
+                    taskindex++;
+                    System.arraycopy(data, i, completeData, 0, completeData.length);
+                    //校验数据
+                    if (CRCUitl.CRC8(completeData)  ) {
+                        //越过已处理数据
+                        i = i + completeData.length - 1;
+                        //分发数据
+                        distributeMsg(completeData);
 
-                        } else {
-                            Log.d("taskindex", taskindex + "");
-                        }
+                    } else {
+                        Log.d("taskindex", taskindex + "");
                     }
                 }
+            }
 
         }
         time = System.currentTimeMillis() - time;
-      //  Log.e("接收到处理完数据时间", time + "----"+taskindex);
+        //  Log.e("接收到处理完数据时间", time + "----"+taskindex);
 
     }
 
@@ -335,7 +368,7 @@ public class SerialPortManager {
 
                     case SerialContent.TOKEN_SP02: {
                         //血氧SpO2
-                         executorSpO2.execute(new DataToObjTask(serialMsg));
+                        executorSpO2.execute(new DataToObjTask(serialMsg));
 
                     }
                     break;
@@ -418,7 +451,7 @@ public class SerialPortManager {
 
 
 
-                              default:
+                            default:
 
                         }
 
@@ -454,8 +487,12 @@ public class SerialPortManager {
             serialSendData(SerialCmd.cmdDataStart());
         }else if (modelEnum==ModelEnum.MODEL_TEST){
             serialSendData(SerialCmd.cmdDataStop());
+        }else if (modelEnum==ModelEnum.MODEL_STOP){
+            serialSendData(SerialCmd.cmdDataStop());
         }
+
         mModelEnum = modelEnum;
+
     }
 
     /**
@@ -570,7 +607,7 @@ public class SerialPortManager {
         System.out.println(aa(60)+"\n");
 
         int i=1000;
-       i=i--;
+        i=i--;
         System.out.println( i+"\n");
     }
 

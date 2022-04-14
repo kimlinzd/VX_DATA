@@ -86,4 +86,12 @@ public class FileUtils {
         }
     }
 
+    public static void main(String[] args) {
+        float a=0f;
+        for (int i=0;i<100;i++){
+            a+=0.1f;
+            System.out.println("f=="+a);
+        }
+    }
+
 }

@@ -2,8 +2,6 @@ package com.lepu.serial.uitl;
 
 import android.content.Context;
 
-import com.lepu.serial.constant.SerialContent;
-
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -73,9 +71,9 @@ public class ByteUtils {
         if (inStream==null){
             return null;
         }
-        int count = 0;
-        while (count == 0 ) {
-            count = inStream.available();
+        int count = inStream.available();
+        if (count==0){
+            return null;
         }
         byte[] b = new byte[count];
         inStream.read(b);
