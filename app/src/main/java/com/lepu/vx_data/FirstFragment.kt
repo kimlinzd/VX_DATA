@@ -314,7 +314,10 @@ class FirstFragment : Fragment() {
         }
 
 
+       binding.buttonNibpStatus.setOnClickListener {
+          Log.e("nibp", SerialPortManager.getInstance().nibpInfo.nibpMsmEnum.toString())
 
+       }
 
 
 
@@ -325,28 +328,25 @@ class FirstFragment : Fragment() {
             if (cmdReply != null) {
                 when (cmdReply.cmdReplyType) {
                     CmdReply.CmdReplyType.CMD_TYPE_RESET ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESET onSuccess")
+                        Log.e("nibp", "CMD_TYPE_RESET onSuccess")
                     CmdReply.CmdReplyType.CMD_VERSION_INFO ->
-                        Log.e("CmdReplyListener", "CMD_VERSION_INFO onSuccess")
+                        Log.e("nibp", "CMD_VERSION_INFO onSuccess")
                     CmdReply.CmdReplyType.CMD_SET_PARAM  ->
-                        Log.e("CmdReplyListener", "CMD_SET_PARAM  onSuccess")
+                        Log.e("nibp", "CMD_SET_PARAM  onSuccess")
                     CmdReply.CmdReplyType.CMD_PATIENT  ->
-                        Log.e("CmdReplyListener", "CMD_PATIENT  onSuccess")
+                        Log.e("nibp", "CMD_PATIENT  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_START  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_START  onSuccess")
+                        Log.e("nibp", "CMD_TYPE_DATA_START  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_STOP  onSuccess")
+                        Log.e("nibp", "CMD_TYPE_DATA_STOP  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_ECG_LEAD_MODE  onSuccess")
+                        Log.e("nibp", "CMD_TYPE_ECG_LEAD_MODE  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_CALIBRATION_SIGNAL  onSuccess")
+                        Log.e("nibp", "CMD_TYPE_CALIBRATION_SIGNAL  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESP_LEAD  onSuccess")
+                        Log.e("nibp", "CMD_TYPE_RESP_LEAD  onSuccess")
                     CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onSuccess")
-
-
-
+                        Log.e("nibp", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onSuccess")
                 }
             }
         }
@@ -355,25 +355,25 @@ class FirstFragment : Fragment() {
             if (cmdReply != null) {
                 when (cmdReply.cmdReplyType) {
                     CmdReply.CmdReplyType.CMD_TYPE_RESET ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESET onFail")
+                        Log.e("nibp", "CMD_TYPE_RESET onFail")
                     CmdReply.CmdReplyType.CMD_VERSION_INFO ->
-                        Log.e("CmdReplyListener", "CMD_VERSION_INFO onFail")
+                        Log.e("nibp", "CMD_VERSION_INFO onFail")
                     CmdReply.CmdReplyType.CMD_SET_PARAM  ->
-                        Log.e("CmdReplyListener", "CMD_SET_PARAM  onFail")
+                        Log.e("nibp", "CMD_SET_PARAM  onFail")
                     CmdReply.CmdReplyType.CMD_PATIENT  ->
-                        Log.e("CmdReplyListener", "CMD_PATIENT  onFail")
+                        Log.e("nibp", "CMD_PATIENT  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_START  ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_START  onFail")
+                        Log.e("nibp", "CMD_TYPE_DATA_START  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_STOP  onFail")
+                        Log.e("nibp", "CMD_TYPE_DATA_STOP  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_ECG_LEAD_MODE  onFail")
+                        Log.e("nibp", "CMD_TYPE_ECG_LEAD_MODE  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_CALIBRATION_SIGNAL  onFail")
+                        Log.e("nibp", "CMD_TYPE_CALIBRATION_SIGNAL  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESP_LEAD  onFail")
+                        Log.e("nibp", "CMD_TYPE_RESP_LEAD  onFail")
                     CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onFail")
+                        Log.e("nibp", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onFail")
 
                 }
             }
@@ -383,25 +383,25 @@ class FirstFragment : Fragment() {
             if (cmdReply != null) {
                 when (cmdReply.cmdReplyType) {
                     CmdReply.CmdReplyType.CMD_TYPE_RESET ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESET onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_RESET onTimeOut")
                     CmdReply.CmdReplyType.CMD_VERSION_INFO ->
-                        Log.e("CmdReplyListener", "CMD_VERSION_INFO onTimeOut")
+                        Log.e("nibp", "CMD_VERSION_INFO onTimeOut")
                     CmdReply.CmdReplyType.CMD_SET_PARAM ->
-                        Log.e("CmdReplyListener", "CMD_SET_PARAM  onTimeOut")
+                        Log.e("nibp", "CMD_SET_PARAM  onTimeOut")
                     CmdReply.CmdReplyType.CMD_PATIENT ->
-                        Log.e("CmdReplyListener", "CMD_PATIENT  onTimeOut")
+                        Log.e("nibp", "CMD_PATIENT  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_START ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_START  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_DATA_START  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_DATA_STOP ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_DATA_STOP  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_DATA_STOP  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_ECG_LEAD_MODE ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_ECG_LEAD_MODE  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_ECG_LEAD_MODE  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_CALIBRATION_SIGNAL ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_CALIBRATION_SIGNAL  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_CALIBRATION_SIGNAL  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_RESP_LEAD ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_RESP_LEAD  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_RESP_LEAD  onTimeOut")
                     CmdReply.CmdReplyType.CMD_TYPE_SUFFOCATION_ALARM_TIME ->
-                        Log.e("CmdReplyListener", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onTimeOut")
+                        Log.e("nibp", "CMD_TYPE_SUFFOCATION_ALARM_TIME  onTimeOut")
 
                 }
             }
@@ -411,6 +411,7 @@ class FirstFragment : Fragment() {
 
     var cmdNibpReplyListener: CmdNibpReplyListener = object : CmdNibpReplyListener {
         override fun obtain_O(cmdReply: CmdReply?) {
+
             Log.e(
                 "obtain_O",
                 "obtain_O "

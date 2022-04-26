@@ -8,12 +8,13 @@ import com.lepu.serial.constant.ConfigConst;
 import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.enums.ModelEnum;
+import com.lepu.serial.enums.NibpMsmEnum;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.listener.SerialConnectListener;
 import com.lepu.serial.obj.CmdNibpReply;
 import com.lepu.serial.obj.CmdReply;
-import com.lepu.serial.obj.EcgDemoWave;
+import com.lepu.serial.obj.NibpInfo;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.task.CmdReplyTimeOutTask;
 import com.lepu.serial.task.DataToObjTask;
@@ -63,6 +64,8 @@ public class SerialPortManager {
     ModelEnum mModelEnum = ModelEnum.MODEL_NORMAL;
     //关闭标志
     private boolean closeFlag = false;
+    //NIBP
+    public NibpInfo nibpInfo = new NibpInfo();
 
 
     public static SerialPortManager getInstance() {
@@ -391,48 +394,7 @@ public class SerialPortManager {
                     case SerialContent.TOKEN_NIBP: { //血压NIBP
                         switch (typeByte) {
                             case SerialContent.TYPE_NIBP_REPLY_PACKET: {//应答包
-                                CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
-                                serialMsg.getContent().type = cmdNibpReply.getCmdType();
-                              /*  for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
-                                    if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            == new CmdReply(serialMsg).getCmdReplyType()) {
-                                        mCmdReplyTimeOutTaskList.get(i).cencel();
-                                    }
-                                }*/
-                                if (mCmdNibpReplyListener!=null){
-                                    switch (cmdNibpReply.getACK()){
-                                        case  SerialContent.NIBP_REPLY_PACKET_0:{
-                                            mCmdNibpReplyListener.obtain_O(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_K:{
-                                            mCmdNibpReplyListener.obtain_K(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_B:{
-                                            mCmdNibpReplyListener.obtain_B(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_A:{
-                                            mCmdNibpReplyListener.obtain_A(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_N:{
-                                            mCmdNibpReplyListener.obtain_N(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_S:{
-                                            mCmdNibpReplyListener.obtain_S(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                        case  SerialContent.NIBP_REPLY_PACKET_R:{
-                                            mCmdNibpReplyListener.obtain_R(new CmdReply(serialMsg));
-                                        }
-                                        break;
-                                    }
-
-
-                                }
+                                handNibpReply(serialMsg);
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_DATA_5HZ: //血压NIBP 实时袖带压（5Hz）
@@ -440,12 +402,6 @@ public class SerialPortManager {
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_PARAM_MODULE_STATUS: //血压参数和模块状态
                             case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: //血压模块工作状态
                             case SerialContent.TOKEN_NIBP_BLOOD_PRESSURE_MODULE_INFO: //血压模块信息
-                            /*    for (int i = 0; i < mCmdReplyTimeOutTaskList.size(); i++) {
-                                    if (mCmdReplyTimeOutTaskList.get(i).getCmdReply().getCmdReplyType()
-                                            == new CmdReply(serialMsg).getCmdReplyType()) {
-                                        mCmdReplyTimeOutTaskList.get(i).cencel();
-                                    }
-                                }*/
                                 executorNibp.execute(new DataToObjTask(serialMsg));
                                 break;
 
@@ -495,36 +451,6 @@ public class SerialPortManager {
 
     }
 
-    /**
-     * 发送测试数据
-     */
-    private void sendTestEcgData() {
-
-        //500个数据 4个发送 分11次发完
-        int sendCount = 12;
-        if (mTestEcgIndex == 480) {
-            sendCount = 5;
-        } else {
-            sendCount = 12;
-        }
-        for (int k = 0; k < sendCount; k++) {
-            if (mTestEcgIndex == 500) {
-                mTestEcgIndex = 0;
-            }
-            //测数据 拼接数据
-            byte[] ecgdata = new byte[39];
-            System.arraycopy(SerialContent.TEST_ECG_DATA_HEAD, 0, ecgdata, 0, 14);
-            for (int i = 0; i < 4; i++) {
-                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveI()[i + mTestEcgIndex]), 0, ecgdata, 14 + (i * 6), 2);
-                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveII()[i + mTestEcgIndex]), 0, ecgdata, 14 + 2 + (i * 6), 2);
-                System.arraycopy(ByteUtils.short2byte(EcgDemoWave.INSTANCE.getWaveV()[i + mTestEcgIndex]), 0, ecgdata, 14 + 4 + (i * 6), 2);
-            }
-            ecgdata[38] = CRCUitl.getCRC8(ecgdata, ecgdata.length - 1);
-
-
-        }
-
-    }
 
     int fileindex = 0;
 
@@ -558,33 +484,102 @@ public class SerialPortManager {
         return null;
     }
 
-
-
-
     /**
-     * 制作定标
+     * 处理NIBP命令返回
+     *
+     * @param serialMsg
      */
-    public short[] makeScale() {
+    public void handNibpReply(SerialMsg serialMsg) {
+        CmdNibpReply cmdNibpReply = new CmdNibpReply(serialMsg.getContent().data);
+        serialMsg.getContent().type = cmdNibpReply.getCmdType();
+        CmdReply cmdReply = new CmdReply(serialMsg);
+        switch (cmdNibpReply.getACK()) {
+            case SerialContent.NIBP_REPLY_PACKET_0: {
+                switch (cmdReply.getCmdReplyType()) {
+                    case CMD_TOKEN_NIBP_START_MANUAL_BLOOD_PRESSURE_MEASUREMENT: {
+                        //开始手动血压测量
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.MANUAL);
+                    }
+                    break;
+                    case CMD_TOKEN_NIBP_START_CONTINUOUS_MEASUREMENT: {
+                        //开始连续测量
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.CONTINUOUS);
+                    }
+                    break;
+                    case CMD_TOKEN_NIBP_AUXILIARY_VENIPUNCTURE: {
+                        //静脉穿刺
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.AUXILIARY_VENIPUNCTURE);
+                    }
+                    break;
+                    case CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_1: {
+                        //压力校验模式1（内部充气源）
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.PRESSURE_TEST_MODE_1);
+                    }
+                    break;
+                    case CMD_TOKEN_NIBP_PRESSURE_CALIBRATION_MODE_2: {
+                        //压力校验模式2（外部充气源
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.PRESSURE_TEST_MODE_2);
+                    }
+                    break;
+                    case CMD_TOKEN_NIBP_LEAK_DETECTION: {
+                        //漏气检测
+                        nibpInfo.setNibpMsmEnum(NibpMsmEnum.AIR_LEAK_DETECTION);
+                    }
+                    break;
+                }
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_O(cmdReply);
+                }
 
-        short[] headArray = new short[50 * 2];
-        short[] dataArray = new short[50 * 2];
-        short[] endArray = new short[50 * 2];
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_K: {
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_K(new CmdReply(serialMsg));
+                }
 
-        //short value = (short) (409*Const.DATA_HIEGHT / Const.SMART_ECG_EXTRA_VALUE);//1mv*2048/5=409
-        short value = (short) (ConfigConst.MV_1_SHORT);
-        for (int i = 0; i < dataArray.length; i++) {
-            dataArray[i] = value;
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_B: {
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_B(new CmdReply(serialMsg));
+                }
+
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_A: {
+                nibpInfo.setNibpMsmEnum(NibpMsmEnum.IDLE);
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_A(new CmdReply(serialMsg));
+                }
+
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_N: {
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_N(new CmdReply(serialMsg));
+                }
+
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_S: {
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_S(new CmdReply(serialMsg));
+                }
+
+            }
+            break;
+            case SerialContent.NIBP_REPLY_PACKET_R: {
+                if (mCmdNibpReplyListener != null) {
+                    mCmdNibpReplyListener.obtain_R(new CmdReply(serialMsg));
+                }
+
+            }
+            break;
         }
 
-        short[] destArray = new short[headArray.length + dataArray.length + endArray.length];
 
-        System.arraycopy(headArray, 0, destArray, 0, headArray.length);
-        System.arraycopy(dataArray, 0, destArray, headArray.length, dataArray.length);
-        System.arraycopy(endArray, 0, destArray, headArray.length + dataArray.length, endArray.length);
-
-        return destArray;
     }
-
 
 
     public static void main(String[] args) {

@@ -143,14 +143,18 @@ public class DataToObjTask extends Thread {
                                 NibpPramAndStatus nibpPramAndStatus = new NibpPramAndStatus(data);
                                 LiveEventBus.get(EventMsgConst.NibpPramAndStatus)
                                         .post(nibpPramAndStatus);
+                                SerialPortManager.getInstance().nibpInfo.setLastMeasureTime(System.currentTimeMillis());
                                 //收到结果包需要回复 否者会连续的到三次结果包
                                 SerialPortManager.getInstance()
                                         .serialSendData(SerialCmd.cmdNibpPressureReply());
+                                //
+                                SerialPortManager.getInstance()
+                                        .serialSendData(SerialCmd.cmdNibpReadBpWorkStatus());
                             }
                             break;
                             case SerialContent.TOKEN_NIBP_WORKING_STATUS_OF_BLOOD_PRESSURE_MODULE: {//血压模块工作状态
-
                                 NibpWorkingStatus nibpPramAndStatus = new NibpWorkingStatus(data);
+                                SerialPortManager.getInstance().nibpInfo.setNibpMsmEnum(nibpPramAndStatus.getNibpMsmEnum());
                                 LiveEventBus.get(EventMsgConst.NibpWorkingStatus)
                                         .post(nibpPramAndStatus);
                             }
