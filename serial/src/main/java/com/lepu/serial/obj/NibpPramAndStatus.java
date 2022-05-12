@@ -9,6 +9,7 @@ import com.lepu.serial.enums.PatientTypeEnum;
 import com.lepu.serial.uitl.ByteUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * 血压参数和模块状态
@@ -172,5 +173,22 @@ public class NibpPramAndStatus implements Serializable {
     @Override
     protected NibpPramAndStatus clone() throws CloneNotSupportedException {
         return (NibpPramAndStatus)super.clone();
+    }
+
+    @Override
+    public String toString() {
+        return "NibpPramAndStatus{" +
+                "msm=" + msm +
+                ", patientTypeEnum=" + patientTypeEnum +
+                ", fg=" + fg +
+                ", nibp01ErrEnum=" + nibp01ErrEnum +
+                ", nibp02ErrEnum=" + nibp02ErrEnum +
+                ", tip=" + tip +
+                ", sys=" + sys +
+                ", dia=" + dia +
+                ", map=" + map +
+                ", PR=" + PR +
+                ", originalData=" + Arrays.toString(originalData) +
+                '}';
     }
 }
