@@ -1,7 +1,10 @@
 package com.lepu.serial.obj;
 
+import android.util.Log;
+
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.uitl.CRCUitl;
+import com.lepu.serial.uitl.StringtoHexUitl;
 
 /**
  * 串口消息处理 生成数据包和数据包解析
@@ -72,6 +75,8 @@ public class SerialMsg {
         // todo: 计算crc
         crc = CRCUitl.getCRC8(buf, len - 1);
         buf[len - 1] = crc;
+     //   Log.e("lzd",StringtoHexUitl.byteArrayToHexStr(buf));
+
         return buf;
     }
 

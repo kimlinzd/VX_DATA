@@ -3,7 +3,6 @@ package com.lepu.vx_data
 import android.app.Application
 import android.util.Log
 import com.jeremyliao.liveeventbus.LiveEventBus
-import com.lepu.algorithm.Init
 import com.lepu.serial.listener.SerialConnectListener
 import com.lepu.serial.manager.SerialPortManager
 
@@ -24,7 +23,7 @@ class MyApp: Application() {
 
         instance=this
 
-        Init.init(this)
+
 
         SerialPortManager.getInstance()
             .init(this, "/dev/ttyS1", 460800, object :

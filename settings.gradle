@@ -9,4 +9,3 @@ dependencyResolutionManagement {
 rootProject.name = "VX_DATA"
 include ':app'
 include ':serial'
-include ':algorithm'
