@@ -2,6 +2,7 @@ package com.lepu.serial.manager;
 
 import android.content.Context;
 import android.util.Log;
+
 import com.lepu.serial.constant.ConfigConst;
 import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
@@ -21,8 +22,6 @@ import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -84,13 +83,17 @@ public class SerialPortManager {
         try {
             Log.d("SerialPortManager", "初始化串口");
 
-                    SerialPortJni.getInstance().jniUartOpen();
+            int open = SerialPortJni.getInstance().jniUartOpen();
+            if (open != -1) {
+                serialConnentListener.onSuccess();
+                //开始定时获取心电图数据
+                startGetEcgData();
+                mContext = context;
+                Log.d("SerialPortManager", "初始化串口成功");
+            } else {
+                serialConnentListener.onFail();
+            }
 
-            serialConnentListener.onSuccess();
-            //开始定时获取心电图数据
-            startGetEcgData();
-            mContext = context;
-            Log.d("SerialPortManager", "初始化串口成功");
         } catch (Exception e) {
             e.printStackTrace();
             Log.d("SerialPortManager", "初始化串口失败");
@@ -119,7 +122,7 @@ public class SerialPortManager {
                     try {
                         //正式数据
                         javaRecvSize = SerialPortJni.getInstance().jniUartRead(recvBuffer);
-                 //       Log.d("lzd","javaRecvSize=="+javaRecvSize);
+                        Log.d("lzd","javaRecvSize=="+javaRecvSize);
                          if (javaRecvSize<=0){
                             return;
                         }
@@ -154,7 +157,7 @@ public class SerialPortManager {
                     }
 
                 }
-            }, 10, 50, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
+            }, 10, 100, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
         }
     }
 
