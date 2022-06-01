@@ -51,10 +51,7 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+
 
         // initService()
 
@@ -81,8 +78,10 @@ class MainActivity : AppCompatActivity() {
             val data = it as EcgData
             ecgIndex++;
 
-            if(ecgIndex<=125){
+            if(ecgIndex>=125){
                 //     executorSave.execute(SaveTask(data.originalData))
+                Log.e("接收到心电图信息", data.hr.toString())
+                ecgIndex=0;
             }
         //    Log.e("接收到心电图信息", data.hr.toString())
         }

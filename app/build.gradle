@@ -12,8 +12,11 @@ android {
         targetSdk 30
         versionCode 1
         versionName "1.0"
-
+        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk{
+            abiFilters "armeabi-v7a", "arm64-v8a"//输出指定三种abi体系结构下的so库。"armeabi",,"arm64-v8a"
+        }
     }
 
     buildTypes {
@@ -35,8 +38,11 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs = ['jniLibs']
+            jniLibs.srcDirs = ['libs']
         }
+    }
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
     }
 }
 

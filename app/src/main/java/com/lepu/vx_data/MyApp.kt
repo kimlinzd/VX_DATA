@@ -5,6 +5,10 @@ import android.util.Log
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.listener.SerialConnectListener
 import com.lepu.serial.manager.SerialPortManager
+import androidx.appcompat.app.AppCompatDelegate
+
+
+
 
 class MyApp: Application() {
 
@@ -16,6 +20,7 @@ class MyApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         // https://github.com/JeremyLiao/LiveEventBus/blob/master/docs/config.md
         LiveEventBus.config()
             .lifecycleObserverAlwaysActive(true)
@@ -26,7 +31,7 @@ class MyApp: Application() {
 
 
         SerialPortManager.getInstance()
-            .init(this, "/dev/ttyS1", 460800, object :
+            .init(this,  object :
                 SerialConnectListener {
                 override fun onSuccess() {
                     Log.e("lzd","打开串口成功")

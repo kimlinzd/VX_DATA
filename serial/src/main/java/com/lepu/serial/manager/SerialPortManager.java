@@ -1,14 +1,13 @@
 package com.lepu.serial.manager;
 
 import android.content.Context;
-import android.serialport.SerialPort;
 import android.util.Log;
-
 import com.lepu.serial.constant.ConfigConst;
 import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.enums.ModelEnum;
 import com.lepu.serial.enums.NibpMsmEnum;
+import com.lepu.serial.jni.SerialPortJni;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.listener.SerialConnectListener;
@@ -35,11 +34,14 @@ import java.util.concurrent.TimeUnit;
  * 串口管理 打开串口 读取数据流 写入数据流
  */
 public class SerialPortManager {
+
     //定时获取串口数据任务
     ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
-    SerialPort mSerialPort;
-    InputStream mInputStream;
-    OutputStream mOutputStream;
+
+    byte[] recvBuffer = new byte[4096];
+    int javaRecvSize = 0;
+    byte[] buf=null;
+    private String text = null;
 
     //单例
     private static SerialPortManager instance = null;
@@ -77,23 +79,13 @@ public class SerialPortManager {
 
     /**
      * 串口初始化
-     *
-     * @param devicePath 串口名 /dev/ttyS1
-     * @param baudRate   波特率 480600
      */
-    public void init(Context context, String devicePath, int baudRate, SerialConnectListener serialConnentListener) {
+    public void init(Context context, SerialConnectListener serialConnentListener) {
         try {
             Log.d("SerialPortManager", "初始化串口");
-            //打开串口
-            SerialPort serialPort = SerialPort //
-                    .newBuilder(devicePath, baudRate) // 串口地址地址，波特率
-                    .parity(0) // 校验位；0:无校验位(NONE，默认)；1:奇校验位(ODD);2:偶校验位(EVEN)
-                    .dataBits(8) // 数据位,默认8；可选值为5~8
-                    .stopBits(1) // 停止位，默认1；1:1位停止位；2:2位停止位
-                    .build();
-            mSerialPort = serialPort;
-            mInputStream = mSerialPort.getInputStream();
-            mOutputStream = mSerialPort.getOutputStream();
+
+                    SerialPortJni.getInstance().jniUartOpen();
+
             serialConnentListener.onSuccess();
             //开始定时获取心电图数据
             startGetEcgData();
@@ -119,13 +111,22 @@ public class SerialPortManager {
             mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+
                     if (closeFlag) {
                         closeSerialTask();
                         return;
                     }
                     try {
                         //正式数据
-                        byte[] buffer = ByteUtils.readStream(mInputStream);
+                        javaRecvSize = SerialPortJni.getInstance().jniUartRead(recvBuffer);
+                 //       Log.d("lzd","javaRecvSize=="+javaRecvSize);
+                         if (javaRecvSize<=0){
+                            return;
+                        }
+
+                        buf=new byte[javaRecvSize];
+                        System.arraycopy(recvBuffer, 0, buf, 0, javaRecvSize);
+                        byte[] buffer =buf;
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
                             buffer = sendTestEcgDataFile();
@@ -153,7 +154,7 @@ public class SerialPortManager {
                     }
 
                 }
-            }, 10, 100, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
+            }, 10, 50, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
         }
     }
 
@@ -207,10 +208,7 @@ public class SerialPortManager {
     }
 
     private void  writeBytes (byte[] bytes) throws IOException {
-        if (mOutputStream!=null){
-            mOutputStream.write(bytes);
-            mOutputStream.flush();
-        }
+        SerialPortJni.getInstance().jniUartWrite(bytes.length, bytes);
     }
 
     /**
@@ -242,11 +240,7 @@ public class SerialPortManager {
             }
         }
 
-
-
-        mSerialPort.tryClose();
-
-
+        SerialPortJni.getInstance().jniUartClose();
     }
 
 
@@ -315,6 +309,7 @@ public class SerialPortManager {
      *
      * @param msgdata
      */
+    int index=0;
     public void distributeMsg(byte[] msgdata) {
         //解析包
         SerialMsg serialMsg = new SerialMsg(msgdata);
@@ -325,6 +320,11 @@ public class SerialPortManager {
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
         byte typeByte = serialMsg.getContent().type;
 
+   //     Log.e("lzd","index=="+index+"----="+(Math.abs(serialMsg.getIndex())- Math.abs(index)) );
+        if ( Math.abs((Math.abs(serialMsg.getIndex())- Math.abs(index)))!=1){
+            Log.e("lzd","丢包了");
+        }
+        index=serialMsg.getIndex();
 
         switch (classByte) {
             case SerialMsg.TYPE_CMD: {//命令包 0xF0
