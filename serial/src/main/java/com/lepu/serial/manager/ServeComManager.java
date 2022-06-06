@@ -140,26 +140,26 @@ public class ServeComManager {
             mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-
+                    Log.e("lzd","---");
                     if (closeFlag) {
                         closeSerialTask();
                         return;
                     }
                     try {
                         //正式数据
-              //          Log.d("pingyh", "calling read");
                         mInputBuffer.clear();
                         int ret = mSerialPort.read(mInputBuffer);
                         byte[] buffer = new byte[4096];
-             //           Log.d("pingyh", "read len = " + ret + "mInputBuffer = " + mInputBuffer );
-                        mInputBuffer.get(buffer, 0, ret);
-
+                        if (ret!=0){
+                            mInputBuffer.get(buffer, 0, ret);
+                        }
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
                             buffer = sendTestEcgDataFile();
                         } else if (mModelEnum == ModelEnum.MODEL_STOP) {
                             buffer = null;
                         }
+
                         //判断是否在正常模式下获取不到数据
                         if (mModelEnum==ModelEnum.MODEL_NORMAL&&buffer==null){
                             readTimeOut-=1;
@@ -351,7 +351,7 @@ public class ServeComManager {
         //Type:内容种类，用于识别不同的内容，一个模块里有多种内容。
         byte typeByte = serialMsg.getContent().type;
 
-   //     Log.e("lzd","index=="+index+"----="+(Math.abs(serialMsg.getIndex())- Math.abs(index)) );
+    //    Log.e("lzd","index=="+index+"----="+(Math.abs(serialMsg.getIndex())- Math.abs(index)) );
         if ( Math.abs((Math.abs(serialMsg.getIndex())- Math.abs(index)))!=1){
             Log.e("lzd","丢包了");
         }
@@ -473,9 +473,9 @@ public class ServeComManager {
             mEcgTestData = null;
             serialSendData(SerialCmd.cmdDataStart());
         }else if (modelEnum==ModelEnum.MODEL_TEST){
-            serialSendData(SerialCmd.cmdDataStop());
+       //    serialSendData(SerialCmd.cmdDataStop());
         }else if (modelEnum==ModelEnum.MODEL_STOP){
-            serialSendData(SerialCmd.cmdDataStop());
+       //     serialSendData(SerialCmd.cmdDataStop());
         }
 
         mModelEnum = modelEnum;
