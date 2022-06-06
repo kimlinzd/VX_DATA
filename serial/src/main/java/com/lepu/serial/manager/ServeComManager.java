@@ -1,6 +1,9 @@
 package com.lepu.serial.manager;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.hardware.SerialManager;
+import android.hardware.SerialPort;
 import android.util.Log;
 
 import com.lepu.serial.constant.ConfigConst;
@@ -8,7 +11,6 @@ import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.enums.ModelEnum;
 import com.lepu.serial.enums.NibpMsmEnum;
-import com.lepu.serial.jni.SerialPortJni;
 import com.lepu.serial.listener.CmdNibpReplyListener;
 import com.lepu.serial.listener.CmdReplyListener;
 import com.lepu.serial.listener.SerialConnectListener;
@@ -22,6 +24,7 @@ import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.CRCUitl;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -30,20 +33,25 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 串口管理 打开串口 读取数据流 写入数据流
+ *  有篇文献把上位机说成主机(master),下位机说成从机(serve)
+ *  serve communication  下位机通讯管理
  */
-public class SerialPortManager {
-
+public class ServeComManager {
+    private static String SERIAL_SERVICE = "serial";
     //定时获取串口数据任务
     ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
 
-    byte[] recvBuffer = new byte[4096];
+   /* byte[] recvBuffer = new byte[4096];
     int javaRecvSize = 0;
     byte[] buf=null;
-    private String text = null;
+    private String text = null;*/
+    private ByteBuffer mInputBuffer;
+    private ByteBuffer mOutputBuffer;
+    private SerialManager mSerialManager;
+    private SerialPort mSerialPort;
 
     //单例
-    private static SerialPortManager instance = null;
+    private static ServeComManager instance = null;
     //请求命令回调
     CmdReplyListener mCmdReplyListener;
     List<CmdReplyTimeOutTask> mCmdReplyTimeOutTaskList = new ArrayList<>();
@@ -69,9 +77,9 @@ public class SerialPortManager {
     public NibpInfo nibpInfo = new NibpInfo();
 
 
-    public static SerialPortManager getInstance() {
+    public static ServeComManager getInstance() {
         if (instance == null) {
-            instance = new SerialPortManager();
+            instance = new ServeComManager();
         }
         return instance;
     }
@@ -79,20 +87,36 @@ public class SerialPortManager {
     /**
      * 串口初始化
      */
+    @SuppressLint("WrongConstant")
     public void init(Context context, SerialConnectListener serialConnentListener) {
         try {
             Log.d("SerialPortManager", "初始化串口");
+            mContext=context;
+            mInputBuffer = ByteBuffer.allocateDirect(4096);
+            mOutputBuffer = ByteBuffer.allocateDirect(4096);
 
-            int open = SerialPortJni.getInstance().jniUartOpen();
-            if (open != -1) {
-                serialConnentListener.onSuccess();
-                //开始定时获取心电图数据
-                startGetEcgData();
-                mContext = context;
-                Log.d("SerialPortManager", "初始化串口成功");
-            } else {
-                serialConnentListener.onFail();
+            mSerialManager = (SerialManager)mContext.getSystemService(SERIAL_SERVICE);
+
+            String[] ports = mSerialManager.getSerialPorts();
+         //   Log.e("pingyh", "serialPortInit lenth="+ports.length+" ports="+ports[0]);
+            if (ports != null && ports.length > 0) {
+                try {
+                    mSerialPort = mSerialManager.openSerialPort("/dev/ttyS1"/*ports[0]*/, 460800);
+             //       Log.e("pingyh", "pingyh mSerialPort="+mSerialPort);
+                    if (mSerialPort != null) {
+                        serialConnentListener.onSuccess();
+                        //开始定时获取心电图数据
+                        startGetEcgData();
+                        Log.d("SerialPortManager", "初始化串口成功");
+                    }else {
+                        serialConnentListener.onFail();
+                    }
+                } catch (IOException e) {
+                    Log.e("pingyh", "onEditorAction IOException="+e);
+                    serialConnentListener.onFail();
+                }
             }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,6 +126,8 @@ public class SerialPortManager {
 
 
     }
+
+
 
     /**
      * 开始读取串口数据
@@ -121,15 +147,13 @@ public class SerialPortManager {
                     }
                     try {
                         //正式数据
-                        javaRecvSize = SerialPortJni.getInstance().jniUartRead(recvBuffer);
-                        Log.d("lzd","javaRecvSize=="+javaRecvSize);
-                         if (javaRecvSize<=0){
-                            return;
-                        }
+              //          Log.d("pingyh", "calling read");
+                        mInputBuffer.clear();
+                        int ret = mSerialPort.read(mInputBuffer);
+                        byte[] buffer = new byte[4096];
+             //           Log.d("pingyh", "read len = " + ret + "mInputBuffer = " + mInputBuffer );
+                        mInputBuffer.get(buffer, 0, ret);
 
-                        buf=new byte[javaRecvSize];
-                        System.arraycopy(recvBuffer, 0, buf, 0, javaRecvSize);
-                        byte[] buffer =buf;
                         if (mModelEnum == ModelEnum.MODEL_TEST) {
                             //测试模式
                             buffer = sendTestEcgDataFile();
@@ -157,7 +181,7 @@ public class SerialPortManager {
                     }
 
                 }
-            }, 10, 100, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
+            }, 10, 50, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
         }
     }
 
@@ -211,7 +235,11 @@ public class SerialPortManager {
     }
 
     private void  writeBytes (byte[] bytes) throws IOException {
-        SerialPortJni.getInstance().jniUartWrite(bytes.length, bytes);
+
+        mOutputBuffer.clear();
+        mOutputBuffer.put(bytes);
+        mSerialPort.write(mOutputBuffer, bytes.length);
+      //  SerialPortJni.getInstance().jniUartWrite(bytes.length, bytes);
     }
 
     /**
@@ -243,7 +271,7 @@ public class SerialPortManager {
             }
         }
 
-        SerialPortJni.getInstance().jniUartClose();
+
     }
 
 

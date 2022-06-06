@@ -1,22 +1,5 @@
 package com.lepu.vx_data;
 
-import com.jeremyliao.liveeventbus.LiveEventBus;
-import com.lepu.serial.constant.EventMsgConst;
-import com.lepu.serial.constant.SerialCmd;
-import com.lepu.serial.constant.SerialContent;
-import com.lepu.serial.manager.SerialPortManager;
-import com.lepu.serial.obj.EcgData;
-import com.lepu.serial.obj.NibpCP200HZData;
-import com.lepu.serial.obj.NibpCP5HZData;
-import com.lepu.serial.obj.NibpModuleInfo;
-import com.lepu.serial.obj.NibpPramAndStatus;
-import com.lepu.serial.obj.NibpWorkingStatus;
-import com.lepu.serial.obj.RespData;
-import com.lepu.serial.obj.SerialMsg;
-import com.lepu.serial.obj.SpO2Data;
-import com.lepu.serial.obj.SpO2WaveData;
-import com.lepu.serial.obj.TempData;
-
 import java.io.File;
 
 /**

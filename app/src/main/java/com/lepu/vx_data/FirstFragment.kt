@@ -1,9 +1,7 @@
 package com.lepu.vx_data
 
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,12 +11,9 @@ import com.lepu.serial.constant.SerialCmd
 import com.lepu.serial.enums.*
 import com.lepu.serial.listener.CmdNibpReplyListener
 import com.lepu.serial.listener.CmdReplyListener
-import com.lepu.serial.manager.SerialPortManager
+import com.lepu.serial.manager.ServeComManager
 import com.lepu.serial.obj.CmdReply
 import com.lepu.vx_data.databinding.FragmentFirstBinding
-import android.widget.Toast
-
-
 
 
 /**
@@ -44,25 +39,25 @@ class FirstFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-    //   SerialPortManager.getInstance().setTestMode(true);
+    //   ServeComManager.getInstance().setTestMode(true);
         binding.buttonFirst.setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
         //开始传输数据命令
         binding.buttonSerialStart.setOnClickListener {
 
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(SerialCmd.cmdDataStart(), cmdReplyListener)
         }
 
         //停止传输命令
         binding.buttonSerialStop.setOnClickListener {
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdDataStop(),
+            ServeComManager.getInstance().serialSendData(SerialCmd.cmdDataStop(),
                 cmdReplyListener)
         }
         //查询参数板信息
         binding.buttonGetParam.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdGetVersionInfo(),
                     cmdReplyListener)
@@ -71,7 +66,7 @@ class FirstFragment : Fragment() {
         }
         //复位参数板
         binding.buttonReset.setOnClickListener{
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(SerialCmd.cmdReset(),cmdReplyListener)
         }
         //设置病人类型
@@ -81,32 +76,32 @@ class FirstFragment : Fragment() {
         }
         //设置定标符号
         binding.buttonSetCal.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(SerialCmd.cmdSetCal(EcgCalEnum.CALCLOSE),
                     cmdReplyListener)
 
         }
         //设置窒息报警时间
         binding.buttonSetApneaTime.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(SerialCmd.cmdSetApneaDelay(100),
                     cmdReplyListener)
 
         }
         //测试数据
         binding.buttonTestTrue.setOnClickListener {
-            SerialPortManager.getInstance().setModel(ModelEnum.MODEL_TEST)
+            ServeComManager.getInstance().setModel(ModelEnum.MODEL_TEST)
         }
         //正式数据
         binding.buttonTestFalse.setOnClickListener {
-            SerialPortManager.getInstance().setModel(ModelEnum.MODEL_NORMAL)
+            ServeComManager.getInstance().setModel(ModelEnum.MODEL_NORMAL)
         }
 
 
         //设置导联模式
         binding.buttonSetLead.setOnClickListener {
 
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdSetLeadMode(
                         EcgLeadModeEnum.LINE3,
@@ -115,7 +110,7 @@ class FirstFragment : Fragment() {
         }
         //设置呼吸导联
         binding.buttonSetRespLead.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdSetRespLead(
                         RespLeadIndexEnum.LL
@@ -123,7 +118,7 @@ class FirstFragment : Fragment() {
         }
         //参数板总参数
         binding.buttonSetTotalPram.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdSetParam(
                         PatientTypeEnum.ADULT,
@@ -139,7 +134,7 @@ class FirstFragment : Fragment() {
 
         // 开始手动血压测量
         binding.buttonStartBp.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdStartManualBp(), cmdNibpReplyListener
                 )
@@ -148,7 +143,7 @@ class FirstFragment : Fragment() {
 
         // 开始连续测量
         binding.buttonContinuousBp.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdStartContinuousBp(), cmdNibpReplyListener
                 )
@@ -157,7 +152,7 @@ class FirstFragment : Fragment() {
 
         // 取消测量
         binding.buttonCancelBp.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdCancelBp(), cmdNibpReplyListener
                 )
@@ -167,7 +162,7 @@ class FirstFragment : Fragment() {
 
         // 血压 设置病人
         binding.buttonBpSetPatient.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpSetPatient(PatientTypeEnum.ADULT), cmdNibpReplyListener
                 )
@@ -176,7 +171,7 @@ class FirstFragment : Fragment() {
 
         //  设置初始充气压
         binding.buttonBpSetInflated.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpSetInitialPressure(230), cmdNibpReplyListener
                 )
@@ -185,7 +180,7 @@ class FirstFragment : Fragment() {
 
         // 血压设置传输模式
         binding.buttonSetTransferMode.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpSetTransferMode(NipbpWmEnum.HZ_200), cmdNibpReplyListener
                 )
@@ -193,7 +188,7 @@ class FirstFragment : Fragment() {
         }
         // 读取血压参数
         binding.buttonReadBpParam.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpReadBpParam(), cmdNibpReplyListener
                 )
@@ -202,7 +197,7 @@ class FirstFragment : Fragment() {
 
         // 主动读取血压模块工作状态
         binding.buttonReadBpWorkStatus.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpReadBpWorkStatus(), cmdNibpReplyListener
                 )
@@ -211,7 +206,7 @@ class FirstFragment : Fragment() {
 
         // 读取血压模块信息
         binding.buttonReadBpModuleInfo.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpReadBpModuleInfo(), cmdNibpReplyListener
                 )
@@ -220,7 +215,7 @@ class FirstFragment : Fragment() {
 
         //  控制泵
         binding.buttonReadBpControlPump.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpControlPump(50), cmdNibpReplyListener
                 )
@@ -229,7 +224,7 @@ class FirstFragment : Fragment() {
 
         //  控制快泵
         binding.buttonReadBpControlQuickValve.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpControlQuickValve(NibpValveControlEnum.VALVE_OPEN),
                     cmdNibpReplyListener
@@ -239,7 +234,7 @@ class FirstFragment : Fragment() {
 
         //  控制慢泵
         binding.buttonReadBpControlSlowValve.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpControlQSlowValve(NibpValveControlEnum.VALVE_OPEN),
                     cmdNibpReplyListener
@@ -249,7 +244,7 @@ class FirstFragment : Fragment() {
 
         //  睡眠模式
         binding.buttonNibpSetSleepMode.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpSetSleepMode(), cmdNibpReplyListener
                 )
@@ -258,7 +253,7 @@ class FirstFragment : Fragment() {
 
         //  复位模块
         binding.buttonNibpSetReset.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpSetResetModule(), cmdNibpReplyListener
                 )
@@ -268,17 +263,17 @@ class FirstFragment : Fragment() {
         //辅助静脉穿刺
         binding.buttonNibpAuxiliaryVenipuncture.setOnClickListener {
             Log.e("lzd","辅助静脉穿刺")
-          /*  SerialPortManager.getInstance().serialSendData( SerialCmd.cmdNibpAuxiliaryVenipuncture(
+          /*  ServeComManager.getInstance().serialSendData( SerialCmd.cmdNibpAuxiliaryVenipuncture(
                 160)
                 )*/
-            SerialPortManager.getInstance().serialSendData(SerialCmd.cmdNibpAuxiliaryVenipuncture(
+            ServeComManager.getInstance().serialSendData(SerialCmd.cmdNibpAuxiliaryVenipuncture(
                 80
             ))
         }
 
         // 压力校验模式1（内部充气源）
         binding.buttonCalibrationMode1.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpCalibrationMode1(230), cmdNibpReplyListener
                 )
@@ -287,7 +282,7 @@ class FirstFragment : Fragment() {
 
         // 压力校验模式2（外部充气源）
         binding.buttonCalibrationMode2.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpCalibrationMode2(), cmdNibpReplyListener
                 )
@@ -297,7 +292,7 @@ class FirstFragment : Fragment() {
 
         //漏气检测
         binding.buttonLeakDetection.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpLeakDetection(), cmdNibpReplyListener
                 )
@@ -306,7 +301,7 @@ class FirstFragment : Fragment() {
 
         // 校准指令
         binding.buttonCalibration.setOnClickListener {
-            SerialPortManager.getInstance()
+            ServeComManager.getInstance()
                 .serialSendData(
                     SerialCmd.cmdNibpCalibration(NibpCalibrationMode.CALIBRATION,250), cmdNibpReplyListener
                 )
@@ -315,7 +310,7 @@ class FirstFragment : Fragment() {
 
 
        binding.buttonNibpStatus.setOnClickListener {
-          Log.e("nibp", SerialPortManager.getInstance().nibpInfo.nibpMsmEnum.toString())
+          Log.e("nibp", ServeComManager.getInstance().nibpInfo.nibpMsmEnum.toString())
 
        }
 

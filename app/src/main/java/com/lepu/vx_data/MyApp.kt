@@ -4,10 +4,8 @@ import android.app.Application
 import android.util.Log
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.listener.SerialConnectListener
-import com.lepu.serial.manager.SerialPortManager
 import androidx.appcompat.app.AppCompatDelegate
-
-
+import com.lepu.serial.manager.ServeComManager
 
 
 class MyApp: Application() {
@@ -30,7 +28,7 @@ class MyApp: Application() {
 
 
 
-        SerialPortManager.getInstance()
+        ServeComManager.getInstance()
             .init(this,  object :
                 SerialConnectListener {
                 override fun onSuccess() {

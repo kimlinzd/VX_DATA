@@ -13,6 +13,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.material.snackbar.Snackbar
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.lepu.serial.constant.EventMsgConst
+import com.lepu.serial.jni.SerialPortJni
 import com.lepu.serial.obj.*
 import com.lepu.serial.service.SerialService
 import com.lepu.vx_data.databinding.ActivityMainBinding
@@ -80,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
             if(ecgIndex>=125){
                 //     executorSave.execute(SaveTask(data.originalData))
-                Log.e("接收到心电图信息", data.hr.toString())
+                Log.e("lzd接收到心电图信息", data.hr.toString())
                 ecgIndex=0;
             }
         //    Log.e("接收到心电图信息", data.hr.toString())
@@ -174,5 +175,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("lzd","关闭串口")
+        SerialPortJni.getInstance().jniUartClose()
     }
 }
