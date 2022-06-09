@@ -41,10 +41,6 @@ public class ServeComManager {
     //定时获取串口数据任务
     ScheduledThreadPoolExecutor mScheduledThreadPoolExecutor;
 
-   /* byte[] recvBuffer = new byte[4096];
-    int javaRecvSize = 0;
-    byte[] buf=null;
-    private String text = null;*/
     private ByteBuffer mInputBuffer;
     private ByteBuffer mOutputBuffer;
     private SerialManager mSerialManager;
@@ -62,9 +58,8 @@ public class ServeComManager {
     ThreadPoolExecutor executorTEMP = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     ThreadPoolExecutor executorSpO2 = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     ThreadPoolExecutor executorNibp = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-
-    //心电测试数据的游标
-    int mTestEcgIndex;
+    //串口写入线程
+    ThreadPoolExecutor executorWrite= (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     //上下文
     Context mContext;
     //测试数据
@@ -140,7 +135,6 @@ public class ServeComManager {
             mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e("lzd","---");
                     if (closeFlag) {
                         closeSerialTask();
                         return;
@@ -234,12 +228,20 @@ public class ServeComManager {
         }
     }
 
-    private void  writeBytes (byte[] bytes) throws IOException {
+    private void  writeBytes (byte[] bytes)  {
 
-        mOutputBuffer.clear();
-        mOutputBuffer.put(bytes);
-        mSerialPort.write(mOutputBuffer, bytes.length);
-      //  SerialPortJni.getInstance().jniUartWrite(bytes.length, bytes);
+        executorWrite.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                mOutputBuffer.clear();
+                mOutputBuffer.put(bytes);
+                mSerialPort.write(mOutputBuffer, bytes.length);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
