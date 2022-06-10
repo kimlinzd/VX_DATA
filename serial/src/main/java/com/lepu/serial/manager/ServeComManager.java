@@ -498,15 +498,15 @@ public class ServeComManager {
             }
             //要发送的数据
             int ecgdataLength = 0;
-            if (1100 > (mEcgTestData.length - fileindex)) {
+            if (550 > (mEcgTestData.length - fileindex)) {
                 ecgdataLength = mEcgTestData.length - fileindex;
             } else {
-                ecgdataLength = 1100;
+                ecgdataLength = 550;
             }
             byte[] ecgdata = new byte[ecgdataLength];
             System.arraycopy(mEcgTestData, fileindex, ecgdata, 0, ecgdataLength);
-            fileindex = fileindex + 1100;
-            if (ecgdata.length < 1100) {
+            fileindex = fileindex + 550;
+            if (ecgdata.length < 550) {
                 fileindex = 0;
             }
             return ecgdata;
