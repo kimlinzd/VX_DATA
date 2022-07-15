@@ -143,7 +143,7 @@ public class ServeComManager {
                         //正式数据
                         mInputBuffer.clear();
                         int ret = mSerialPort.read(mInputBuffer);
-                        byte[] buffer = new byte[4096];
+                        byte[] buffer = new byte[ret];
                         if (ret!=0){
                             mInputBuffer.get(buffer, 0, ret);
                         }
