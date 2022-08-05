@@ -17,15 +17,23 @@ public enum RespWaveGainEnum {
     Gain_2((byte)0x04,  2f),
     Gain_4((byte)0x05,  4f);
 
-    private final byte value;
+    private final byte cmdValue;
     private final float waveGain;
-    RespWaveGainEnum(byte value, float waveGain) {
-        this.value=value;
+    RespWaveGainEnum(byte cmdValue, float waveGain) {
+        this.cmdValue=cmdValue;
         this.waveGain = waveGain;
     }
 
     public byte getValue() {
-        return value;
+        return cmdValue;
+    }
+    public static RespWaveGainEnum getRespWaveGainEnum(byte cmdValue){
+        for (RespWaveGainEnum value : RespWaveGainEnum.values()) {
+            if (value.cmdValue==cmdValue){
+                return value;
+            }
+        }
+        return RespWaveGainEnum.Gain_2;
     }
 
     public static RespWaveGainEnum getRespWaveGainEnum(float waveGain){
