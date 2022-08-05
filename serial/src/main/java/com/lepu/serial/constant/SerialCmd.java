@@ -67,7 +67,7 @@ public class SerialCmd {
     public static byte[] cmdSetParam(@NotNull PatientTypeEnum patientTypeEnum, @NotNull EcgLeadModeEnum ecgLeadModeEnum
             , @NotNull EcgChn0IndexEnum ecgChn0IndexEnum, @NotNull EcgCalEnum ecgCalEnum, @NotNull RespLeadIndexEnum respLeadIndexEnum
             , int apneaDelay,@NotNull RespWaveGainEnum respWaveGainEnum) {
-        byte[] data = new byte[6];
+        byte[] data = new byte[7];
         data[0] = (byte)patientTypeEnum.getValue();
         data[1] = ecgLeadModeEnum.getValue();
         data[2] = ecgChn0IndexEnum.getValue();
