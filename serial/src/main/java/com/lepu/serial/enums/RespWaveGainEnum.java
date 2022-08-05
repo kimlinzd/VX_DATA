@@ -10,19 +10,31 @@ package com.lepu.serial.enums;
  * Gain=4;
  */
 public enum RespWaveGainEnum {
-    Gain_0d125((byte)0x00),
-    Gain_0d25((byte)0x01),
-    Gain_0d5((byte)0x002),
-    Gain_1((byte)0x03),
-    Gain_2d5((byte)0x04),
-    Gain_4((byte)0x05);
+    Gain_0d125((byte)0x00,0.125f),
+    Gain_0d25((byte)0x01,  0.25f),
+    Gain_0d5((byte)0x002,  0.5f),
+    Gain_1((byte)0x03,  1f),
+    Gain_2((byte)0x04,  2f),
+    Gain_4((byte)0x05,  4f);
 
     private final byte value;
-    RespWaveGainEnum(byte value) {
+    private final float waveGain;
+    RespWaveGainEnum(byte value, float waveGain) {
         this.value=value;
+        this.waveGain = waveGain;
     }
 
     public byte getValue() {
         return value;
     }
+
+    public static RespWaveGainEnum getRespWaveGainEnum(float waveGain){
+        for (RespWaveGainEnum value : RespWaveGainEnum.values()) {
+            if (value.waveGain==waveGain){
+                return value;
+            }
+        }
+        return RespWaveGainEnum.Gain_2;
+    }
+
 }
