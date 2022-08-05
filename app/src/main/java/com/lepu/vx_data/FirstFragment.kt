@@ -126,7 +126,7 @@ class FirstFragment : Fragment() {
                         EcgChn0IndexEnum.LEAD_I,
                         EcgCalEnum.CALOPEN,
                         RespLeadIndexEnum.LA,
-                        10
+                        10, RespWaveGainEnum.Gain_1
                     ), cmdReplyListener
                 )
 

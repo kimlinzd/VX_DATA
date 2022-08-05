@@ -8,6 +8,7 @@ import com.lepu.serial.enums.NibpValveControlEnum;
 import com.lepu.serial.enums.NipbpWmEnum;
 import com.lepu.serial.enums.PatientTypeEnum;
 import com.lepu.serial.enums.RespLeadIndexEnum;
+import com.lepu.serial.enums.RespWaveGainEnum;
 import com.lepu.serial.obj.SerialMsg;
 import com.lepu.serial.uitl.ByteUtils;
 
@@ -65,7 +66,7 @@ public class SerialCmd {
      */
     public static byte[] cmdSetParam(@NotNull PatientTypeEnum patientTypeEnum, @NotNull EcgLeadModeEnum ecgLeadModeEnum
             , @NotNull EcgChn0IndexEnum ecgChn0IndexEnum, @NotNull EcgCalEnum ecgCalEnum, @NotNull RespLeadIndexEnum respLeadIndexEnum
-            , int apneaDelay) {
+            , int apneaDelay,@NotNull RespWaveGainEnum respWaveGainEnum) {
         byte[] data = new byte[6];
         data[0] = (byte)patientTypeEnum.getValue();
         data[1] = ecgLeadModeEnum.getValue();
@@ -73,6 +74,7 @@ public class SerialCmd {
         data[3] = ecgCalEnum.getValue();
         data[4] = respLeadIndexEnum.getValue();
         data[5] = (byte) apneaDelay;
+        data[6] = respWaveGainEnum.getValue();
         SerialContent content = new SerialContent(SerialContent.TOKEN_PARAM, SerialContent.TYPE_SET_PARAM, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
@@ -94,6 +96,9 @@ public class SerialCmd {
         index++;
         return msg.toBytes();
     }
+
+
+
 
     /**
      * 开始传输数据命令
@@ -188,6 +193,20 @@ public class SerialCmd {
         byte[] data = new byte[1];
         data[0] = (byte) apneaDelay;
         SerialContent content = new SerialContent(SerialContent.TOKEN_RESP, SerialContent.TYPE_SUFFOCATION_ALARM_TIME, data);
+        SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
+        index++;
+        return msg.toBytes();
+    }
+
+    /**
+     * 设置RESP 波形增益
+     * @param respWaveGainEnum
+     * @return
+     */
+    public static byte[] cmdSetRespWaveGain(@NotNull RespWaveGainEnum respWaveGainEnum) {
+        byte[] data = new byte[1];
+        data[0] = (byte)respWaveGainEnum.getValue();
+        SerialContent content = new SerialContent(SerialContent.TOKEN_RESP, SerialContent.TYPE_RESP_WAVE_GAIN, data);
         SerialMsg msg = new SerialMsg(index, SerialMsg.TYPE_CMD, content);
         index++;
         return msg.toBytes();

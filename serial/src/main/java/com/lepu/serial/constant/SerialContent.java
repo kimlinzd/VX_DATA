@@ -39,6 +39,7 @@ public class SerialContent {
     public static final byte TYPE_RESP_DATA = 0x00; //上传呼吸RESP
     public static final byte TYPE_RESP_LEAD = 0x01; //设置呼吸导联
     public static final byte TYPE_SUFFOCATION_ALARM_TIME = 0x02; //设置窒息报警时间
+    public static final byte TYPE_RESP_WAVE_GAIN = 0x03; //设置窒息报警时间
 
     /********************************体温TEMP******************************************/
     public static final byte TOKEN_TEMP = 0x03;
