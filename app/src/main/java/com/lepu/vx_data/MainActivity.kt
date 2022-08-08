@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
             if(ecgIndex>=125){
                 //     executorSave.execute(SaveTask(data.originalData))
-                Log.e("lzd接收到心电图信息", data.hr.toString())
+       //         Log.e("lzd接收到心电图信息", data.hr.toString())
                 ecgIndex=0;
             }
         //    Log.e("接收到心电图信息", data.hr.toString())

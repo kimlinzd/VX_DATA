@@ -39,14 +39,26 @@ public class RespData implements Serializable,Cloneable {
         num = buf[0] & 0x0f;
         flag = new int[]{buf[1] >> 7 & 0x1, buf[1] >> 6 & 0x1, buf[1] >> 5 & 0x1, buf[1] >> 4 & 0x1, buf[1] >> 3 & 0x1, buf[1] >> 2 & 0x1, buf[1] >> 1 & 0x1, buf[1] >> 0 & 0x1};
         apneaDelay = buf[2] & 0xff;
-        respWaveGainEnum=RespWaveGainEnum.getRespWaveGainEnum(buf[3] );
-         rr=ByteUtils.bytes2Short(buf[4],buf[5]);
-        if (num > 0) {
-            respWave = new short[num];
-            for (int i=0; i<num; i++) {
-                respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+6], buf[i*2+7]);
+        if (buf.length==7){
+            respWaveGainEnum= RespWaveGainEnum.Gain_1;
+            rr=ByteUtils.bytes2Short(buf[3],buf[4]);
+            if (num > 0) {
+                respWave = new short[num];
+                for (int i=0; i<num; i++) {
+                    respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+5], buf[i*2+6]);
+                }
+            }
+        }else if (buf.length==8){
+            respWaveGainEnum=RespWaveGainEnum.getRespWaveGainEnum(buf[3] );
+            rr=ByteUtils.bytes2Short(buf[4],buf[5]);
+            if (num > 0) {
+                respWave = new short[num];
+                for (int i=0; i<num; i++) {
+                    respWave[i] = (short) ByteUtils.bytes2Short(buf[i*2+6], buf[i*2+7]);
+                }
             }
         }
+
         originalData=buf;
 
     }

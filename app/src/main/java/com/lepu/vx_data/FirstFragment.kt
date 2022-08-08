@@ -14,6 +14,9 @@ import com.lepu.serial.listener.CmdReplyListener
 import com.lepu.serial.manager.ServeComManager
 import com.lepu.serial.obj.CmdReply
 import com.lepu.vx_data.databinding.FragmentFirstBinding
+import kotlinx.coroutines.awaitAll
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.thread
 
 
 /**
@@ -309,13 +312,49 @@ class FirstFragment : Fragment() {
         }
 
 
-       binding.buttonNibpStatus.setOnClickListener {
-          Log.e("nibp", ServeComManager.getInstance().nibpInfo.nibpMsmEnum.toString())
+        binding.buttonNibpStatus.setOnClickListener {
+            Log.e("nibp", ServeComManager.getInstance().nibpInfo.nibpMsmEnum.toString())
 
-       }
+        }
+
+        binding.tvTest.setOnClickListener {
+            thread {
+                queueVersion()
+            }
+        }
 
 
+    }
+    var times:Int=0
 
+    fun queueVersion(){
+        ServeComManager.getInstance()
+            .serialSendData(SerialCmd.cmdGetVersionInfo(), object : CmdReplyListener {
+                override fun onSuccess(cmdReply: CmdReply?) {
+                    Log.e("lzd","onSuccess"+times.toString())
+                   if(times<10000){
+                       times++
+                       queueVersion()
+                   }
+                }
+
+                override fun onFail(cmdReply: CmdReply?) {
+                    Log.e("lzd","onFail"+times.toString())
+                    if(times<10000){
+                        times++
+                        queueVersion()
+                    }
+                }
+
+                override fun onTimeOut(cmdReply: CmdReply?) {
+                    Log.e("lzd","onTimeOut"+times.toString())
+                    if(times<10000){
+                        times++
+                        queueVersion()
+                    }
+                }
+
+            })
     }
 
     var cmdReplyListener: CmdReplyListener = object : CmdReplyListener {
