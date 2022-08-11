@@ -27,10 +27,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  *  有篇文献把上位机说成主机(master),下位机说成从机(serve)
@@ -53,6 +57,7 @@ public class ServeComManager {
     List<CmdReplyTimeOutTask> mCmdReplyTimeOutTaskList = new ArrayList<>();
     //血压请求命令回调
     CmdNibpReplyListener mCmdNibpReplyListener;
+    ThreadPoolExecutor executorParam = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     ThreadPoolExecutor executorECG = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     ThreadPoolExecutor executorRESP = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     ThreadPoolExecutor executorTEMP = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
@@ -127,55 +132,74 @@ public class ServeComManager {
     /**
      * 开始读取串口数据
      */
-    int readTimeOut=5;//超时未获取到参数板次数 在正确模式下（MODEL_NORMAL） 超过次数需要发送启动数据传输命令
     public void startGetEcgData() {
 
         if (mScheduledThreadPoolExecutor == null) {
-            mScheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-            mScheduledThreadPoolExecutor.scheduleAtFixedRate(new Runnable() {
+            new Thread() {
                 @Override
                 public void run() {
-                    if (closeFlag) {
-                        closeSerialTask();
-                        return;
+                    super.run();
+                    FutureTask futureTask;
+                    while (true) {
+                        futureTask = new FutureTask(new ServeComCallable());
+                        executorParam.execute(futureTask);
+                        String result = "";
+                        try {
+                            //取得结果，同时设置超时执行时间为0.1秒。同样可以用future.get()，不设置执行超时时间取得结果
+                            result = (String) futureTask.get(3000, TimeUnit.MILLISECONDS);
+                        } catch (InterruptedException e) {
+                            futureTask.cancel(true);
+                        } catch (ExecutionException e) {
+                            futureTask.cancel(true);
+                        } catch (TimeoutException e) {
+                            futureTask.cancel(true);
+                            //超时后，进行相应处理
+                            Log.e("lzd", "超时了");
+                            serialSendData(SerialCmd.cmdDataStart());
+                        } finally {
+
+                        }
+                        try {
+                            sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    try {
-                        //正式数据
-                        mInputBuffer.clear();
-                        int ret = mSerialPort.read(mInputBuffer);
-                        byte[] buffer = new byte[ret];
-                        if (ret!=0){
-                            mInputBuffer.get(buffer, 0, ret);
-                        }
-                        if (mModelEnum == ModelEnum.MODEL_TEST) {
-                            //测试模式
-                            buffer = sendTestEcgDataFile();
-                        } else if (mModelEnum == ModelEnum.MODEL_STOP) {
-                            buffer = null;
-                        }
-
-                        //判断是否在正常模式下获取不到数据
-                        if (mModelEnum==ModelEnum.MODEL_NORMAL&&buffer==null){
-                            readTimeOut-=1;
-                            if (readTimeOut<=0){
-                                serialSendData(SerialCmd.cmdDataStart());
-                            }
-                        }else {
-                            readTimeOut=5;
-                        }
-
-                        if (buffer!=null){
-                            //处理数据
-                            dataProcess(buffer);
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        closeSerialTask();
-                    }
-
                 }
-            }, 10, 50, TimeUnit.MILLISECONDS);//每100毫秒获取一次数据
+            }.start();
+        }
+    }
+
+
+    public class ServeComCallable implements Callable {
+        @Override
+        public Object call() throws Exception {
+            try {
+                //正式数据
+                mInputBuffer.clear();
+                int ret = mSerialPort.read(mInputBuffer);
+                byte[] buffer = new byte[ret];
+                if (ret != 0) {
+                    mInputBuffer.get(buffer, 0, ret);
+                }
+                if (mModelEnum == ModelEnum.MODEL_TEST) {
+                    //测试模式
+                    buffer = sendTestEcgDataFile();
+                } else if (mModelEnum == ModelEnum.MODEL_STOP) {
+                    buffer = null;
+                }
+                //     serialSendData(ServeComCmd.cmdDataStart());
+                if (buffer != null) {
+                    //处理数据
+                    dataProcess(buffer);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                closeSerialTask();
+            }
+
+            return "1";
         }
     }
 
