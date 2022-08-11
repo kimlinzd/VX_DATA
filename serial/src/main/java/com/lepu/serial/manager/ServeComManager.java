@@ -6,7 +6,9 @@ import android.hardware.SerialManager;
 import android.hardware.SerialPort;
 import android.util.Log;
 
+import com.jeremyliao.liveeventbus.LiveEventBus;
 import com.lepu.serial.constant.ConfigConst;
+import com.lepu.serial.constant.EventMsgConst;
 import com.lepu.serial.constant.SerialCmd;
 import com.lepu.serial.constant.SerialContent;
 import com.lepu.serial.enums.ModelEnum;
@@ -155,6 +157,7 @@ public class ServeComManager {
                             futureTask.cancel(true);
                             //超时后，进行相应处理
                             Log.e("lzd", "超时了");
+                            LiveEventBus.get(EventMsgConst.ServeComReset).post("");
                             serialSendData(SerialCmd.cmdDataStart());
                         } finally {
 

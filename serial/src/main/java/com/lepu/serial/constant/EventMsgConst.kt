@@ -60,4 +60,9 @@ object EventMsgConst {
      */
     const val NibpModuleInfo="com.lepu.serial.obj.NibpModuleInfo";
 
+    /**
+     * 参数板复位  需要重新初始化
+     */
+    const val  ServeComReset="ServeComReset";
+
 }
