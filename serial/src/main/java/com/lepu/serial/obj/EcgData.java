@@ -1,11 +1,11 @@
 package com.lepu.serial.obj;
 
-import androidx.annotation.NonNull;
-
 import com.lepu.serial.uitl.ByteUtils;
 import com.lepu.serial.uitl.StringtoHexUitl;
 
 import java.io.Serializable;
+
+import androidx.annotation.NonNull;
 
 /**
  * 心电数据
@@ -122,11 +122,12 @@ public class EcgData implements Serializable {
 
     /**
      * 这个方法只解析波形和心率
+     *
      * @param buf
      * @return
      */
-    public EcgData getWave(byte[] buf){
-        EcgData ecgData=new EcgData();
+    public EcgData getWaveHr(byte[] buf) {
+        EcgData ecgData = new EcgData();
         ecgData.ecgWave = new short[chn][len];
         ecgData.len = buf[0] & 0x0f;
         ecgData.chn = buf[1] & 0x0f;
@@ -140,6 +141,27 @@ public class EcgData implements Serializable {
             }
         }
         return ecgData;
+    }
+
+    /**
+     * 这个方法只解析波形
+     *
+     * @param buf
+     * @return
+     */
+    public short[][] getWave(byte[] buf) {
+        int len = buf[0] & 0x0f;
+        int chn = buf[1] & 0x0f;
+        short[][] wave = new short[chn][len];
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < chn; j++) {
+                int index1 = j * 2 + i * 2 * chn + 7;
+                int index2 = j * 2 + i * 2 * chn + 8;
+                short ecgWaveData = (short) ByteUtils.bytes2Short(buf[index1], buf[index2]);
+                wave[j][i] = ecgWaveData;
+            }
+        }
+        return wave;
     }
 
 
